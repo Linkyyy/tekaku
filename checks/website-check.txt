@@ -1,0 +1,4 @@
+PASS: no horizontal overflow at 1440 x 1000
+PASS: no horizontal overflow at 768 x 1024
+PASS: no horizontal overflow at 390 x 844
+PASS: Windows 0.8.0 links and ZIP checksum, Android 0.1.0 link unchanged, four skins switch, all images decoded, no page errors.

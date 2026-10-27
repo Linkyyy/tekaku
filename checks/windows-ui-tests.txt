@@ -1,0 +1,83 @@
+
+> tekaku@0.8.0 test
+> npm run build && node scripts/embed-ui.mjs && playwright test
+
+
+> tekaku@0.8.0 build
+> vite build
+
+vite v8.3.5 building client environment for production...
+transforming...
+✓ 298 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.36 kB │ gzip:   0.28 kB
+dist/assets/index-XXT9KWSp.css   25.79 kB │ gzip:   6.48 kB
+dist/assets/index-ByTDIH-w.js   701.01 kB │ gzip: 217.03 kB
+
+✓ built in 814ms
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.1
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1
+npm notice To update run: npm install -g npm@12.2.1
+npm notice
+
+Running 43 tests using 1 worker
+
+(node:67494) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/context-layout.spec.js:23:1 › outline is a right column with its own scrolling and a persistent visibility switch (3.4s)
+  ✓   2 tests/context-layout.spec.js:45:1 › right-click keeps a rich text selection and clipboard paste inserts literal text safely (2.1s)
+  ✓   3 tests/context-layout.spec.js:63:1 › insertion submenu handles rich tables and opens image dialogs without stealing their focus (2.4s)
+  ✓   4 tests/context-layout.spec.js:77:1 › source context insertion preserves selection, supports undo and inserts links as Markdown (3.4s)
+  ✓   5 tests/context-layout.spec.js:97:1 › context menus fit the viewport and keyboard navigation closes them before fullscreen exits (2.0s)
+  ✓   6 tests/context-layout.spec.js:119:1 › association controls report native registration, removal and actionable errors (2.6s)
+  ✓   7 tests/context-layout.spec.js:139:1 › shortcut guide groups keycaps, follows the skin and scrolls within the window (3.7s)
+  ✓   8 tests/context-layout.spec.js:150:40 › window controls stay inside the screen at DPI scale 1 (2.5s)
+  ✓   9 tests/context-layout.spec.js:150:40 › window controls stay inside the screen at DPI scale 1.25 (2.0s)
+  ✓  10 tests/context-layout.spec.js:150:40 › window controls stay inside the screen at DPI scale 1.5 (1.9s)
+  ✓  11 tests/context-layout.spec.js:150:40 › window controls stay inside the screen at DPI scale 2 (2.0s)
+  ✓  12 tests/editor.spec.js:5:1 › fresh homepage is white and minimal, with an empty title placeholder (1.7s)
+  ✓  13 tests/editor.spec.js:22:1 › Markdown input, slash keyboard menu and Chinese draft restore (2.5s)
+  ✓  14 tests/editor.spec.js:42:1 › opens Markdown, updates checkboxes and exports the edited document (1.7s)
+  ✓  15 tests/editor.spec.js:56:1 › custom discard dialog protects changes and new documents receive a blank title (2.0s)
+  ✓  16 tests/editor.spec.js:67:1 › viewing source without editing leaves an opened document saved (3.0s)
+  ✓  17 tests/embedded.spec.js:4:1 › embedded desktop HTML boots under its CSP without origin storage or network access (1.7s)
+  ✓  18 tests/features.spec.js:5:1 › local image insertion, editing and Markdown reopening retain the image (2.5s)
+  ✓  19 tests/features.spec.js:18:1 › GFM table editing and highlighted code survive Markdown roundtrip (2.2s)
+  ✓  20 tests/features.spec.js:28:1 › search replaces across marks, leaves nonmatches intact and supports source mode (2.1s)
+  ✓  21 tests/features.spec.js:36:1 › links, outline and self-contained HTML export work without loading scripts (2.4s)
+  ✓  22 tests/features.spec.js:49:1 › native relative images hydrate without changing their Markdown source (2.4s)
+  ✓  23 tests/features.spec.js:56:1 › drag and clipboard insertion create independent editable image blocks (1.8s)
+  ✓  24 tests/features.spec.js:72:1 › native save adopts canonical attachment paths and keeps recovery metadata (2.6s)
+  ✓  25 tests/features.spec.js:81:1 › print output hides menus and placeholders while retaining the document (2.8s)
+  ✓  26 tests/markdown-code.spec.js:9:1 › mainstream Markdown structures retain their meaning after rich editing and export (2.2s)
+  ✓  27 tests/markdown-code.spec.js:23:1 › typed code fences, language choice, tabs, undo and block exit work together (2.3s)
+  ✓  28 tests/markdown-code.spec.js:35:1 › partial multiline code selection indents whole lines and reverses without changing code (2.5s)
+  ✓  29 tests/markdown-code.spec.js:45:1 › source indentation keeps the final unselected line unchanged and supports native undo (4.0s)
+  ✓  30 tests/markdown-code.spec.js:55:1 › extended code languages, aliases and backtick-containing code survive a Markdown roundtrip (3.2s)
+  ✓  31 tests/markdown-code.spec.js:70:1 › Tab and Shift Tab change list nesting without losing items (2.8s)
+  ✓  32 tests/markdown-code.spec.js:78:1 › context block insertion, inline code, code wrapping and copy are available without a toolbar (11.4s)
+  ✓  33 tests/settings.spec.js:3:1 › themes, editor typography and layout settings persist after reopening (15.5s)
+  ✓  34 tests/settings.spec.js:30:1 › skins cover dialogs as well as the page and settings close with Escape (2.8s)
+  ✓  35 tests/sidebar.spec.js:3:1 › menus live in the collapsible sidebar and sidebar file actions work (3.0s)
+  ✓  36 tests/sidebar.spec.js:38:1 › frame and titlebar match the selected skin and notify the native compositor (1.9s)
+  ✓  37 tests/window-files.spec.js:3:1 › all window borders start native resize and fullscreen hides the handles (1.6s)
+  ✓  38 tests/window-files.spec.js:12:1 › dropping Markdown opens it after confirmation and clears a previous native save target (2.4s)
+  ✓  39 tests/window-files.spec.js:20:1 › multiple Markdown files and invalid UTF-8 do not replace the current document (3.1s)
+  ✓  40 tests/windows-bridge.spec.js:3:1 › native document operations work without localStorage (2.0s)
+  ✓  41 tests/windows-bridge.spec.js:26:1 › draft writes coalesce and surface disk errors (2.6s)
+  ✓  42 tests/windows-bridge.spec.js:39:1 › custom title controls and close guard preserve a canceled save (2.7s)
+  ✓  43 tests/windows-bridge.spec.js:67:1 › save failures appear in themed dialogs and retain unsaved state (4.0s)
+
+  43 passed (2.2m)
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.1
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1
+npm notice To update run: npm install -g npm@12.2.1
+npm notice
