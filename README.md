@@ -1,6 +1,9 @@
 # 手书 Windows 0.10.0
 
-[下载 Windows x64 便携包（约 1.9 MB）](https://github.com/Linkyyy/tekaku/raw/refs/heads/downloads/windows-v0.10.0/Tekaku-0.10.0-windows-x64.zip)
+> **Windows 下载入口暂停，安全核查中。** 收到“无法下载：检测到病毒”的报告，尚未确认检测名称、命中文件和涉事版本，不能判断为误报。请保留系统拦截，不要关闭防护或添加白名单。当前 0.10.0 入口预防性暂停，原始二进制保留供复核。[当前核查记录](SECURITY-ALERT-0.10.md)。
+
+
+Windows 推荐下载入口已暂停。
 
 完整解压，保留 Tekaku.exe 与 WebView2Loader.dll 在同一目录。支持 Windows 10/11 x64 和系统 WebView2。
 
