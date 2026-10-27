@@ -2,9 +2,20 @@
 
 一个简洁、离线优先的 Markdown 编辑器，提供 Windows 桌面版和 Android 手机版。Typora 风格的安静界面，Notion 风格的内容块输入，在同一区域编辑与呈现。
 
-[下载 Windows 0.9.0 便携包](https://github.com/Linkyyy/tekaku/raw/refs/heads/downloads/windows-v0.9.0/Tekaku-0.9.0-windows-x64.zip) · [下载 Android 0.1.0 APK](https://github.com/Linkyyy/tekaku/raw/refs/heads/downloads/android-v0.1.0/Tekaku-0.1.0-android.apk) · [官网源码](https://github.com/Linkyyy/tekaku/tree/gh-pages)
+[下载 Windows 0.10.0 便携包](https://github.com/Linkyyy/tekaku/raw/refs/heads/downloads/windows-v0.10.0/Tekaku-0.10.0-windows-x64.zip) · [下载 Android 0.1.0 APK](https://github.com/Linkyyy/tekaku/raw/refs/heads/downloads/android-v0.1.0/Tekaku-0.1.0-android.apk) · [官网源码](https://github.com/Linkyyy/tekaku/tree/gh-pages)
 
 ![编辑器](docs/editor.png)
+
+## 0.10 桌面更新
+
+- 仅文档内容保留可见滚动条，位于大纲右侧的工作区最右边；侧栏、大纲、设置、指南和菜单隐藏滚动条但仍可滚动。
+- 左右悬浮按钮归属内容区域，侧栏打开后随内容区移动；全屏、最大化和窗口模式均可使用。
+- 侧栏与大纲使用宽度滑入动画，默认开启，设置中可关闭。大纲移除关闭按钮，再点大纲悬浮按钮收起。
+- 应用内按钮、格式工具、斜杠菜单、右键菜单统一使用蓝色 SVG 图标；EXE 和任务栏图标也改为蓝色。
+- Windows 窗口保留真实、按 DPI 缩放的原生缩放边缘；客户端边缘和顶栏使用 SC_SIZE / SC_MOVE 及真实鼠标坐标。还原时恢复窗口样式，系统窗口状态变化同步界面；最小尺寸不超过显示器工作区。
+- Android 保持 0.1.0。
+
+![面板动画（实际浏览器录制）](docs/panels-motion.gif)
 
 ## 0.9 桌面更新
 
@@ -147,7 +158,7 @@ npm test
 npm run test:native
 ```
 
-已有 Chromium 可用 `TEKAKU_CHROMIUM=/usr/bin/chromium npm test`。49 项桌面界面测试覆盖极简首页、标题占位符、实时编辑、Markdown 转换、导入导出、草稿、源码查看、皮肤和设置持久化、嵌入页面、无 localStorage 桥接、窗口控制协议、自定义保存/关闭弹窗、侧栏文件菜单、右侧大纲、右下角源码、右键编辑/插入、纯文本剪贴板、文件关联协议、分组快捷键、Markdown 示例对照、固定标题与独立滚动、源码视口尺寸与图标对齐、面板切换、减少动态效果和多 DPI 页面边界、图文表格、搜索替换、HTML/打印输出和写入错误，以及完整标题层级、代码围栏、语言别名、缩进撤销、代码复制换行和列表层级。10 项 Go 测试覆盖 UTF-8/BOM、大文件保护、临时文件清理、覆盖保存和草稿设置读写、图片提取去重、相对图解析、另存为复制、代码示例保留、路径边界与文件关联注册计划。Windows GUI、任务栏/资源管理器图标、真实注册表关联、多显示器全屏/DPI、常规 DLL 加载和 Win32 对话框需在实机复核；浏览器桥接测试使用模拟原生接口，不代替实机测试。
+已有 Chromium 可用 `TEKAKU_CHROMIUM=/usr/bin/chromium npm test`。55 项桌面界面测试覆盖极简首页、标题占位符、实时编辑、Markdown 转换、导入导出、草稿、源码查看、皮肤和设置持久化、嵌入页面、无 localStorage 桥接、窗口控制协议、自定义保存/关闭弹窗、侧栏文件菜单、右侧大纲、右下角源码、右键编辑/插入、纯文本剪贴板、文件关联协议、分组快捷键、Markdown 示例对照、固定标题与独立滚动、源码视口尺寸与图标对齐、面板切换、动画开关和多 DPI 页面边界、图文表格、搜索替换、HTML/打印输出和写入错误，以及完整标题层级、代码围栏、语言别名、缩进撤销、代码复制换行和列表层级。12 项 Go 测试覆盖 UTF-8/BOM、大文件保护、临时文件清理、覆盖保存和草稿设置读写、图片提取去重、相对图解析、另存为复制、代码示例保留、路径边界与文件关联注册计划。Windows GUI、任务栏/资源管理器图标、真实注册表关联、多显示器全屏/DPI、常规 DLL 加载和 Win32 对话框需在实机复核；浏览器桥接测试使用模拟原生接口，不代替实机测试。当前还验证了滚动条位于大纲右侧并控制两种视图、隐藏滚动条后仍可滚动、全屏悬浮按钮命中、面板动画的中间宽度，以及真实鼠标操作触发八向缩放协议。Go 测试增加了系统缩放方向、负屏幕坐标与 DPI / 全屏最小尺寸约束。
 
 ## 支持范围
 

@@ -1,3 +1,4 @@
+import { icon } from './icons';
 import { imageSource, literalMatches } from './editor-extensions';
 import { codeLanguages, languageName } from './code-languages';
 import { indentSource } from './editing';
@@ -9,11 +10,11 @@ export function installFeatures({ editor, exitSource, isSource, sourceField, fil
  const $ = selector => document.querySelector(selector);
  $('.sidebar-content').insertAdjacentHTML('beforeend', `
  <details class="sidebar-tools"><summary>工具与导出</summary>
- <button class="nav-item" id="search-open">查找与替换 <kbd>Ctrl F</kbd></button>
- <button class="nav-item" id="export-html">导出 HTML</button><button class="nav-item" id="print-page">打印 / PDF</button></details>
+ <button class="nav-item" id="search-open">${icon('search')}查找与替换 <kbd>Ctrl F</kbd></button>
+ <button class="nav-item" id="export-html">${icon('export')}导出 HTML</button><button class="nav-item" id="print-page">${icon('print')}打印 / PDF</button></details>
 `);
  $('main').insertAdjacentHTML('afterbegin', `<div id="search-bar" hidden>
- <div class="search-row"><input id="find-input" aria-label="查找内容" placeholder="查找内容"><span id="find-count">0 项</span><label><input id="find-case" type="checkbox">区分大小写</label><button id="find-prev" title="上一个">↑</button><button id="find-next" title="下一个">↓</button><button id="find-close" aria-label="关闭查找">×</button></div>
+ <div class="search-row"><input id="find-input" aria-label="查找内容" placeholder="查找内容"><span id="find-count">0 项</span><label><input id="find-case" type="checkbox">区分大小写</label><button id="find-prev" title="上一个">${icon('up')}</button><button id="find-next" title="下一个">${icon('down')}</button><button id="find-close" aria-label="关闭查找">${icon('close')}</button></div>
  <div class="search-row"><input id="replace-input" aria-label="替换内容" placeholder="替换为"><button id="replace-one">替换</button><button id="replace-all">全部替换</button></div></div>
  <div id="context-tools" hidden><div id="table-tools" hidden>${[['add-row','下方加行'],['add-column','右侧加列'],['delete-row','删除行'],['delete-column','删除列'],['toggle-header','切换表头'],['delete-table','删除表格']].map(([id,title])=>`<button data-table-action="${id}">${title}</button>`).join('')}</div><div id="image-tools" hidden><button id="image-edit">编辑图片说明</button><button id="image-delete">删除图片</button></div><div id="code-tools" hidden><label>语言 <select id="code-language" aria-label="代码语言">${codeLanguages.map(([id,label])=>`<option value="${id}">${label}</option>`).join('')}</select></label><button id="code-copy">复制代码</button><button id="code-wrap" aria-pressed="false">自动换行</button><span class="code-hint">Tab 缩进 · Shift Tab 取消缩进 · 末尾连按三次 Enter 退出</span></div></div>`);
  document.body.insertAdjacentHTML('beforeend', `${contextMenuHTML}<input id="image-input" type="file" accept="image/*" multiple hidden>

@@ -7,11 +7,12 @@ async function openLongDocument(page) {
 }
 async function bounds(page, selector) { return page.locator(selector).boundingBox(); }
 
-test('preview scrollbar stays at its right edge and all panels scroll below the fixed app title', async ({ page }) => {
+test('document scrollbar is after the outline and all panels scroll below the fixed app title', async ({ page }) => {
   await openLongDocument(page);
   const title = await bounds(page,'#titlebar'), preview = await bounds(page,'.page-scroll'), outline = await bounds(page,'#outline-panel');
   expect(title.y).toBe(0); expect(preview.y).toBeGreaterThanOrEqual(title.height);
-  expect(Math.abs(preview.x + preview.width - outline.x)).toBeLessThan(1);
+  const bar = await bounds(page,'#document-scrollbar');
+  expect(Math.abs(bar.x - outline.x - outline.width)).toBeLessThan(1);
   await page.locator('.page-scroll').evaluate(el => { el.scrollTop = 1500; });
   await expect.poll(() => page.locator('.page-scroll').evaluate(el => el.scrollTop)).toBeGreaterThan(1000);
   await page.locator('#outline').evaluate(el => { el.scrollTop = 800; });
@@ -90,18 +91,19 @@ test('floating sidebar toggle stays bottom-left through panel transitions and ra
   expect(await page.locator('#expand').evaluate(el => el.closest('#titlebar'))).toBeNull();
   await page.locator('#expand').click(); await expect(page.locator('#sidebar')).toBeVisible();
   await expect.poll(() => page.locator('main').evaluate(el => el.getBoundingClientRect().x)).toBe(232);
-  expect(await bounds(page,'#expand')).toEqual(initial); expect(await bounds(page,'#titlebar')).toEqual(title);
+  const opened = await bounds(page,'#expand');
+  expect(opened.x).toBe(initial.x + 232); expect(opened.y).toBe(initial.y); expect(await bounds(page,'#titlebar')).toEqual(title);
   await page.evaluate(() => { for (let n=0;n<5;n++)document.querySelector('#expand').click(); for(let n=0;n<6;n++)document.querySelector('#toggle-outline').click(); });
   await expect(page.locator('#sidebar')).toBeHidden(); await expect(page.locator('#outline-panel')).toBeVisible();
   await expect(page.locator('#sidebar')).toHaveAttribute('inert','');
   expect(await bounds(page,'#expand')).toEqual(initial);
 });
 
-test('reduced motion closes panels without lingering interactive content', async ({ page }) => {
-  await page.emulateMedia({reducedMotion:'reduce'}); await page.goto('/');
+test('panel animations can be disabled without lingering interactive content', async ({ page }) => {
+  await page.goto('/'); await page.keyboard.press('Control+,'); await page.locator('#panel-animations').uncheck(); await page.locator('#close-settings').click();
   await page.locator('#expand').click(); await expect(page.locator('#sidebar')).toBeVisible();
   await page.locator('#expand').click(); await page.locator('#toggle-outline').click();
   await expect(page.locator('#sidebar')).toBeHidden(); await expect(page.locator('#outline-panel')).toBeHidden();
   await expect(page.locator('#toggle-outline')).toBeFocused();
-  expect(await page.locator('.editor-surface').evaluate(el => el.getBoundingClientRect().width)).toBe(page.viewportSize().width);
+  expect(await page.locator('.editor-surface').evaluate(el => el.getBoundingClientRect().width)).toBe(page.viewportSize().width - 12);
 });

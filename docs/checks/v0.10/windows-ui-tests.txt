@@ -1,0 +1,99 @@
+
+> tekaku@0.10.0 test
+> npm run build && node scripts/embed-ui.mjs && playwright test
+
+
+> tekaku@0.10.0 build
+> vite build
+
+vite v8.3.5 building client environment for production...
+transforming...
+✓ 300 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.36 kB │ gzip:   0.28 kB
+dist/assets/index-HZw36n7P.css   33.16 kB │ gzip:   7.79 kB
+dist/assets/index-Lc3tymFE.js   709.49 kB │ gzip: 219.89 kB
+
+✓ built in 1.45s
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.1
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1
+npm notice To update run: npm install -g npm@12.2.1
+npm notice
+[WebServer] (node:83413) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:83426) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 55 tests using 1 worker
+
+(node:83456) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/context-layout.spec.js:23:1 › outline is a right column with its own scrolling and a persistent visibility switch (9.8s)
+  ✓   2 tests/context-layout.spec.js:46:1 › right-click keeps a rich text selection and clipboard paste inserts literal text safely (4.0s)
+  ✓   3 tests/context-layout.spec.js:64:1 › insertion submenu handles rich tables and opens image dialogs without stealing their focus (5.3s)
+  ✓   4 tests/context-layout.spec.js:78:1 › source context insertion preserves selection, supports undo and inserts links as Markdown (5.8s)
+  ✓   5 tests/context-layout.spec.js:98:1 › context menus fit the viewport and keyboard navigation closes them before fullscreen exits (10.0s)
+  ✓   6 tests/context-layout.spec.js:120:1 › association controls report native registration, removal and actionable errors (4.6s)
+  ✓   7 tests/context-layout.spec.js:140:1 › shortcut guide groups keycaps, follows the skin and scrolls within the window (4.8s)
+  ✓   8 tests/context-layout.spec.js:151:40 › window controls stay inside the screen at DPI scale 1 (5.9s)
+  ✓   9 tests/context-layout.spec.js:151:40 › window controls stay inside the screen at DPI scale 1.25 (4.7s)
+  ✓  10 tests/context-layout.spec.js:151:40 › window controls stay inside the screen at DPI scale 1.5 (4.7s)
+  ✓  11 tests/context-layout.spec.js:151:40 › window controls stay inside the screen at DPI scale 2 (3.6s)
+  ✓  12 tests/editor.spec.js:5:1 › fresh homepage is white and minimal, with an empty title placeholder (2.8s)
+  ✓  13 tests/editor.spec.js:22:1 › Markdown input, slash keyboard menu and Chinese draft restore (5.1s)
+  ✓  14 tests/editor.spec.js:42:1 › opens Markdown, updates checkboxes and exports the edited document (3.2s)
+  ✓  15 tests/editor.spec.js:56:1 › custom discard dialog protects changes and new documents receive a blank title (7.3s)
+  ✓  16 tests/editor.spec.js:67:1 › viewing source without editing leaves an opened document saved (7.3s)
+  ✓  17 tests/embedded.spec.js:4:1 › embedded desktop HTML boots under its CSP without origin storage or network access (3.0s)
+  ✓  18 tests/features.spec.js:5:1 › local image insertion, editing and Markdown reopening retain the image (8.2s)
+  ✓  19 tests/features.spec.js:18:1 › GFM table editing and highlighted code survive Markdown roundtrip (8.3s)
+  ✓  20 tests/features.spec.js:28:1 › search replaces across marks, leaves nonmatches intact and supports source mode (5.9s)
+  ✓  21 tests/features.spec.js:36:1 › links, outline and self-contained HTML export work without loading scripts (7.4s)
+  ✓  22 tests/features.spec.js:49:1 › native relative images hydrate without changing their Markdown source (5.1s)
+  ✓  23 tests/features.spec.js:56:1 › drag and clipboard insertion create independent editable image blocks (4.1s)
+  ✓  24 tests/features.spec.js:72:1 › native save adopts canonical attachment paths and keeps recovery metadata (3.5s)
+  ✓  25 tests/features.spec.js:81:1 › print output hides menus and placeholders while retaining the document (4.4s)
+  ✓  26 tests/markdown-code.spec.js:9:1 › mainstream Markdown structures retain their meaning after rich editing and export (3.2s)
+  ✓  27 tests/markdown-code.spec.js:23:1 › typed code fences, language choice, tabs, undo and block exit work together (4.2s)
+  ✓  28 tests/markdown-code.spec.js:35:1 › partial multiline code selection indents whole lines and reverses without changing code (3.6s)
+  ✓  29 tests/markdown-code.spec.js:45:1 › source indentation keeps the final unselected line unchanged and supports native undo (3.5s)
+  ✓  30 tests/markdown-code.spec.js:55:1 › extended code languages, aliases and backtick-containing code survive a Markdown roundtrip (8.8s)
+  ✓  31 tests/markdown-code.spec.js:70:1 › Tab and Shift Tab change list nesting without losing items (6.4s)
+  ✓  32 tests/markdown-code.spec.js:78:1 › context block insertion, inline code, code wrapping and copy are available without a toolbar (4.7s)
+  ✓  33 tests/scroll-views.spec.js:10:1 › document scrollbar is after the outline and all panels scroll below the fixed app title (4.4s)
+  ✓  34 tests/scroll-views.spec.js:28:1 › source fills the same editor viewport, retains scroll positions and centers each view icon (4.8s)
+  ✓  35 tests/scroll-views.spec.js:57:1 › settings body scrolls while its title and footer stay in place (3.6s)
+  ✓  36 tests/scroll-views.spec.js:69:1 › Markdown guide pairs syntax and examples under fixed tabs, title and close button (4.6s)
+  ✓  37 tests/scroll-views.spec.js:88:1 › floating sidebar toggle stays bottom-left through panel transitions and rapid changes (4.1s)
+  ✓  38 tests/scroll-views.spec.js:102:1 › panel animations can be disabled without lingering interactive content (4.8s)
+  ✓  39 tests/settings.spec.js:3:1 › themes, editor typography and layout settings persist after reopening (9.2s)
+  ✓  40 tests/settings.spec.js:30:1 › skins cover dialogs as well as the page and settings close with Escape (4.7s)
+  ✓  41 tests/sidebar.spec.js:3:1 › menus live in the collapsible sidebar and sidebar file actions work (11.3s)
+  ✓  42 tests/sidebar.spec.js:38:1 › frame and titlebar match the selected skin and notify the native compositor (5.0s)
+  ✓  43 tests/window-files.spec.js:3:1 › all window borders start native resize and fullscreen hides the handles (3.8s)
+  ✓  44 tests/window-files.spec.js:12:1 › dropping Markdown opens it after confirmation and clears a previous native save target (4.8s)
+  ✓  45 tests/window-files.spec.js:20:1 › multiple Markdown files and invalid UTF-8 do not replace the current document (2.9s)
+  ✓  46 tests/windows-bridge.spec.js:3:1 › native document operations work without localStorage (6.0s)
+  ✓  47 tests/windows-bridge.spec.js:26:1 › draft writes coalesce and surface disk errors (5.9s)
+  ✓  48 tests/windows-bridge.spec.js:39:1 › custom title controls and close guard preserve a canceled save (6.7s)
+  ✓  49 tests/windows-bridge.spec.js:67:1 › save failures appear in themed dialogs and retain unsaved state (4.1s)
+  ✓  50 tests/workspace-controls.spec.js:6:1 › only document content exposes a scrollbar; auxiliary regions still scroll (3.9s)
+  ✓  51 tests/workspace-controls.spec.js:19:1 › rightmost native scrollbar controls the document in preview and source modes (4.7s)
+  ✓  52 tests/workspace-controls.spec.js:35:1 › floating controls stay inside content in fullscreen, maximized and expanded sidebars (7.1s)
+  ✓  53 tests/workspace-controls.spec.js:53:1 › sidebar and outline visibly animate through intermediate widths, with a persistent off switch (4.8s)
+  ✓  54 tests/workspace-controls.spec.js:63:1 › actual mouse border drags use all native resize directions after restore (3.7s)
+  ✓  55 tests/workspace-controls.spec.js:74:1 › application icons use shared blue vectors in every skin, including block menu and toolbar (4.9s)
+
+  55 passed (5.2m)
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.1
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1
+npm notice To update run: npm install -g npm@12.2.1
+npm notice

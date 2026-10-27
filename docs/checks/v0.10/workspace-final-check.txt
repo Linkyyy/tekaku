@@ -1,0 +1,19 @@
+
+Running 7 tests using 1 worker
+
+(node:86996) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/embedded.spec.js:4:1 › embedded desktop HTML boots under its CSP without origin storage or network access (2.8s)
+  ✓  2 tests/workspace-controls.spec.js:6:1 › only document content exposes a scrollbar; auxiliary regions still scroll (5.2s)
+  ✓  3 tests/workspace-controls.spec.js:19:1 › rightmost native scrollbar controls the document in preview and source modes (4.2s)
+  ✓  4 tests/workspace-controls.spec.js:36:1 › floating controls stay inside content in fullscreen, maximized and expanded sidebars (6.9s)
+  ✓  5 tests/workspace-controls.spec.js:54:1 › sidebar and outline visibly animate through intermediate widths, with a persistent off switch (4.8s)
+  ✓  6 tests/workspace-controls.spec.js:64:1 › actual mouse border drags use all native resize directions after restore (2.8s)
+  ✓  7 tests/workspace-controls.spec.js:75:1 › application icons use shared blue vectors in every skin, including block menu and toolbar (5.8s)
+
+  7 passed (36.3s)
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.1
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1
+npm notice To update run: npm install -g npm@12.2.1
+npm notice

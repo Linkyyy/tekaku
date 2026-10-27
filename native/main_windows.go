@@ -164,24 +164,45 @@ func main() {
 	frame.theme = windowPrefs.Theme
 	// Keep resize and minimize/maximize behavior, while removing Windows non-client chrome.
 	var previous uintptr
+	lastWindowState := frame.state()
 	hook := windows.NewCallback(func(hwnd, message, wp, lp uintptr) uintptr {
 		switch message {
 		case 0x0005: // WM_SIZE
 			frame.updateEffects()
+			state := frame.state()
+			if state != lastWindowState {
+				lastWindowState = state
+				data, _ := json.Marshal(state)
+				w.Dispatch(func() {
+					w.Eval("window.dispatchEvent(new CustomEvent('tekaku-window-state',{detail:" + string(data) + "}))")
+				})
+			}
 		case 0x031E: // WM_DWMCOMPOSITIONCHANGED
 			frame.effectsInitialized = false
 			frame.updateEffects()
-		case 0x0083: // WM_NCCALCSIZE: use all of the window as web content.
+		case 0x0083: // WM_NCCALCSIZE: keep a real, caption-free resize edge.
+			if !frame.fullscreen && !frame.state().Maximized {
+				bounds := (*rect)(unsafe.Pointer(lp))
+				border := resizeBorder(frame.dpi())
+				bounds.Left += border
+				bounds.Top += border
+				bounds.Right -= border
+				bounds.Bottom -= border
+			}
 			return 0
 		case 0x0084: // WM_NCHITTEST: retain border resizing in windowed mode.
 			return frame.hitTest(lp)
 		case 0x0024: // WM_GETMINMAXINFO: maximize to work area, not behind the taskbar.
+			result, _, _ := callWindowProc.Call(previous, hwnd, message, wp, lp)
+			bounds := (*minMaxInfo)(unsafe.Pointer(lp))
+			info := frame.monitor()
+			width, height := minimumWindowSize(frame.dpi(), info.Work.Right-info.Work.Left, info.Work.Bottom-info.Work.Top, frame.fullscreen)
+			bounds.MinTrack = point{width, height}
 			if !frame.fullscreen {
-				info := frame.monitor()
-				bounds := (*minMaxInfo)(unsafe.Pointer(lp))
 				bounds.MaxPosition = point{info.Work.Left - info.Bounds.Left, info.Work.Top - info.Bounds.Top}
 				bounds.MaxSize = point{info.Work.Right - info.Work.Left, info.Work.Bottom - info.Work.Top}
 			}
+			return result
 		case 0x0010, 0x0011: // WM_CLOSE / WM_QUERYENDSESSION
 			if dirty {
 				requestClose(w)

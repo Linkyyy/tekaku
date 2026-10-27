@@ -30,13 +30,14 @@ test('outline is a right column with its own scrolling and a persistent visibili
   expect(await page.locator('#outline').evaluate(el => el.scrollHeight > el.clientHeight)).toBe(true);
   await page.locator('#outline button').filter({ hasText: 'Chapter 35', exact: true }).click();
   await expect.poll(() => page.locator('.page-scroll').evaluate(el => el.scrollTop)).toBeGreaterThan(200);
-  await page.locator('#close-outline').click();
+  await page.locator('#toggle-outline').click();
   await expect(outline).toBeHidden();
   await page.reload(); await expect(outline).toBeHidden();
   await page.locator('#toggle-outline').click(); await expect(outline).toBeVisible();
   const corner = await page.locator('#source').boundingBox();
   const viewport = page.viewportSize();
-  expect(corner.x).toBeGreaterThan(viewport.width - 70);
+  const surface = await page.locator('.editor-surface').boundingBox();
+  expect(corner.x).toBeGreaterThan(surface.x + surface.width - 70);
   expect(corner.y).toBeGreaterThan(viewport.height - 70);
   await page.locator('#source').click(); await expect(page.locator('#source-editor')).toBeVisible();
   await expect(page.locator('#source')).toHaveAttribute('aria-pressed', 'true');

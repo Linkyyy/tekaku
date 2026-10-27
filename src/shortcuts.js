@@ -1,3 +1,4 @@
+import { icon } from './icons';
 const groups = [
   ['文件', [['新建文档',['Ctrl','N']],['打开文件',['Ctrl','O']],['保存',['Ctrl','S']],['另存为',['Ctrl','Shift','S']]]],
   ['编辑', [['粗体 / 斜体',['Ctrl','B / I']],['行内代码',['Ctrl','E']],['代码块',['Ctrl','Alt','C']],['撤销 / 重做',['Ctrl','Z / Shift Z']]]],
@@ -15,7 +16,7 @@ const markdownGroups = [
     ['引用', '> 引用文字', '输入 > 后按空格', '<blockquote>引用文字</blockquote>'],
     ['代码块', '```python', '语言名后按空格，再输入代码', '<pre><span>Python</span><code>print("hello")</code></pre>'],
     ['分割线', '---', '在空段落连续输入三个 -', '<hr>'],
-    ['内容块菜单', '/', '空段落输入 /，方向键选择，Enter 插入', '<span class="guide-menu-example">＋　添加内容块</span>'],
+    ['内容块菜单', '/', '空段落输入 /，方向键选择，Enter 插入', '<span class="guide-menu-example">添加内容块</span>'],
   ]],
   ['文字样式', [
     ['粗体', '**重点**', '输入成对的标记包住文字', '<strong>重点</strong>'],
@@ -24,14 +25,14 @@ const markdownGroups = [
     ['行内代码', '`code`', '输入成对的反引号', '<code class="guide-inline-code">code</code>'],
   ]],
   ['源码示例', [
-    ['链接', '[名称](https://example.com)', '在源码视图输入，切回预览查看', '<span class="guide-link-example">名称 ↗</span>'],
-    ['图片', '![说明](图片.png)', '也可右键 → 插入内容 → 图片', '<span class="guide-image-example">▧　图片说明</span>'],
+    ['链接', '[名称](https://example.com)', '在源码视图输入，切回预览查看', '<span class="guide-link-example">名称</span>'],
+    ['图片', '![说明](图片.png)', '也可右键 → 插入内容 → 图片', '<span class="guide-image-example">图片说明</span>'],
     ['表格', '| 名称 | 状态 |\n| --- | --- |\n| 手书 | 完成 |', '在源码视图输入，或使用右键插入', '<table><tr><th>名称</th><th>状态</th></tr><tr><td>手书</td><td>完成</td></tr></table>'],
   ]],
 ];
 export function shortcutGuide() {
   return `<dialog id="help-dialog" class="scroll-dialog" aria-labelledby="help-title">
-    <div class="help-heading"><div class="help-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M6 9h1m4 0h1m4 0h1M6 13h1m4 0h1m4 0h1M8 16h8"/></svg></div><h2 id="help-title">输入指南</h2><button id="close-help" aria-label="关闭快捷键指南"><svg viewBox="0 0 20 20"><path d="m5 5 10 10m0-10L5 15"/></svg></button></div>
+    <div class="help-heading"><div class="help-symbol" aria-hidden="true">${icon('keyboard')}</div><h2 id="help-title">输入指南</h2><button id="close-help" aria-label="关闭快捷键指南">${icon('close')}</button></div>
     <div class="guide-tabs" role="tablist" aria-label="指南分类"><button id="guide-shortcuts" data-guide-tab role="tab" aria-selected="true" aria-controls="shortcuts-panel">快捷键</button><button id="guide-markdown" data-guide-tab role="tab" aria-selected="false" aria-controls="markdown-panel" tabindex="-1">Markdown 快捷输入</button></div>
     <div id="help-body" class="dialog-body" tabindex="0" aria-label="指南内容">
       <section id="shortcuts-panel" role="tabpanel" aria-labelledby="guide-shortcuts"><div class="shortcut-grid">${groups.map(([title,rows])=>`<section class="shortcut-group"><h3>${title}</h3><dl>${rows.map(([label,keys])=>`<div><dt>${label}</dt><dd>${keys.map(key=>`<kbd>${key}</kbd>`).join('')}</dd></div>`).join('')}</dl></section>`).join('')}</div></section>

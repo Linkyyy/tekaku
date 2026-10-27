@@ -9,15 +9,15 @@
     "use-common-controls-v6": true
   } } },
   "RT_VERSION": { "#1": { "0000": {
-    "fixed": { "file_version": "0.9.0.0", "product_version": "0.9.0.0" },
+    "fixed": { "file_version": "0.10.0.0", "product_version": "0.10.0.0" },
     "info": { "0409": {
       "CompanyName": "Linkyyy",
       "FileDescription": "手书 Tekaku · Markdown 编辑器",
-      "FileVersion": "0.9.0",
+      "FileVersion": "0.10.0",
       "InternalName": "Tekaku",
       "OriginalFilename": "Tekaku.exe",
       "ProductName": "手书 Tekaku",
-      "ProductVersion": "0.9.0"
+      "ProductVersion": "0.10.0"
     } }
   } } }
 }

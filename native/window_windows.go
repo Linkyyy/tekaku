@@ -21,6 +21,7 @@ var (
 	getMonitorInfo    = user32.NewProc("GetMonitorInfoW")
 	releaseCapture    = user32.NewProc("ReleaseCapture")
 	postMessage       = user32.NewProc("PostMessageW")
+	getCursorPos      = user32.NewProc("GetCursorPos")
 	dwmapi            = windows.NewLazySystemDLL("dwmapi.dll")
 	dwmSetAttribute   = dwmapi.NewProc("DwmSetWindowAttribute")
 	dwmExtendFrame    = dwmapi.NewProc("DwmExtendFrameIntoClientArea")
@@ -60,6 +61,24 @@ func (f *frame) state() windowState {
 	zoomed, _, _ := isZoomed.Call(f.owner)
 	return windowState{f.fullscreen, zoomed != 0}
 }
+func (f *frame) dpi() uint32 {
+	if proc := user32.NewProc("GetDpiForWindow"); proc.Find() == nil {
+		value, _, _ := proc.Call(f.owner)
+		if value >= 96 {
+			return uint32(value)
+		}
+	}
+	return 96
+}
+
+func (f *frame) startSystemDrag(command uintptr) {
+	var cursor point
+	getCursorPos.Call(uintptr(unsafe.Pointer(&cursor)))
+	releaseCapture.Call()
+	// Enter the native system move/size loop, rather than synthesizing a
+	// non-client click at (0,0) through WebView2's mouse capture handling.
+	postMessage.Call(f.owner, 0x0112, command, packScreenPoint(cursor.X, cursor.Y))
+}
 func (f *frame) setFullscreen(value bool) {
 	if value == f.fullscreen {
 		return
@@ -80,7 +99,7 @@ func (f *frame) setFullscreen(value bool) {
 		setWindowPos.Call(f.owner, 0, uintptr(r.Left), uintptr(r.Top), uintptr(r.Right-r.Left), uintptr(r.Bottom-r.Top), 0x0020|0x0004)
 	} else {
 		f.fullscreen = false
-		setWindowStyle.Call(f.owner, ^uintptr(15), f.previousStyle)
+		setWindowStyle.Call(f.owner, ^uintptr(15), (f.previousStyle&^0x00C00000)|0x00040000|0x00010000|0x00020000|0x00080000)
 		r := f.previousRect
 		setWindowPos.Call(f.owner, 0, uintptr(r.Left), uintptr(r.Top), uintptr(r.Right-r.Left), uintptr(r.Bottom-r.Top), 0x0020|0x0004)
 		if f.previousMaximized {
@@ -115,14 +134,12 @@ func (f *frame) action(action string, dirty *bool) (windowState, error) {
 		postMessage.Call(f.owner, 0x0010, 0, 0)
 	case "drag":
 		if !f.fullscreen {
-			releaseCapture.Call()
-			postMessage.Call(f.owner, 0x00A1, 2, 0)
+			f.startSystemDrag(0xF012) // SC_MOVE | HTCAPTION
 		}
 	case "resize-left", "resize-right", "resize-top", "resize-bottom", "resize-top-left", "resize-top-right", "resize-bottom-left", "resize-bottom-right":
 		if !f.fullscreen && !f.state().Maximized {
-			hit := map[string]uintptr{"resize-left": 10, "resize-right": 11, "resize-top": 12, "resize-top-left": 13, "resize-top-right": 14, "resize-bottom": 15, "resize-bottom-left": 16, "resize-bottom-right": 17}[action]
-			releaseCapture.Call()
-			postMessage.Call(f.owner, 0x00A1, hit, 0)
+			command, _ := resizeCommand(action)
+			f.startSystemDrag(command)
 		}
 	default:
 		return f.state(), fmt.Errorf("不支持的窗口操作")

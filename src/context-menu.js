@@ -1,11 +1,13 @@
+import { icon } from './icons';
 import { replaceSource, readClipboard, writeClipboard } from './source-actions';
-const item=(id,text,shortcut='')=>`<button id="${id}" role="menuitem" tabindex="-1"><span>${text}</span>${shortcut?`<kbd>${shortcut}</kbd>`:''}</button>`;
+const actionIcons={'context-undo':'undo','context-redo':'redo','context-cut':'cut','context-copy':'copy','context-paste':'paste','code-insert':'code','inline-code':'code','table-insert':'table','image-insert':'image','link-edit':'link','bullet-insert':'bulletList','ordered-insert':'orderedList','task-insert':'taskList','quote-insert':'quote','rule-insert':'rule','highlight-text':'highlight','context-image-edit':'image','context-image-delete':'close'};
+const item=(id,text,shortcut='')=>`<button id="${id}" role="menuitem" tabindex="-1">${icon(actionIcons[id])}<span>${text}</span>${shortcut?`<kbd>${shortcut}</kbd>`:''}</button>`;
 export const contextMenuHTML=`
  <div id="editor-context-menu" class="context-menu" role="menu" aria-label="编辑菜单" hidden>
   ${item('context-undo','撤销','Ctrl Z')}${item('context-redo','重做','Ctrl Shift Z')}<div role="separator"></div>
   ${item('context-cut','剪切文本','Ctrl X')}${item('context-copy','复制文本','Ctrl C')}${item('context-paste','粘贴文本','Ctrl V')}<div role="separator"></div>
-  <button id="context-style" role="menuitem" tabindex="-1" aria-haspopup="menu" aria-expanded="false" aria-controls="heading-context-menu"><span>段落样式</span><span aria-hidden="true">›</span></button>
-  <button id="context-insert" role="menuitem" tabindex="-1" aria-haspopup="menu" aria-expanded="false" aria-controls="insert-context-menu"><span>插入内容</span><span aria-hidden="true">›</span></button>
+  <button id="context-style" role="menuitem" tabindex="-1" aria-haspopup="menu" aria-expanded="false" aria-controls="heading-context-menu">${icon('paragraph')}<span>段落样式</span>${icon('chevron')}</button>
+  <button id="context-insert" role="menuitem" tabindex="-1" aria-haspopup="menu" aria-expanded="false" aria-controls="insert-context-menu">${icon('plus')}<span>插入内容</span>${icon('chevron')}</button>
   <div id="context-image-actions" hidden><div role="separator"></div>${item('context-image-edit','编辑图片说明')}${item('context-image-delete','删除图片')}</div>
  </div>
  <div id="heading-context-menu" class="context-menu submenu" role="menu" aria-label="段落样式" hidden>${[0,1,2,3,4,5,6].map(level=>`<button role="menuitem" data-heading-level="${level}" tabindex="-1"><span>${level?`H${level}　${['','一级','二级','三级','四级','五级','六级'][level]}标题`:'正文'}</span>${level?`<kbd>Ctrl Alt ${level}</kbd>`:''}</button>`).join('')}</div>

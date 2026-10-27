@@ -11,6 +11,8 @@ import { installFeatures } from './features';
 import storage from './storage.js';
 import { installWindowFiles } from './window-files';
 import { shortcutGuide } from './shortcuts';
+import { icon } from './icons';
+import { installDocumentScroll } from './document-scroll';
 await storage.ready;
 
 const blankDocument = { type: 'doc', content: [{ type: 'heading', attrs: { level: 1 } }, { type: 'paragraph' }] };
@@ -20,11 +22,11 @@ const themes = [
   { id: 'sage', name: '青苔', detail: '清新 · 护眼' },
   { id: 'night', name: '深夜', detail: '沉静 · 深色' },
 ];
-let settings = { theme: 'white', startupFullscreen: true, startupSidebarCollapsed: true, showToolbar: false, showStatusbar: false, showOutline: true, font: 'system', fontSize: 16, lineHeight: 1.9, contentWidth: 780 };
+let settings = { theme: 'white', startupFullscreen: true, startupSidebarCollapsed: true, showToolbar: false, showStatusbar: false, showOutline: true, panelAnimations: true, font: 'system', fontSize: 16, lineHeight: 1.9, contentWidth: 780 };
 try {
   const saved = JSON.parse(storage.getItem('tekaku-settings') || 'null');
   if (themes.some(theme => theme.id === saved?.theme)) settings.theme = saved.theme;
-  for (const key of ['startupFullscreen', 'startupSidebarCollapsed', 'showToolbar', 'showStatusbar', 'showOutline']) if (typeof saved?.[key] === 'boolean') settings[key] = saved[key];
+  for (const key of ['startupFullscreen', 'startupSidebarCollapsed', 'showToolbar', 'showStatusbar', 'showOutline', 'panelAnimations']) if (typeof saved?.[key] === 'boolean') settings[key] = saved[key];
   if (['system', 'serif', 'mono'].includes(saved?.font)) settings.font = saved.font;
   for (const [key, min, max] of [['fontSize', 14, 24], ['lineHeight', 1.5, 2.4], ['contentWidth', 600, 1100]]) if (Number.isFinite(saved?.[key])) settings[key] = Math.min(max, Math.max(min, saved[key]));
 } catch { /* Use white defaults if settings cannot be read. */ }
@@ -45,34 +47,35 @@ let lastCountDocument;
 let lastCountText;
 let nativeTheme;
 let features;
+let documentScroll;
 document.querySelector('#app').innerHTML = `
   <header id="titlebar">
     <div class="breadcrumb"><span id="filename"></span><span id="unsaved"></span></div>
     <div class="titlebar-drag-space" aria-hidden="true"></div>
     <span id="save-state"></span>
-    <div class="window-controls"><button id="window-minimize" aria-label="最小化" title="最小化"><svg viewBox="0 0 16 16"><path d="M3 8.5h10"/></svg></button><button id="window-maximize" aria-label="还原窗口" title="还原窗口"><svg viewBox="0 0 16 16"><rect x="3.5" y="3.5" width="9" height="9" rx=".5"/></svg></button><button id="window-close" aria-label="关闭窗口" title="关闭窗口"><svg viewBox="0 0 16 16"><path d="m4 4 8 8m0-8-8 8"/></svg></button></div>
+    <div class="window-controls"><button id="window-minimize" aria-label="最小化" title="最小化">${icon('minimize')}</button><button id="window-maximize" aria-label="还原窗口" title="还原窗口">${icon('maximize')}</button><button id="window-close" aria-label="关闭窗口" title="关闭窗口">${icon('close')}</button></div>
   </header>
 <div class="sidebar-rail"><aside id="sidebar" class="sidebar" aria-label="侧边栏">
   <div class="brand"><span class="brand-mark">手</span><strong>手书 <small>TEKAKU</small></strong></div>
   <div class="sidebar-content">
-    <button class="new-document" id="new">＋ <span>新建文档</span><kbd>⌘ N</kbd></button>
-    <button class="nav-item selected" id="current"><span>▤</span><span id="sidebar-name"></span><span class="tiny-dot">•</span></button>
+    <button class="new-document" id="new">${icon('plus')}<span>新建文档</span><kbd>⌘ N</kbd></button>
+    <button class="nav-item selected" id="current">${icon('document')}<span id="sidebar-name"></span><span class="tiny-dot">•</span></button>
     <div class="section-label">文件</div>
-    <button class="nav-item" id="open"><svg viewBox="0 0 20 20"><path d="M3 5h5l2 2h7v9H3Z"/></svg><span>打开文件</span><kbd>⌘ O</kbd></button>
-    <button class="nav-item" id="save"><svg viewBox="0 0 20 20"><path d="M4 3h10l3 3v11H3V3Zm3 0v5h6V3M6 17v-6h8v6"/></svg><span>保存文档</span><kbd>⌘ S</kbd></button>
-    <button class="nav-item" id="save-as"><svg viewBox="0 0 20 20"><path d="M9 3H3v14h14v-6M11 3h6v6M9 11l8-8"/></svg><span>另存为</span><kbd>⌘ ⇧ S</kbd></button>
+    <button class="nav-item" id="open">${icon('open')}<span>打开文件</span><kbd>⌘ O</kbd></button>
+    <button class="nav-item" id="save">${icon('save')}<span>保存文档</span><kbd>⌘ S</kbd></button>
+    <button class="nav-item" id="save-as">${icon('saveAs')}<span>另存为</span><kbd>⌘ ⇧ S</kbd></button>
 
   </div>
   <div class="sidebar-bottom">
-    <button class="nav-item" id="settings" aria-label="设置"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="3"/><path d="m8 3 .7-1h2.6l.7 1 .6 1.3 1.4.5 1.5-.2 1.3 2.2-.8 1.3v2.8l.8 1.3-1.3 2.2-1.5-.2-1.4.5L12 17l-.7 1H8.7L8 17l-.6-1.3-1.4-.5-1.5.2-1.3-2.2.8-1.3V8.9l-.8-1.3 1.3-2.2 1.5.2 1.4-.5Z"/></svg><span>设置</span><kbd>Ctrl ,</kbd></button>
-    <button class="nav-item" id="help"><svg viewBox="0 0 20 20"><rect x="2" y="5" width="16" height="10" rx="2"/><path d="M5 8h1m3 0h1m3 0h1M5 11h1m3 0h5"/></svg><span>输入指南</span></button>
+    <button class="nav-item" id="settings" aria-label="设置">${icon('settings')}<span>设置</span><kbd>Ctrl ,</kbd></button>
+    <button class="nav-item" id="help">${icon('keyboard')}<span>输入指南</span></button>
   </div>
 </aside></div>
-<div class="sidebar-toggle-dock floating-controls"><button id="expand" aria-label="切换侧栏" title="切换侧栏" aria-controls="sidebar"><svg viewBox="0 0 20 20"><rect x="3" y="4" width="14" height="12" rx="2"/><path d="M8 4v12"/></svg></button></div>
+
 <main>
-  <div class="toolbar"><div class="toolbar-group"><button data-action="paragraph" title="正文">正文⌄</button><span class="toolbar-divider"></span><button data-action="bold" title="粗体 (Ctrl/Cmd+B)"><b>B</b></button><button data-action="italic" title="斜体"><i>I</i></button><button data-action="strike" title="删除线"><s>S</s></button><button data-action="code" title="行内代码">&lt;/&gt;</button><span class="toolbar-divider"></span><button data-action="heading" title="二级标题">H₂</button><button data-action="bulletList" title="无序列表">☷</button><button data-action="taskList" title="待办清单">☑</button><button data-action="blockquote" title="引用">❞</button><button data-action="undo" title="撤销">↶</button><button data-action="redo" title="重做">↷</button></div></div>
-  <div class="workbench"><div class="editor-surface"><section class="page-scroll"><div class="paper"><div id="editor"></div></div><textarea id="source-editor" spellcheck="false" aria-label="Markdown 源码" hidden></textarea></section></div><div class="outline-rail"><aside id="outline-panel" class="outline-panel" aria-label="文档大纲"><div class="outline-heading"><h2>大纲</h2><button id="close-outline" aria-label="收起大纲" title="收起大纲">×</button></div><nav id="outline" aria-label="标题导航"></nav></aside></div></div>
-  <div class="corner-tools floating-controls"><button id="toggle-outline" aria-label="切换大纲" title="显示或隐藏大纲" aria-expanded="true"><svg viewBox="0 0 20 20"><path d="M4 5h12M8 10h8M8 15h8M4 10h1m-1 5h1"/></svg></button><button id="source" aria-label="切换 Markdown 源码" title="切换源码（Ctrl+Shift+M）" aria-pressed="false"><svg data-view-icon="source" aria-hidden="true" viewBox="0 0 24 24"><path d="m8 7-5 5 5 5m8-10 5 5-5 5m-3-13-2 16"/></svg><svg data-view-icon="preview" aria-hidden="true" viewBox="0 0 24 24" hidden><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+  <div class="toolbar"><div class="toolbar-group"><button data-action="paragraph" title="正文">${icon('paragraph')}</button><span class="toolbar-divider"></span><button data-action="bold" title="粗体 (Ctrl/Cmd+B)">${icon('bold')}</button><button data-action="italic" title="斜体">${icon('italic')}</button><button data-action="strike" title="删除线">${icon('strike')}</button><button data-action="code" title="行内代码">${icon('code')}</button><span class="toolbar-divider"></span><button data-action="heading" title="二级标题">${icon('heading')}</button><button data-action="bulletList" title="无序列表">${icon('bulletList')}</button><button data-action="taskList" title="待办清单">${icon('taskList')}</button><button data-action="blockquote" title="引用">${icon('quote')}</button><button data-action="undo" title="撤销">${icon('undo')}</button><button data-action="redo" title="重做">${icon('redo')}</button></div></div>
+  <div class="workbench"><div class="editor-surface"><div class="sidebar-toggle-dock floating-controls"><button id="expand" aria-label="切换侧栏" title="切换侧栏" aria-controls="sidebar">${icon('panel')}</button></div>  <div class="corner-tools floating-controls"><button id="toggle-outline" aria-label="切换大纲" title="显示或隐藏大纲" aria-expanded="true">${icon('outline')}</button><button id="source" aria-label="切换 Markdown 源码" title="切换源码（Ctrl+Shift+M）" aria-pressed="false">${icon('code', 'data-view-icon="source"')}${icon('preview', 'data-view-icon="preview" hidden')}</button></div><section class="page-scroll"><div class="paper"><div id="editor"></div></div><textarea id="source-editor" spellcheck="false" aria-label="Markdown 源码" hidden></textarea></section></div><div class="outline-rail"><aside id="outline-panel" class="outline-panel" aria-label="文档大纲"><div class="outline-heading"><h2>大纲</h2></div><nav id="outline" aria-label="标题导航"></nav></aside></div><div id="document-scrollbar" tabindex="0" aria-label="文档滚动条" aria-controls="editor"><div></div></div></div>
+
   <footer><div><span class="local-dot"></span><span id="status">所有内容仅保存在本地</span></div><div><span id="word-count"></span><span>UTF-8</span><span>Markdown</span></div></footer>
 </main>
 <div id="slash-menu" class="floating-menu" hidden><div class="menu-title">添加内容块</div><div id="slash-items"></div><div class="menu-hint">↑ ↓ 选择 · Enter 插入 · Esc 关闭</div></div>
@@ -80,14 +83,15 @@ document.querySelector('#app').innerHTML = `
 <div id="toast" role="status"></div>
 ${shortcutGuide()}
 <dialog class="scroll-dialog" id="settings-dialog" aria-labelledby="settings-title">
-  <div class="settings-heading"><div><span class="eyebrow">TEKAKU</span><h2 id="settings-title">设置</h2></div><button id="close-settings" aria-label="关闭设置"><svg viewBox="0 0 20 20"><path d="m5 5 10 10m0-10L5 15"/></svg></button></div>
-  <div class="dialog-body settings-body"><section class="settings-section"><h3>外观</h3><p>选择适合你的写作空间。</p><div class="theme-options" role="group" aria-label="皮肤">${themes.map(theme => `<button class="theme-option" data-theme-choice="${theme.id}" aria-pressed="false"><span class="theme-preview preview-${theme.id}"><span></span><i></i><i></i></span><strong>${theme.name}</strong><small>${theme.detail}</small><span class="theme-check">✓</span></button>`).join('')}</div></section>
+  <div class="settings-heading"><div><span class="eyebrow">TEKAKU</span><h2 id="settings-title">设置</h2></div><button id="close-settings" aria-label="关闭设置">${icon('close')}</button></div>
+  <div class="dialog-body settings-body"><section class="settings-section"><h3>外观</h3><p>选择适合你的写作空间。</p><div class="theme-options" role="group" aria-label="皮肤">${themes.map(theme => `<button class="theme-option" data-theme-choice="${theme.id}" aria-pressed="false"><span class="theme-preview preview-${theme.id}"><span></span><i></i><i></i></span><strong>${theme.name}</strong><small>${theme.detail}</small><span class="theme-check">${icon('check')}</span></button>`).join('')}</div></section>
   <section class="settings-section"><h3>编辑器</h3>
     <label class="setting-row"><span>字体</span><select id="setting-font"><option value="system">系统字体</option><option value="serif">衬线字体</option><option value="mono">等宽字体</option></select></label>
     <label class="setting-row"><span>字号 <output id="font-size-value"></output></span><input id="setting-font-size" type="range" min="14" max="24" step="1"></label>
     <label class="setting-row"><span>行距 <output id="line-height-value"></output></span><input id="setting-line-height" type="range" min="1.5" max="2.4" step="0.1"></label>
     <label class="setting-row"><span>正文宽度 <output id="content-width-value"></output></span><input id="setting-content-width" type="range" min="600" max="1100" step="20"></label>
     <label class="setting-row"><span>显示格式工具栏</span><span class="switch"><input id="show-toolbar" type="checkbox"><span></span></span></label>
+    <label class="setting-row"><span>面板展开动画 <small>侧栏与大纲滑入、滑出</small></span><span class="switch"><input id="panel-animations" type="checkbox"><span></span></span></label>
     <label class="setting-row"><span>显示右侧大纲</span><span class="switch"><input id="show-outline" type="checkbox"><span></span></span></label>
     <label class="setting-row"><span>显示字数与状态栏</span><span class="switch"><input id="show-statusbar" type="checkbox"><span></span></span></label>
   </section>
@@ -96,7 +100,7 @@ ${shortcutGuide()}
     <label class="setting-row"><span>启动时收起侧栏</span><span class="switch"><input id="startup-sidebar" type="checkbox"><span></span></span></label>
   </section>
   <section class="settings-section"><h3>文件关联</h3><p id="association-status">Windows 桌面版可加入 Markdown 的打开方式。</p><div class="association-actions"><button id="register-association" class="primary-button">添加到打开方式</button><button id="remove-association">移除关联</button></div><p>仅设置当前用户的 .md / .markdown 打开方式；默认程序由你在 Windows 中选择。</p></section>
-  </div><div class="settings-footer"><button id="reset-settings">恢复默认设置</button><span>手书 0.9.0 · 自动保存</span></div>
+  </div><div class="settings-footer"><button id="reset-settings">恢复默认设置</button><span>手书 0.10.0 · 自动保存</span></div>
 </dialog>
 <dialog id="confirm-dialog" class="message-dialog" aria-labelledby="confirm-title"><h2 id="confirm-title">保存修改？</h2><p id="confirm-message"></p><div class="dialog-actions"><button id="confirm-cancel">取消</button><button id="confirm-discard">不保存</button><button id="confirm-save" class="primary-button">保存</button></div></dialog>
 <dialog id="error-dialog" class="message-dialog" aria-labelledby="error-title"><h2 id="error-title">操作失败</h2><p id="error-message"></p><div class="dialog-actions"><button id="error-close" class="primary-button">知道了</button></div></dialog>
@@ -109,6 +113,7 @@ function schedulePersist() { clearTimeout(persistTimer); persistTimer = setTimeo
 storage.onError = () => toast('本地草稿写入失败，请保存文档到文件');
 function updateState(changed = false) {
   if (changed) { if (!dirty) window.desktop?.dirty(true); dirty = true; schedulePersist(); }
+  documentScroll?.refresh();
   $('#filename').textContent = fileName;
   $('#sidebar-name').textContent = fileName.replace(/\.(md|markdown)$/i, '');
   $('#unsaved').textContent = dirty ? '•' : '';
@@ -124,22 +129,22 @@ function updateState(changed = false) {
   document.querySelectorAll('[data-action]').forEach(button => button.classList.toggle('active', button.dataset.action === 'heading' ? editor.isActive('heading', { level: 2 }) : editor.isActive(button.dataset.action)));
 }
 const commands = [
-  ['正文', '普通的文字段落', 'T', chain => chain.setParagraph()],
-  ['一级标题', '清晰有力的大标题', 'H₁', chain => chain.setHeading({ level: 1 })],
-  ['二级标题', '为内容划分章节', 'H₂', chain => chain.setHeading({ level: 2 })],
-  ['三级标题', '细分你的想法', 'H₃', chain => chain.setHeading({ level: 3 })],
-  ['四级标题', '更细一层的内容', 'H₄', chain => chain.setHeading({ level: 4 })],
-  ['五级标题', '组织细节', 'H₅', chain => chain.setHeading({ level: 5 })],
-  ['六级标题', '补充说明', 'H₆', chain => chain.setHeading({ level: 6 })],
-  ['无序列表', '有条理地记录', '☷', chain => chain.toggleBulletList()],
-  ['有序列表', '一步一步，慢慢来', '1.', chain => chain.toggleOrderedList()],
-  ['待办清单', '让想法付诸行动', '☑', chain => chain.toggleTaskList()],
-  ['引用', '留下一句值得记住的话', '❞', chain => chain.toggleBlockquote()],
-  ['代码块', '写下一段代码', '</>', chain => chain.toggleCodeBlock()],
-  ['分割线', '分隔内容', '—', chain => chain.setHorizontalRule()],
-  ['图片', '插入本地或网络图片', '▧', chain => { features.imageDialog(); return chain; }],
-  ['表格', '三行三列表格', '▦', chain => chain.insertTable({ rows: 3, cols: 3, withHeaderRow: true })],
-  ['链接', '编辑链接地址', '↗', chain => { features.linkDialog(); return chain; }],
+  ['正文', '普通的文字段落', 'paragraph', chain => chain.setParagraph()],
+  ['一级标题', '清晰有力的大标题', 'heading', chain => chain.setHeading({ level: 1 })],
+  ['二级标题', '为内容划分章节', 'heading', chain => chain.setHeading({ level: 2 })],
+  ['三级标题', '细分你的想法', 'heading', chain => chain.setHeading({ level: 3 })],
+  ['四级标题', '更细一层的内容', 'heading', chain => chain.setHeading({ level: 4 })],
+  ['五级标题', '组织细节', 'heading', chain => chain.setHeading({ level: 5 })],
+  ['六级标题', '补充说明', 'heading', chain => chain.setHeading({ level: 6 })],
+  ['无序列表', '有条理地记录', 'bulletList', chain => chain.toggleBulletList()],
+  ['有序列表', '一步一步，慢慢来', 'orderedList', chain => chain.toggleOrderedList()],
+  ['待办清单', '让想法付诸行动', 'taskList', chain => chain.toggleTaskList()],
+  ['引用', '留下一句值得记住的话', 'quote', chain => chain.toggleBlockquote()],
+  ['代码块', '写下一段代码', 'code', chain => chain.toggleCodeBlock()],
+  ['分割线', '分隔内容', 'rule', chain => chain.setHorizontalRule()],
+  ['图片', '插入本地或网络图片', 'image', chain => { features.imageDialog(); return chain; }],
+  ['表格', '三行三列表格', 'table', chain => chain.insertTable({ rows: 3, cols: 3, withHeaderRow: true })],
+  ['链接', '编辑链接地址', 'link', chain => { features.linkDialog(); return chain; }],
 ];
 const editor = new Editor({
   element: $('#editor'),
@@ -163,8 +168,9 @@ const editor = new Editor({
   onSelectionUpdate() { updateState(); updateSlash(); },
 });
 function closeSlash() { activeSlash = false; $('#slash-menu').hidden = true; }
+function renderBlockIcon(name) { return icon(name); }
 function renderSlash() {
-  $('#slash-items').innerHTML = commands.map(([title, desc, icon], index) => `<button class="slash-item ${index === slashIndex ? 'chosen' : ''}" data-command="${index}"><span class="block-icon">${icon.replace('<', '&lt;')}</span><span><strong>${title}</strong><small>${desc}</small></span></button>`).join('');
+  $('#slash-items').innerHTML = commands.map(([title, desc, icon], index) => `<button class="slash-item ${index === slashIndex ? 'chosen' : ''}" data-command="${index}"><span class="block-icon">${renderBlockIcon(icon)}</span><span><strong>${title}</strong><small>${desc}</small></span></button>`).join('');
   $('#slash-items').querySelector('.chosen')?.scrollIntoView({ block: 'nearest' });
 }
 function updateSlash() {
@@ -334,6 +340,8 @@ function syncSettings() {
   document.body.classList.toggle('show-toolbar', settings.showToolbar);
   document.body.classList.toggle('show-statusbar', settings.showStatusbar);
   document.body.classList.toggle('outline-hidden', !settings.showOutline);
+  document.body.classList.toggle('panels-static', !settings.panelAnimations);
+  $('#panel-animations').checked = settings.panelAnimations;
   $('#toggle-outline').setAttribute('aria-expanded', String(settings.showOutline));
   $('#outline-panel').inert = !settings.showOutline;
   $('#outline-panel').setAttribute('aria-hidden', String(!settings.showOutline));
@@ -356,6 +364,7 @@ function syncSettings() {
   $('#font-size-value').textContent = `${settings.fontSize}px`;
   $('#line-height-value').textContent = settings.lineHeight.toFixed(1);
   $('#content-width-value').textContent = `${settings.contentWidth}px`;
+  documentScroll?.refresh();
   if (settings.showStatusbar) updateState();
 }
 function saveSettings() { storage.setItem('tekaku-settings', JSON.stringify(settings)); }
@@ -374,17 +383,17 @@ async function updateAssociation(action='status') {
 $('#register-association').onclick=()=>updateAssociation('register');
 $('#remove-association').onclick=()=>updateAssociation('remove');
 $('#toggle-outline').onclick=()=>{settings.showOutline=!settings.showOutline;syncSettings();saveSettings();};
-$('#close-outline').onclick=()=>{settings.showOutline=false;syncSettings();saveSettings();};
+
 $('#settings').onclick = openSettings;
 $('#close-settings').onclick = () => $('#settings-dialog').close();
 $('#settings-dialog').addEventListener('click', event => { if (event.target === $('#settings-dialog')) { const r = event.target.getBoundingClientRect(); if (event.clientX < r.left || event.clientX > r.right || event.clientY < r.top || event.clientY > r.bottom) event.target.close(); } });
 document.querySelectorAll('[data-theme-choice]').forEach(button => button.onclick = () => {
   settings.theme = button.dataset.themeChoice; syncSettings(); saveSettings();
 });
-for (const [id, key] of [['startup-fullscreen', 'startupFullscreen'], ['startup-sidebar', 'startupSidebarCollapsed'], ['show-toolbar', 'showToolbar'], ['show-statusbar', 'showStatusbar'], ['show-outline', 'showOutline']]) $(`#${id}`).onchange = event => { settings[key] = event.target.checked; syncSettings(); saveSettings(); };
+for (const [id, key] of [['startup-fullscreen', 'startupFullscreen'], ['startup-sidebar', 'startupSidebarCollapsed'], ['show-toolbar', 'showToolbar'], ['show-statusbar', 'showStatusbar'], ['show-outline', 'showOutline'], ['panel-animations', 'panelAnimations']]) $(`#${id}`).onchange = event => { settings[key] = event.target.checked; syncSettings(); saveSettings(); };
 $('#setting-font').onchange = event => { settings.font = event.target.value; syncSettings(); saveSettings(); };
 for (const [id, key] of [['setting-font-size', 'fontSize'], ['setting-line-height', 'lineHeight'], ['setting-content-width', 'contentWidth']]) $(`#${id}`).oninput = event => { settings[key] = Number(event.target.value); syncSettings(); saveSettings(); };
-$('#reset-settings').onclick = () => { settings = { theme: 'white', startupFullscreen: true, startupSidebarCollapsed: true, showToolbar: false, showStatusbar: false, showOutline: true, font: 'system', fontSize: 16, lineHeight: 1.9, contentWidth: 780 }; syncSettings(); saveSettings(); };
+$('#reset-settings').onclick = () => { settings = { theme: 'white', startupFullscreen: true, startupSidebarCollapsed: true, showToolbar: false, showStatusbar: false, showOutline: true, panelAnimations: true, font: 'system', fontSize: 16, lineHeight: 1.9, contentWidth: 780 }; syncSettings(); saveSettings(); };
 
 syncSettings();
 let nativeFullscreen = Boolean(window.desktop?.window);
@@ -394,6 +403,7 @@ function syncWindowState(state) {
   const restore = state.fullscreen || state.maximized;
   $('#window-maximize').setAttribute('aria-label', restore ? '还原窗口' : '最大化窗口');
   $('#window-maximize').title = restore ? '还原窗口' : '最大化窗口';
+  $('#window-maximize').innerHTML = icon(restore ? 'restore' : 'maximize');
   document.body.classList.toggle('is-fullscreen', Boolean(state.fullscreen));
   document.body.classList.toggle('is-maximized', Boolean(state.maximized));
 }
@@ -406,6 +416,7 @@ async function windowAction(action) {
     }
   } catch (error) { toast(`窗口操作失败：${error.message || error}`); }
 }
+window.addEventListener('tekaku-window-state', event => syncWindowState(event.detail));
 if (!window.desktop?.window) $('.window-controls').hidden = true;
 $('#window-minimize').onclick = () => windowAction('minimize');
 $('#window-maximize').onclick = () => windowAction('maximize');
@@ -461,6 +472,7 @@ window.addEventListener('tekaku-close-request', async () => { if (await confirmD
 window.addEventListener('beforeunload', event => { if (dirty && !window.desktop) { event.preventDefault(); event.returnValue = ''; } });
 features = installFeatures({ editor, exitSource, isSource: () => sourceMode, sourceField: () => $('#source-editor'), fileName: () => fileName, showError, toast });
 installWindowFiles({ confirmDiscard, loadDocument, showError, toast, windowAction });
+documentScroll = installDocumentScroll();
 updateState(); await window.desktop?.dirty(dirty);
 if (window.desktop?.initialFile) {
   try { const initial = await window.desktop.initialFile(false); if (initial && await confirmDiscard()) await loadDocument(await window.desktop.initialFile(true)); } catch (error) { showError('打开失败', error.message || error); }
