@@ -1,0 +1,6 @@
+First build: e31f9adc00be39d099c8236ffbc57f1dcae77be385f81c48614170cfc0521709
+Second build: e31f9adc00be39d099c8236ffbc57f1dcae77be385f81c48614170cfc0521709
+Byte-identical: yes
+Toolchain: go1.27.3 linux/amd64
+Target: windows/amd64, CGO_ENABLED=0
+Flags: -trimpath -buildvcs=false -ldflags="-H=windowsgui -s -w"
