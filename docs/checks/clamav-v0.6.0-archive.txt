@@ -1,0 +1,13 @@
+/scan/Tekaku-0.6.0.zip: OK
+
+----------- SCAN SUMMARY -----------
+Known viruses: 3628192
+Engine version: 1.5.4
+Scanned directories: 0
+Scanned files: 1
+Infected files: 0
+Data scanned: 6.66 MiB
+Data read: 1.77 MiB (ratio 3.76:1)
+Time: 42.536 sec (0 m 42 s)
+Start Date: 2026:10:27 02:52:57
+End Date:   2026:10:27 02:53:40

@@ -1,0 +1,111 @@
+4067D7CA417F0000:error:05880106:x509 certificate routines:X509at_get_attr:passed invalid argument:../crypto/x509/x509_att.c:63:
+4067D7CA417F0000:error:058C0102:x509 certificate routines:X509_ATTRIBUTE_get0_type:passed a null parameter:../crypto/x509/x509_att.c:442:
+4067D7CA417F0000:error:17000064:CMS routines:cms_signerinfo_verify_cert:certificate verify error:../crypto/cms/cms_smime.c:290:Verify error: unable to get local issuer certificate
+4067D7CA417F0000:error:10800075:PKCS7 routines:PKCS7_verify:certificate verify error:../crypto/pkcs7/pk7_smime.c:298:Verify error: unable to get local issuer certificate
+PE checksum   : 0002C3F9
+
+Signature Index: 0  (Primary Signature)
+
+Message digest algorithm  : SHA256
+Current message digest    : C307AAEC6B6F5A971A76D8F68A66F97734A3289D3704CA277B58693CFA4F0091 
+Calculated message digest : C307AAEC6B6F5A971A76D8F68A66F97734A3289D3704CA277B58693CFA4F0091 
+
+Signer's certificate:
+	------------------
+	Signer #0:
+		Subject: /C=US/ST=Washington/L=Redmond/O=Microsoft Corporation/CN=Microsoft Corporation
+		Issuer : /C=US/ST=Washington/L=Redmond/O=Microsoft Corporation/CN=Microsoft Code Signing PCA 2011
+		Serial : 33000001E2F17D92020E49F87F0000000001E2
+		Certificate expiration date:
+			notBefore : Dec 15 21:31:47 2020 GMT
+			notAfter : Dec  2 21:31:47 2021 GMT
+
+Message digest algorithm: SHA256
+
+Authenticated attributes:
+	Microsoft Individual Code Signing purpose
+	Message digest: 27BD588586E7F104A65FFF440BDDCDD60ECA2AFE664A03E100F6EC4D0498491E 
+	URL description: https://www.microsoft.com 
+	Text description: Microsoft Edge WebView2 SDK
+
+Countersignatures:
+	Timestamp time: Sep 22 09:25:33 2021 GMT
+	Signing time: N/A
+	Hash Algorithm: sha256
+	Issuer: /C=US/ST=Washington/L=Redmond/O=Microsoft Corporation/CN=Microsoft Time-Stamp PCA 2010
+	Serial: 3300000157440762DC6FE8BE2A000000000157
+
+CAfile: /etc/ssl/certs/ca-certificates.crt
+TSA's certificates file: /etc/ssl/certs/ca-certificates.crt
+
+Timestamp verified using:
+	------------------
+	Signer #1:
+		Subject: /C=US/ST=Washington/L=Redmond/O=Microsoft Corporation/CN=Microsoft Time-Stamp PCA 2010
+		Issuer : /C=US/ST=Washington/L=Redmond/O=Microsoft Corporation/CN=Microsoft Root Certificate Authority 2010
+		Serial : 6109812A000000000002
+		Certificate expiration date:
+			notBefore : Jul  1 21:36:55 2010 GMT
+			notAfter : Jul  1 21:46:55 2025 GMT
+
+	Error: unable to get local issuer certificate
+
+CMS_verify error
+
+Failed timestamp certificate chain retrieved from the signature:
+	------------------
+	Signer #0:
+		Subject: /C=US/ST=Washington/L=Redmond/O=Microsoft Corporation/OU=Microsoft Operations Puerto Rico/OU=Thales TSS ESN:C4BD-E37F-5FFC/CN=Microsoft Time-Stamp Service
+		Issuer : /C=US/ST=Washington/L=Redmond/O=Microsoft Corporation/CN=Microsoft Time-Stamp PCA 2010
+		Serial : 3300000157440762DC6FE8BE2A000000000157
+		Certificate expiration date:
+			notBefore : Jan 14 19:02:13 2021 GMT
+			notAfter : Apr 11 19:02:13 2022 GMT
+
+	------------------
+	Signer #1:
+		Subject: /C=US/ST=Washington/L=Redmond/O=Microsoft Corporation/CN=Microsoft Time-Stamp PCA 2010
+		Issuer : /C=US/ST=Washington/L=Redmond/O=Microsoft Corporation/CN=Microsoft Root Certificate Authority 2010
+		Serial : 6109812A000000000002
+		Certificate expiration date:
+			notBefore : Jul  1 21:36:55 2010 GMT
+			notAfter : Jul  1 21:46:55 2025 GMT
+
+
+Timestamp Server Signature verification: failed
+Signing certificate chain verified using:
+	------------------
+	Signer #1:
+		Subject: /C=US/ST=Washington/L=Redmond/O=Microsoft Corporation/CN=Microsoft Code Signing PCA 2011
+		Issuer : /C=US/ST=Washington/L=Redmond/O=Microsoft Corporation/CN=Microsoft Root Certificate Authority 2011
+		Serial : 610E90D2000000000003
+		Certificate expiration date:
+			notBefore : Jul  8 20:59:09 2011 GMT
+			notAfter : Jul  8 21:09:09 2026 GMT
+
+	Error: unable to get local issuer certificate
+
+PKCS7_verify error
+Failed signing certificate chain retrieved from the signature:
+	------------------
+	Signer #0:
+		Subject: /C=US/ST=Washington/L=Redmond/O=Microsoft Corporation/CN=Microsoft Corporation
+		Issuer : /C=US/ST=Washington/L=Redmond/O=Microsoft Corporation/CN=Microsoft Code Signing PCA 2011
+		Serial : 33000001E2F17D92020E49F87F0000000001E2
+		Certificate expiration date:
+			notBefore : Dec 15 21:31:47 2020 GMT
+			notAfter : Dec  2 21:31:47 2021 GMT
+
+	------------------
+	Signer #1:
+		Subject: /C=US/ST=Washington/L=Redmond/O=Microsoft Corporation/CN=Microsoft Code Signing PCA 2011
+		Issuer : /C=US/ST=Washington/L=Redmond/O=Microsoft Corporation/CN=Microsoft Root Certificate Authority 2011
+		Serial : 610E90D2000000000003
+		Certificate expiration date:
+			notBefore : Jul  8 20:59:09 2011 GMT
+			notAfter : Jul  8 21:09:09 2026 GMT
+
+Signature verification: failed
+
+Number of verified signatures: 1
+Failed

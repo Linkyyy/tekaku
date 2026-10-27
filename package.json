@@ -1,0 +1,45 @@
+{
+  "name": "tekaku",
+  "version": "0.6.0",
+  "description": "手书 — Windows WebView2 轻量 Markdown 编辑器",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "desktop": "npm run package:windows && npm start",
+    "start": "node scripts/start-windows.mjs",
+    "package": "npm run package:windows",
+    "package:windows": "npm run build && node scripts/build-windows.mjs",
+    "test": "npm run build && node scripts/embed-ui.mjs && playwright test",
+    "test:native": "node scripts/test-native.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Linkyyy/tekaku.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/Linkyyy/tekaku/issues"
+  },
+  "homepage": "https://github.com/Linkyyy/tekaku#readme",
+  "dependencies": {
+    "@tiptap/core": "^3.32.0",
+    "@tiptap/extension-code-block-lowlight": "^3.32.0",
+    "@tiptap/extension-highlight": "^3.32.0",
+    "@tiptap/extension-image": "^3.32.0",
+    "@tiptap/extension-placeholder": "^3.32.0",
+    "@tiptap/extension-table": "^3.32.0",
+    "@tiptap/extension-task-item": "^3.32.0",
+    "@tiptap/extension-task-list": "^3.32.0",
+    "@tiptap/markdown": "^3.32.0",
+    "@tiptap/starter-kit": "^3.32.0",
+    "highlight.js": "^11.12.0",
+    "lowlight": "^3.3.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "vite": "^8.3.5"
+  }
+}
