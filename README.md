@@ -16,7 +16,19 @@ python3 -m http.server 8080
 
 打开 `http://localhost:8080`。适配桌面、平板、手机，支持键盘访问和减少动态效果设置。不需要 npm install。
 
-## GitHub Pages
+## 部署到 Vercel
+
+[一键部署到 Vercel](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FLinkyyy%2Ftekaku%2Ftree%2Fgh-pages&project-name=tekaku-website&repository-name=tekaku-website)
+
+链接明确使用 **gh-pages 官网分支**，避免导入仓库默认的旧版 Windows 下载分支。登录 Vercel 后，按页面提示创建你账户下的 `tekaku-website` 仓库和项目，再点击 Deploy。部署成功后，Vercel 会显示实际的 `.vercel.app` 访问地址。
+
+已提供 `vercel.json`：不安装依赖、不执行构建，直接发布当前目录的静态文件。无需配置环境变量或密钥。
+
+如果希望直接关联原仓库而不创建新仓库，在 Vercel 导入 `Linkyyy/tekaku`，将生产分支设为 **gh-pages**，Root Directory 保持仓库根目录，Framework Preset 使用 **Other**，然后部署。这里的仓库根目录已经是官网，不要再填写 `website`。
+
+本地开发仓库中的 `website/` 对应远程 gh-pages 分支的根目录；如果用 Vercel CLI 从本地部署，请在 `website/` 目录运行 `vercel --prod`，并使用你自己的 Vercel 登录授权。
+
+## GitHub Pages（可选）
 
 官网文件位于仓库的 **gh-pages 分支根目录**，可直接作为 Pages 发布目录：
 
@@ -34,6 +46,6 @@ python3 -m http.server 8080
 - [版本说明](https://github.com/Linkyyy/tekaku/tree/downloads/windows-v0.5.0)
 - 下载 ZIP 的 SHA-256：`98779fa139182a2ac1f149687ebe516d12aeea789e63a98b774c999ceb41d003`
 
-新版本发布时，更新 `index.html` 中的版本号、下载链接、体积、最近更新内容和 SHA-256，以及本说明。替换皮肤截图时保留 `assets/editor-{white,paper,sage,night}.webp` 文件名。更换域名后，更新 `og:image` 的绝对地址。
+新版本发布时，更新 `index.html` 中的版本号、下载链接、体积、最近更新内容和 SHA-256，以及本说明。替换皮肤截图时保留 `assets/editor-{white,paper,sage,night}.webp` 文件名。分享预览图使用 gh-pages 分支上的公开图片地址，不依赖 GitHub Pages 域名；确定正式域名后也可换成站点自身的绝对地址。
 
 桌面端使用系统 WebView2，支持 Windows 10 / 11 x64。1.8 MB 是 ZIP 体积，非内存占用；官网 FAQ 已注明依赖、图片附件移动方式、未签名和 Markdown 支持范围。
