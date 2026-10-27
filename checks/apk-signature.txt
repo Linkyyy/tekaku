@@ -1,0 +1,17 @@
+Verifies
+Verified using v1 scheme (JAR signing): false
+Verified using v2 scheme (APK Signature Scheme v2): true
+Verified using v3 scheme (APK Signature Scheme v3): true
+Verified using v3.1 scheme (APK Signature Scheme v3.1): false
+Verified using v4 scheme (APK Signature Scheme v4): false
+Verified for SourceStamp: false
+Number of signers: 1
+Signer #1 certificate DN: CN=Tekaku Android Release
+Signer #1 certificate SHA-256 digest: 6515f68158791ac3ff8bbe181174e817facf4eb41a22d96b8832fc8985489ba3
+Signer #1 certificate SHA-1 digest: ae25d225525a7250ecfb09db23c4d4f7ffb0c57a
+Signer #1 certificate MD5 digest: 4593a2ddbbc68fce3f23024cfb800f4e
+Signer #1 key algorithm: RSA
+Signer #1 key size (bits): 2048
+Signer #1 public key SHA-256 digest: c2a10e15243b4d5abb05a20b96b02b8f8a99ce1c48ae4e2e7744fdaa28b7d318
+Signer #1 public key SHA-1 digest: 513b42cf8379dc00f0d4cf4b16a1a996a33eacdc
+Signer #1 public key MD5 digest: a538c2104b79890f0684acc35a2cba9c

@@ -1,0 +1,4 @@
+Windows EXE rebuilt with the same source, embedded UI and Go 1.27.3 toolchain.
+SHA-256 (both builds): 4ff30e9ed455164070b4d3685592f96ea54a4a10b0193e303e669f10668cc1d0
+Byte identical: yes
+Flags: -trimpath -buildvcs=false -ldflags="-H=windowsgui -s -w"

@@ -1,0 +1,50 @@
+手书 Tekaku · Windows 轻量版 0.7.0
+
+系统：Windows 10/11，64 位 x64。
+请完整解压下载包，将 Tekaku.exe 和 WebView2Loader.dll 放在同一目录。
+双击 Tekaku.exe 即可打开，不需安装 Node.js、Go 或 .NET。
+0.6 起使用 Windows 常规加载器加载 SDK DLL，并在加载前校验其固定 SHA-256；不再使用内存 PE 加载依赖。
+需要 Microsoft Edge WebView2 Evergreen Runtime。Windows 11 通常已自带；
+Windows 10 若缺少，请从微软官网安装：
+https://developer.microsoft.com/microsoft-edge/webview2/
+
+Ctrl+O 打开，Ctrl+S 保存，Ctrl+Shift+S 另存为，Ctrl+N 新建。
+也可把 .md 文件拖到 Tekaku.exe 图标，或用“打开方式”选择 Tekaku.exe。
+输入 Markdown 会自动呈现，在空段落输入 / 打开内容块菜单。
+默认全屏且收起侧栏，只显示正文与必要操作。
+F11 切换全屏；Esc 退出全屏（有弹窗时先关闭弹窗）。
+退出全屏并还原为窗口后，可拖动四边和四角调整窗口大小；最大化和全屏时不提供边框缩放。
+可直接把 .md / .markdown / .txt 拖进软件界面导入，一次一个文件；有未保存修改时先提示保存。
+拖入界面的文件首次保存需要选择保存位置，不会沿用先前打开文件的保存目标。
+右上角是最小化、最大化/还原、关闭；非全屏时可拖动顶栏移动窗口。
+点击左上角展开侧栏，底部“设置”或 Ctrl+, 打开设置。可调整四种皮肤、字体、字号、行距、正文宽度，
+显示/隐藏格式工具栏和状态栏，以及设置下次启动的全屏与侧栏状态。
+默认白色；主题设置同样用于应用内弹窗，系统文件选择器保持原生样式。
+打开、保存、另存为、源码、全屏、设置和快捷键入口全部位于侧栏。
+已移除重复的专注模式。顶栏仅保留文件信息、侧栏开关与系统窗口控制。
+外框增加随皮肤变化的细描边和渐变；窗口模式启用 DWM 阴影和系统支持的圆角。
+实际外部阴影依赖 Windows 桌面合成与系统设置；全屏及最大化不显示窗口外部阴影。
+新文档标题处显示“请输入标题”，提示文字不会写入 Markdown。
+
+文件仅保存在本地。草稿和设置位于 %APPDATA%\Tekaku。
+修改后请用 Ctrl+S 写入原文件；自动草稿不等于已保存原文件。
+新增图片选择/拖入/粘贴、GFM 表格、链接编辑、代码高亮、查找替换和大纲。
+支持一至六级标题、行内代码、代码块、无序/有序/待办列表、引用与分割线；可用快捷输入、斜杠菜单、侧栏或源码编辑。
+Ctrl+Alt+C 切换代码块，Ctrl+E 切换行内代码；代码块和源码支持 Tab / Shift+Tab 缩进，列表中可调整层级。
+代码语言覆盖 C/C++/C#、Java、Python、Go、Rust、JavaScript/TypeScript、HTML/XML、CSS、SQL、Shell、JSON/YAML 等。
+点击代码块可切换语言、复制代码、自动换行；末尾连按三次 Enter 退出。代码仅作文本编辑，不执行。
+侧栏展开“插入”“工具与导出”可使用；Ctrl+F 查找、Ctrl+H 替换、Ctrl+K 链接、Ctrl+Shift+I 图片。
+支持 HTML 导出及系统打印/PDF，Windows 打印界面可选择“另存为 PDF”或 Microsoft Print to PDF。
+新插入图片在保存时写到同名 .assets 目录，移动文档时一起携带；另存为到新目录会复制相对图片。
+单图限 5 MiB；文档目录之外的图片请用“选择本地图片”插入。网络图片需要网络连接。
+暂未加入公式排版、Mermaid 渲染、脚注和 front matter 专用编辑。
+导入导出会规范化 Markdown 格式，复杂文档建议先另存为。
+仅支持 UTF-8（含 BOM），单文件上限 8 MiB。
+
+本版本复用系统 WebView2，不随包携带完整浏览器。
+进程数和内存包括 Tekaku.exe 及它的 msedgewebview2.exe 子进程。
+.exe 文件体积不等于运行内存，请在任务管理器中合计进程树观察。
+本构建尚未签名，Windows SmartScreen 可能显示“未知发布者”。
+浏览器“下载不常见”是下载信誉提示，不等于已经检出病毒，也不是安全保证。
+SHA256SUMS.txt 提供 EXE 和 SDK DLL 的校验值；具体扫描证据见随包“检查记录”与安全检查说明。
+单一引擎未检出不代表绝对安全；Windows Defender 和 Windows 原生界面仍需实机复核。
