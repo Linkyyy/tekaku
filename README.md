@@ -2,9 +2,18 @@
 
 一个简洁、离线优先的 Markdown 编辑器，提供 Windows 桌面版和 Android 手机版。Typora 风格的安静界面，Notion 风格的内容块输入，在同一区域编辑与呈现。
 
-[下载 Windows 0.7.0 便携包](https://github.com/Linkyyy/tekaku/raw/refs/heads/downloads/windows-v0.7.0/Tekaku-0.7.0-windows-x64.zip) · [下载 Android 0.1.0 APK](https://github.com/Linkyyy/tekaku/raw/refs/heads/downloads/android-v0.1.0/Tekaku-0.1.0-android.apk) · [官网源码](https://github.com/Linkyyy/tekaku/tree/gh-pages)
+[下载 Windows 0.8.0 便携包](https://github.com/Linkyyy/tekaku/raw/refs/heads/downloads/windows-v0.8.0/Tekaku-0.8.0-windows-x64.zip) · [下载 Android 0.1.0 APK](https://github.com/Linkyyy/tekaku/raw/refs/heads/downloads/android-v0.1.0/Tekaku-0.1.0-android.apk) · [官网源码](https://github.com/Linkyyy/tekaku/tree/gh-pages)
 
 ![编辑器](docs/editor.png)
+
+## 0.8 桌面更新
+
+- 大纲移到右侧独立栏，可收起并记住状态；源码改为右下角图标切换。左侧栏去掉源码、全屏和插入菜单。
+- 编辑区提供分组右键菜单：编辑操作、正文/一至六级标题、图片、代码、表格、链接、列表等。支持 Shift+F10 和方向键；源码视图也能插入 Markdown。
+- 添加多尺寸 EXE / 任务栏图标、应用标识和版本资源；首次启动加入当前用户的 Markdown“打开方式”。设置可添加/移除关联，不更改系统默认应用。移动便携程序后重新运行可更新路径。
+- 全屏时移除隐藏的 Windows 缩放边框，为关闭按钮保留边距；快捷键指南改为分组卡片与按键样式。
+- 打开/新建文档时重置撤销记录，避免撤销跨越文档边界。
+- Android 仍为 0.1.0，本次只更新 PC。
 
 ## 0.7 与 Android 0.1
 
@@ -20,6 +29,10 @@
 - 代码块与源码支持 Tab / Shift+Tab 缩进、整行多选缩进与撤销；列表支持层级调整。代码工具提供复制和自动换行；代码中的反引号围栏可安全往返保存。
 - 移除 go-winloader 内存 PE 加载依赖，改为加载程序旁的 SDK WebView2Loader.dll；使用绝对路径、限制 DLL 搜索范围，并在加载前校验固定 SHA-256。
 - 发布安全检查记录、校验值与可复核源码。用户提供的提示为“下载不常见”，属于下载信誉提示；当前 EXE 仍未签名，不能承诺此提示消失。
+
+![右键插入菜单](docs/context-menu.png)
+
+![快捷键指南](docs/shortcuts.png)
 
 ![代码编辑](docs/code.png)
 
@@ -66,7 +79,10 @@
 - `# `、`## `、`- `、`1. `、`> `、`[] `、三个反引号加空格自动转换对应内容块。
 - 空段落输入 `/`，用方向键和回车选择内容块。
 - `Ctrl+B / I / Z` 粗体 / 斜体 / 撤销；`Ctrl+Shift+M` 在同一区域切换 Markdown 源码。
-- 左上角展开侧栏后可打开设置、源码、全屏、文件操作和快捷键；Ctrl+, 也可直接打开设置。
+- 左上角展开侧栏后可打开设置、文件操作、工具导出和快捷键；Ctrl+, 也可直接打开设置。
+- 大纲位于右侧，源码使用右下角 </> 图标或 Ctrl+Shift+M 切换；F11 / Esc 切换和退出全屏。
+- 编辑区右键或 Shift+F10 打开编辑与插入菜单；源码视图同样支持常用 Markdown 插入。
+- 首次启动会加入当前用户 .md / .markdown 的“打开方式”；设置中可添加或移除，默认应用由 Windows 设置选择。
 
 原生文件选择器和保存窗口使用 Windows API。保存先写同目录临时文件再替换目标；失败会显示错误并清理临时文件。支持 UTF-8（含 BOM），为控制大文件编辑时的资源占用，单文件上限为 **8 MiB**。
 
@@ -98,7 +114,7 @@ npm run dev
 npm run package:windows
 ```
 
-可在 Linux 或 Windows 上交叉构建 Windows x64，无需 C 编译器。输出 `release/windows/Tekaku.exe`、`WebView2Loader.dll`、`SHA256SUMS.txt` 和使用说明。Windows 上 `npm run desktop` 会构建并启动，`npm start` 启动已有构建。当前没有代码签名，SmartScreen 可能显示未知发布者。
+可在 Linux 或 Windows 上交叉构建 Windows x64，无需 C 编译器。首次构建会安装固定版本 go-winres v0.3.3 生成图标、版本与 DPI 清单资源（构建工具，不随包运行）；可通过 TEKAKU_WINRES 指定已有工具。输出 `release/windows/Tekaku.exe`、`WebView2Loader.dll`、`SHA256SUMS.txt` 和使用说明。Windows 上 `npm run desktop` 会构建并启动，`npm start` 启动已有构建。当前没有代码签名，SmartScreen 可能显示未知发布者。
 
 云机器指定工具与缓存：
 
@@ -121,7 +137,7 @@ npm test
 npm run test:native
 ```
 
-已有 Chromium 可用 `TEKAKU_CHROMIUM=/usr/bin/chromium npm test`。32 项桌面界面测试覆盖极简首页、标题占位符、实时编辑、Markdown 转换、导入导出、草稿、源码查看、皮肤和设置持久化、嵌入页面、无 localStorage 桥接、窗口控制协议、自定义保存/关闭弹窗、侧栏全部菜单、图文表格、搜索替换、HTML/打印输出和写入错误，以及完整标题层级、代码围栏、语言别名、缩进撤销、代码复制换行和列表层级。8 项 Go 测试覆盖 UTF-8/BOM、大文件保护、临时文件清理、覆盖保存和草稿设置读写、图片提取去重、相对图解析、另存为复制、代码示例保留与路径边界。Windows GUI、常规 DLL 加载和 Win32 对话框需在实机复核；浏览器桥接测试使用模拟原生接口，不代替实机测试。
+已有 Chromium 可用 `TEKAKU_CHROMIUM=/usr/bin/chromium npm test`。43 项桌面界面测试覆盖极简首页、标题占位符、实时编辑、Markdown 转换、导入导出、草稿、源码查看、皮肤和设置持久化、嵌入页面、无 localStorage 桥接、窗口控制协议、自定义保存/关闭弹窗、侧栏文件菜单、右侧大纲、右下角源码、右键编辑/插入、纯文本剪贴板、文件关联协议、分组快捷键和多 DPI 页面边界、图文表格、搜索替换、HTML/打印输出和写入错误，以及完整标题层级、代码围栏、语言别名、缩进撤销、代码复制换行和列表层级。10 项 Go 测试覆盖 UTF-8/BOM、大文件保护、临时文件清理、覆盖保存和草稿设置读写、图片提取去重、相对图解析、另存为复制、代码示例保留、路径边界与文件关联注册计划。Windows GUI、任务栏/资源管理器图标、真实注册表关联、多显示器全屏/DPI、常规 DLL 加载和 Win32 对话框需在实机复核；浏览器桥接测试使用模拟原生接口，不代替实机测试。
 
 ## 支持范围
 

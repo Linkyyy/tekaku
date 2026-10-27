@@ -42,6 +42,7 @@ type frame struct {
 	owner              uintptr
 	fullscreen         bool
 	previousRect       rect
+	previousStyle      uintptr
 	previousMaximized  bool
 	theme              string
 	appliedTheme       string
@@ -69,12 +70,17 @@ func (f *frame) setFullscreen(value bool) {
 			showWindow.Call(f.owner, 9)
 		}
 		getWindowRect.Call(f.owner, uintptr(unsafe.Pointer(&f.previousRect)))
+		f.previousStyle, _, _ = getWindowStyle.Call(f.owner, ^uintptr(15))
 		f.fullscreen = true
+		// A thick resize frame has invisible non-client insets on Windows. Drop
+		// it in fullscreen so WebView's right edge is the monitor's right edge.
+		setWindowStyle.Call(f.owner, ^uintptr(15), f.previousStyle&^(0x00040000|0x00C00000))
 		info := f.monitor()
 		r := info.Bounds
 		setWindowPos.Call(f.owner, 0, uintptr(r.Left), uintptr(r.Top), uintptr(r.Right-r.Left), uintptr(r.Bottom-r.Top), 0x0020|0x0004)
 	} else {
 		f.fullscreen = false
+		setWindowStyle.Call(f.owner, ^uintptr(15), f.previousStyle)
 		r := f.previousRect
 		setWindowPos.Call(f.owner, 0, uintptr(r.Left), uintptr(r.Top), uintptr(r.Right-r.Left), uintptr(r.Bottom-r.Top), 0x0020|0x0004)
 		if f.previousMaximized {

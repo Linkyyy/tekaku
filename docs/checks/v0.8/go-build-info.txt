@@ -1,0 +1,14 @@
+release/windows/Tekaku.exe: go1.27.3
+	path	tekaku.local/desktop
+	mod	tekaku.local/desktop	(devel)	
+	dep	github.com/jchv/go-webview2	v0.0.0-20260205173254-56598839c808
+	=>	./third_party/go-webview2	(devel)	
+	
+	dep	golang.org/x/sys	v0.0.0-20210218145245-beda7e5e158e	h1:f5mksnk+hgXHnImpZoWj64ja99j9zV7YUgrVG95uFE4=
+	build	-buildmode=exe
+	build	-compiler=gc
+	build	-trimpath=true
+	build	CGO_ENABLED=0
+	build	GOARCH=amd64
+	build	GOOS=windows
+	build	GOAMD64=v1

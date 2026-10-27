@@ -1,4 +1,4 @@
-import { readFile, writeFile, mkdir, copyFile } from 'node:fs/promises';
+import { readFile, writeFile, mkdir, copyFile, access } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
 import { resolve } from 'node:path';
 import { createHash } from 'node:crypto';
@@ -13,6 +13,19 @@ if (!loaderSource.includes(`const LoaderSHA256 = "${loaderHash}"`)) throw new Er
 await copyFile('native/runtime/WebView2Loader.dll', 'release/windows/WebView2Loader.dll');
 await copyFile('native/runtime/LICENSE.txt', 'release/windows/WebView2-SDK-LICENSE.txt');
 const output = resolve('release/windows/Tekaku.exe');
+// Pin the build-time resource compiler. Its output embeds icons, version
+// metadata and the per-monitor-DPI manifest directly into the portable EXE.
+const resourceVersion = JSON.parse(await readFile('package.json', 'utf8')).version;
+const toolsDir = resolve('node_modules/.cache/tekaku-tools');
+const winres = process.env.TEKAKU_WINRES || resolve(toolsDir, `go-winres${process.platform === 'win32' ? '.exe' : ''}`);
+try { await access(winres); } catch {
+  if (process.env.TEKAKU_WINRES) throw new Error(`Resource compiler not found: ${winres}`);
+  await mkdir(toolsDir, { recursive: true });
+  execFileSync(process.env.TEKAKU_GO || 'go', ['install', 'github.com/tc-hib/go-winres@v0.3.3'], {
+    stdio: 'inherit', env: { ...process.env, GOBIN: toolsDir, GOOS: process.platform === 'win32' ? 'windows' : process.platform === 'darwin' ? 'darwin' : 'linux', GOARCH: process.arch === 'arm64' ? 'arm64' : 'amd64' },
+  });
+}
+execFileSync(winres, ['make', '--in', 'assets/winres.json', '--arch', 'amd64', '--out', 'rsrc', '--file-version', resourceVersion + '.0', '--product-version', resourceVersion + '.0'], { cwd: 'native', stdio: 'inherit' });
 execFileSync(process.env.TEKAKU_GO || 'go', ['build', '-trimpath', '-buildvcs=false', '-ldflags=-H=windowsgui -s -w', '-o', output, '.'], {
   cwd: 'native', stdio: 'inherit', env: { ...process.env, GOOS: 'windows', GOARCH: 'amd64', CGO_ENABLED: '0' },
 });

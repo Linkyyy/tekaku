@@ -42,20 +42,22 @@ python3 -m http.server 8080
 
 ## 下载与维护
 
-- [Windows v0.7.0 便携包（约 1.8 MB）](https://github.com/Linkyyy/tekaku/raw/refs/heads/downloads/windows-v0.7.0/Tekaku-0.7.0-windows-x64.zip)
-- [版本说明](https://github.com/Linkyyy/tekaku/tree/downloads/windows-v0.7.0)
-- 下载 ZIP 的 SHA-256：`5025d5a50b2093c43a462a59ae2490b214895cfc4cbfaf9e9cfd2072d28360a8`
+- [Windows v0.8.0 便携包（约 1.9 MB）](https://github.com/Linkyyy/tekaku/raw/refs/heads/downloads/windows-v0.8.0/Tekaku-0.8.0-windows-x64.zip)
+- [版本说明](https://github.com/Linkyyy/tekaku/tree/downloads/windows-v0.8.0)
+- 下载 ZIP 的 SHA-256：`d46f9148064e5a4d4318beeb3a99c22fbc3c428291775f0c4501a5221f623d18`
 
 新版本发布时，更新 `index.html` 中的版本号、下载链接、体积、最近更新内容和 SHA-256，以及本说明。替换皮肤截图时保留 `assets/editor-{white,paper,sage,night}.webp` 文件名。分享预览图使用 gh-pages 分支上的公开图片地址，不依赖 GitHub Pages 域名；确定正式域名后也可换成站点自身的绝对地址。
 
-桌面端使用系统 WebView2，支持 Windows 10 / 11 x64。1.8 MB 是 ZIP 体积，非内存占用；官网 FAQ 已注明依赖、图片附件移动方式、未签名和 Markdown 支持范围。
+桌面端使用系统 WebView2，支持 Windows 10 / 11 x64。1.9 MB 是 ZIP 体积，非内存占用；官网 FAQ 已注明依赖、图片附件移动方式、未签名和 Markdown 支持范围。
 
-## 0.7.0 安全检查
+## 0.8.0 安全检查
 
-用户反馈的“下载不常见”属于下载信誉提示。EXE 仍未签名，不能承诺提示消失。扫描和校验记录见 [安全检查说明](https://github.com/Linkyyy/tekaku/blob/downloads/windows-v0.7.0/SECURITY-CHECK.md)。[应用源码](https://github.com/Linkyyy/tekaku/tree/main)可复核。下载包应完整解压，保留 EXE 和 WebView2Loader.dll 在同一目录。
+用户反馈的“下载不常见”属于下载信誉提示。EXE 仍未签名，不能承诺提示消失。扫描和校验记录见 [安全检查说明](https://github.com/Linkyyy/tekaku/blob/downloads/windows-v0.8.0/SECURITY-CHECK.md)。[应用源码](https://github.com/Linkyyy/tekaku/tree/main)可复核。下载包应完整解压，保留 EXE 和 WebView2Loader.dll 在同一目录。
 
 ## Android 手机版
 
 官网已新增 Android 版介绍、真实编辑界面截图及 [APK 下载](https://github.com/Linkyyy/tekaku/raw/refs/heads/downloads/android-v0.1.0/Tekaku-0.1.0-android.apk)。APK 约 235 KB，支持 Android 8.0+ 和较新的系统 WebView。[使用与构建说明](https://github.com/Linkyyy/tekaku/blob/downloads/android-v0.1.0/ANDROID.md)。
 
 Vercel 一键创建的独立仓库 `Linkyyy/tekaku-website` 以 main 为网站源；上游官网源为本仓库 gh-pages。发布时两者同步，网站无需 npm 构建。
+
+Windows 0.8.0：右侧独立大纲、右下角源码图标、分组右键菜单、多尺寸程序图标、当前用户 Markdown 打开方式、全屏边界修正及分组快捷键指南。Android APK 保持 0.1.0 不变。

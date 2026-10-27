@@ -16,12 +16,13 @@ test('menus live in the collapsible sidebar and sidebar file actions work', asyn
   await expect(page.locator('#focus, #more, #more-menu')).toHaveCount(0);
   await expect(page.getByRole('button', { name: '专注模式', exact: true })).toHaveCount(0);
   await page.locator('#expand').click(); await expect(page.locator('#expand')).toHaveAttribute('aria-expanded', 'true');
-  for (const id of ['new', 'open', 'save', 'save-as', 'menu-source', 'toggle-fullscreen', 'settings', 'help']) await expect(page.locator(`.sidebar #${id}`)).toBeVisible();
+  for (const id of ['new', 'open', 'save', 'save-as', 'settings', 'help']) await expect(page.locator(`.sidebar #${id}`)).toBeVisible();
+  await expect(page.locator('.sidebar #menu-source, .sidebar #toggle-fullscreen, .sidebar #code-insert')).toHaveCount(0);
   await page.locator('.sidebar #open').click();
   await expect(page.locator('.tiptap h1')).toHaveText('从侧栏打开');
-  await page.locator('.sidebar #menu-source').click();
+  await page.locator('.corner-tools #source').click();
   await expect(page.locator('#source-editor')).toBeVisible();
-  await expect(page.locator('#menu-source')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('#source')).toHaveAttribute('aria-pressed', 'true');
   await page.locator('#source-editor').fill('# 从侧栏修改');
   await page.locator('.sidebar #save').click();
   await page.locator('.sidebar #save-as').click();

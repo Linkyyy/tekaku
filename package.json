@@ -1,6 +1,6 @@
 {
   "name": "tekaku",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "手书 — Windows WebView2 轻量 Markdown 编辑器",
   "scripts": {
     "dev": "vite",

@@ -1,0 +1,3 @@
+clipboard_windows.go:65:31: possible misuse of unsafe.Pointer
+clipboard_windows.go:94:34: possible misuse of unsafe.Pointer
+main_windows.go:181:29: possible misuse of unsafe.Pointer

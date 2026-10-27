@@ -101,6 +101,7 @@ func chooseFileFiltered(owner uintptr, save bool, current, filterText, extension
 
 func main() {
 	runtime.LockOSThread()
+	setApplicationID()
 	if dpi := user32.NewProc("SetProcessDpiAwarenessContext"); dpi.Find() == nil {
 		dpi.Call(^uintptr(3))
 	} // Per-monitor DPI v2
@@ -126,7 +127,7 @@ func main() {
 	}
 	w := webview.NewWithOptions(webview.WebViewOptions{
 		DataPath: filepath.Join(dataDir, "WebView2"), AutoFocus: true,
-		WindowOptions: webview.WindowOptions{Title: "手书 Tekaku", Width: 1100, Height: 780, Center: true},
+		WindowOptions: webview.WindowOptions{Title: "手书 Tekaku", Width: 1100, Height: 780, Center: true, IconId: 1},
 	})
 	if w == nil {
 		showMessage(0, "无法启动编辑器。请安装或修复 Microsoft Edge WebView2 Evergreen Runtime 后重试。\n官方下载：https://developer.microsoft.com/microsoft-edge/webview2/", 0x10)
@@ -140,6 +141,12 @@ func main() {
 	importedName := ""
 	prefsPath := filepath.Join(dataDir, "preferences.json")
 	prefs := loadPreferences(prefsPath)
+	executable, executableErr := executablePath()
+	if executableErr == nil && prefs["tekaku-association-disabled"] != "1" && !associationRegistered(executable) {
+		// Portable, per-user Open With registration. The settings panel can
+		// remove it and persist an opt-out; no elevation or default hijacking.
+		_ = registerAssociation(executable)
+	}
 	var recovered struct {
 		Path string `json:"path"`
 	}
@@ -203,6 +210,45 @@ func main() {
 	}
 	bind("tekakuWindow", func(action string) (windowState, error) { return frame.action(action, &dirty) })
 	bind("tekakuDirty", func(value bool) { dirty = value })
+	bind("tekakuClipboardRead", func() (string, error) { return clipboardRead(owner) })
+	bind("tekakuClipboardWrite", func(value string) error { return clipboardWrite(owner, value) })
+	bind("tekakuIntegration", func(action string) (integrationState, error) {
+		if executableErr != nil {
+			return integrationState{}, executableErr
+		}
+		if action == "register" || action == "remove" {
+			var err error
+			if action == "register" {
+				err = registerAssociation(executable)
+			} else {
+				err = removeAssociation(executable)
+			}
+			if err != nil {
+				return integrationState{}, err
+			}
+			next := make(map[string]string, len(prefs)+1)
+			for key, value := range prefs {
+				next[key] = value
+			}
+			if action == "remove" {
+				next["tekaku-association-disabled"] = "1"
+			} else {
+				delete(next, "tekaku-association-disabled")
+			}
+			if err := savePreferences(prefsPath, next); err != nil {
+				return integrationState{}, err
+			}
+			prefs = next
+		} else if action != "status" {
+			return integrationState{}, fmt.Errorf("不支持的文件关联操作")
+		}
+		registered := associationRegistered(executable)
+		message := "尚未加入打开方式。可在此添加，无需管理员权限。"
+		if registered {
+			message = "已加入 .md / .markdown 的打开方式。右键文件 → 打开方式 → 手书 Tekaku。"
+		}
+		return integrationState{Registered: registered, Message: message}, nil
+	})
 	bind("tekakuNew", func() bool {
 		currentPath = ""
 		importedName = ""
@@ -212,11 +258,18 @@ func main() {
 	bind("tekakuImportFile", func(request struct {
 		Name    string `json:"name"`
 		Content string `json:"content"`
-	}) (*document, error) { name := filepath.Base(request.Name); ext := strings.ToLower(filepath.Ext(name)); if name != request.Name || strings.ContainsAny(name, "\x00\r\n<>:\"/\\|?*") || !(ext == ".md" || ext == ".markdown" || ext == ".txt") {
-		return nil, fmt.Errorf("不支持此文件名或文件类型")
-	}; if len(request.Content) > maxDocumentBytes || !utf8.ValidString(request.Content) {
-		return nil, fmt.Errorf("请使用不超过 8 MiB 的 UTF-8 Markdown 文件")
-	}; currentPath, importedName, dirty = "", name, false; return &document{Name: name, Content: request.Content}, nil })
+	}) (*document, error) {
+		name := filepath.Base(request.Name)
+		ext := strings.ToLower(filepath.Ext(name))
+		if name != request.Name || strings.ContainsAny(name, "\x00\r\n<>:\"/\\|?*") || !(ext == ".md" || ext == ".markdown" || ext == ".txt") {
+			return nil, fmt.Errorf("不支持此文件名或文件类型")
+		}
+		if len(request.Content) > maxDocumentBytes || !utf8.ValidString(request.Content) {
+			return nil, fmt.Errorf("请使用不超过 8 MiB 的 UTF-8 Markdown 文件")
+		}
+		currentPath, importedName, dirty = "", name, false
+		return &document{Name: name, Content: request.Content}, nil
+	})
 	bind("tekakuOpen", func() (*document, error) {
 		path, err := chooseFile(owner, false, currentPath)
 		if err != nil || path == "" {
@@ -327,6 +380,8 @@ func main() {
   open: () => window.tekakuOpen(), save: data => window.tekakuSave(data),
   new: () => window.tekakuNew(), dirty: value => window.tekakuDirty(value),
   importFile: data => window.tekakuImportFile(data),
+  integration: action => window.tekakuIntegration(action),
+  clipboardRead: () => window.tekakuClipboardRead(), clipboardWrite: value => window.tekakuClipboardWrite(value),
   readState: () => window.tekakuReadState(), writeState: (key, value) => window.tekakuWriteState(key, value),
   resolveImages: refs => window.tekakuResolveImages(refs), openURL: url => window.tekakuOpenURL(url), exportHTML: data => window.tekakuExportHTML(data),
   initialFile: accept => window.tekakuInitialFile(Boolean(accept)), window: action => window.tekakuWindow(action)

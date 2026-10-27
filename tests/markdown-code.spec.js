@@ -75,15 +75,15 @@ test('Tab and Shift Tab change list nesting without losing items',async({page})=
   await expect(page.locator('.tiptap li')).toHaveCount(3);
 });
 
-test('sidebar block insertion, inline code, code wrapping and copy are available without a toolbar', async ({page}) => {
+test('context block insertion, inline code, code wrapping and copy are available without a toolbar', async ({page}) => {
   await page.context().grantPermissions(['clipboard-read','clipboard-write']);
   await page.goto('/');await page.locator('.tiptap h1').click();await page.keyboard.type('test');
-  await page.locator('#expand').click();await page.locator('.sidebar-tools summary').filter({hasText:'插入',exact:true}).click();
-  await page.locator('#block-style').selectOption('6');await expect(page.locator('.tiptap h6')).toHaveText('test');
-  await page.locator('#block-style').selectOption('0');await page.locator('.tiptap p').first().click();await page.keyboard.press('End');
+  await page.keyboard.press('Shift+F10');await page.locator('#context-style').click();
+  await page.locator('[data-heading-level="6"]').click();await expect(page.locator('.tiptap h6')).toHaveText('test');
+  await page.keyboard.press('Shift+F10');await page.locator('#context-style').click();await page.locator('[data-heading-level="0"]').click();await page.locator('.tiptap p').first().click();await page.keyboard.press('End');
   await page.keyboard.press('Control+e');await page.keyboard.type(' inline ');await page.keyboard.press('Control+e');
   await expect(page.locator('.tiptap p code')).toHaveText(' inline ');
-  await page.keyboard.press('End');await page.keyboard.press('Enter');await page.locator('#code-insert').click();
+  await page.keyboard.press('End');await page.keyboard.press('Enter');await page.keyboard.press('Shift+F10');await page.locator('#context-insert').click();await page.locator('#code-insert').click();
   await page.keyboard.type('const x = 42;');await page.locator('#code-language').selectOption('javascript');
   await page.locator('#code-wrap').click();expect(await page.locator('.tiptap pre').evaluate(el=>getComputedStyle(el).whiteSpace)).toBe('pre-wrap');
   await page.locator('#code-copy').click();expect(await page.evaluate(()=>navigator.clipboard.readText())).toBe('const x = 42;');

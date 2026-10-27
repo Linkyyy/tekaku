@@ -1,7 +1,6 @@
 import { test, expect } from '@playwright/test';
 const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j1gAAAABJRU5ErkJggg==','base64');
 const source=page=>page.keyboard.press('Control+Shift+M');
-async function tools(page){await page.locator('#expand').click();await page.locator('.sidebar-tools summary').filter({hasText:'插入',exact:true}).click();}
 
 test('local image insertion, editing and Markdown reopening retain the image',async({page})=>{
  await page.goto('/');await page.locator('.tiptap h1').click();await page.keyboard.type('图片文档');
