@@ -2,6 +2,8 @@
 
 手书 Windows 与 Android 编辑器的中文产品官网。
 
+**Windows 下载已暂停：** 收到“检测到病毒”的下载拦截报告，尚未确认具体威胁名称与涉事版本。当前 Windows 0.10.0 推荐入口已停用；保留原始文件供核查，不应绕过安全软件拦截。见 [核查记录](https://github.com/Linkyyy/tekaku/blob/main/docs/SECURITY-ALERT-0.10.md)。
+
 纯静态 HTML / CSS / JavaScript，**没有构建步骤、运行依赖、外部字体、追踪脚本或账号功能**。图片均随站点提供；四种编辑器皮肤预览来自实际软件界面的浏览器渲染截图。界面功能示意已明确标注。
 
 ## 预览
@@ -42,7 +44,7 @@ python3 -m http.server 8080
 
 ## 下载与维护
 
-- [Windows v0.10.0 便携包（约 1.9 MB）](https://github.com/Linkyyy/tekaku/raw/refs/heads/downloads/windows-v0.10.0/Tekaku-0.10.0-windows-x64.zip)
+- Windows 0.10.0：安全核查中，下载入口暂缓。
 - [版本说明](https://github.com/Linkyyy/tekaku/tree/downloads/windows-v0.10.0)
 - 下载 ZIP 的 SHA-256：`66320d641b0d9b42e4488136563465f35ee56f115d237f09b6c2ba4e52073008`
 
@@ -50,9 +52,9 @@ python3 -m http.server 8080
 
 桌面端使用系统 WebView2，支持 Windows 10 / 11 x64。1.9 MB 是 ZIP 体积，非内存占用；官网 FAQ 已注明依赖、图片附件移动方式、未签名和 Markdown 支持范围。
 
-## 0.10.0 安全检查
+## 当前安全核查（未解决）
 
-用户反馈的“下载不常见”属于下载信誉提示。EXE 仍未签名，不能承诺提示消失。扫描和校验记录见 [安全检查说明](https://github.com/Linkyyy/tekaku/blob/downloads/windows-v0.10.0/SECURITY-CHECK.md)。[应用源码](https://github.com/Linkyyy/tekaku/tree/main)可复核。下载包应完整解压，保留 EXE 和 WebView2Loader.dll 在同一目录。
+新截图明确显示“检测到病毒”，不能按此前“下载不常见”的信誉提示处理。当前入口暂停，尚待具体威胁名称。EXE 仍未签名，不能承诺提示消失。扫描和校验记录见 [安全检查说明](https://github.com/Linkyyy/tekaku/blob/downloads/windows-v0.10.0/SECURITY-CHECK.md)。[应用源码](https://github.com/Linkyyy/tekaku/tree/main)可复核。下载包应完整解压，保留 EXE 和 WebView2Loader.dll 在同一目录。
 
 ## Android 手机版
 

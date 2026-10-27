@@ -1,0 +1,2 @@
+PASS: Both Windows download buttons disabled, no raw Windows download links, visible warning and advisory link.
+PASS: Android link preserved; 1440/768/390 widths do not overflow; skins still switch; no page errors.

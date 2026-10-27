@@ -2,7 +2,9 @@
 
 一个简洁、离线优先的 Markdown 编辑器，提供 Windows 桌面版和 Android 手机版。Typora 风格的安静界面，Notion 风格的内容块输入，在同一区域编辑与呈现。
 
-[下载 Windows 0.10.0 便携包](https://github.com/Linkyyy/tekaku/raw/refs/heads/downloads/windows-v0.10.0/Tekaku-0.10.0-windows-x64.zip) · [下载 Android 0.1.0 APK](https://github.com/Linkyyy/tekaku/raw/refs/heads/downloads/android-v0.1.0/Tekaku-0.1.0-android.apk) · [官网源码](https://github.com/Linkyyy/tekaku/tree/gh-pages)
+[Windows 安全核查中](docs/SECURITY-ALERT-0.10.md) · [下载 Android 0.1.0 APK](https://github.com/Linkyyy/tekaku/raw/refs/heads/downloads/android-v0.1.0/Tekaku-0.1.0-android.apk) · [官网源码](https://github.com/Linkyyy/tekaku/tree/gh-pages)
+
+> **Windows 下载暂缓：** 已收到“无法下载：检测到病毒”的报告，尚未取得威胁名称或确认涉事版本。当前官网 Windows 0.10.0 入口预防性暂停，不建议绕过拦截或添加白名单。暂无已验证修复版。[核查记录](docs/SECURITY-ALERT-0.10.md)。
 
 ![编辑器](docs/editor.png)
 
