@@ -42,10 +42,14 @@ python3 -m http.server 8080
 
 ## 下载与维护
 
-- [Windows v0.5.0 便携包（约 1.8 MB）](https://github.com/Linkyyy/tekaku/raw/refs/heads/downloads/windows-v0.5.0/Tekaku-0.5.0-windows-x64.zip)
-- [版本说明](https://github.com/Linkyyy/tekaku/tree/downloads/windows-v0.5.0)
-- 下载 ZIP 的 SHA-256：`98779fa139182a2ac1f149687ebe516d12aeea789e63a98b774c999ceb41d003`
+- [Windows v0.6.0 便携包（约 1.8 MB）](https://github.com/Linkyyy/tekaku/raw/refs/heads/downloads/windows-v0.6.0/Tekaku-0.6.0-windows-x64.zip)
+- [版本说明](https://github.com/Linkyyy/tekaku/tree/downloads/windows-v0.6.0)
+- 下载 ZIP 的 SHA-256：`a0941ded55b303620c0b473088b0890a3924db5988a229f01d4121e85a0a6c6b`
 
 新版本发布时，更新 `index.html` 中的版本号、下载链接、体积、最近更新内容和 SHA-256，以及本说明。替换皮肤截图时保留 `assets/editor-{white,paper,sage,night}.webp` 文件名。分享预览图使用 gh-pages 分支上的公开图片地址，不依赖 GitHub Pages 域名；确定正式域名后也可换成站点自身的绝对地址。
 
 桌面端使用系统 WebView2，支持 Windows 10 / 11 x64。1.8 MB 是 ZIP 体积，非内存占用；官网 FAQ 已注明依赖、图片附件移动方式、未签名和 Markdown 支持范围。
+
+## 0.6.0 安全检查
+
+用户反馈的“下载不常见”属于下载信誉提示。EXE 仍未签名，不能承诺提示消失。扫描和校验记录见 [安全检查说明](https://github.com/Linkyyy/tekaku/blob/downloads/windows-v0.6.0/SECURITY-CHECK.md)。[应用源码](https://github.com/Linkyyy/tekaku/tree/main)可复核。下载包应完整解压，保留 EXE 和 WebView2Loader.dll 在同一目录。
