@@ -1,0 +1,26 @@
+
+> tekaku@0.7.0 test:mobile
+> playwright test --config mobile/playwright.config.js
+
+[WebServer] (node:60429) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:60442) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 6 tests using 1 worker
+
+(node:60469) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 mobile/tests/editor.spec.js:19:1 › fresh app is minimal, touch sized and has no viewport overflow (4.9s)
+  ✓  2 mobile/tests/editor.spec.js:25:1 › native open, code editing, language and save preserve Markdown (4.0s)
+  ✓  3 mobile/tests/editor.spec.js:32:1 › canceling save keeps the current file and prevents an open action (2.7s)
+  ✓  4 mobile/tests/editor.spec.js:37:1 › source edits, skin and unsaved draft restore after restarting the view (3.7s)
+  ✓  5 mobile/tests/editor.spec.js:44:1 › new document gets a fresh save token and Save As uses the requested filename (2.9s)
+  ✓  6 mobile/tests/editor.spec.js:50:1 › incoming files wait for a discard decision and hardware back closes the menu first (2.2s)
+
+  6 passed (27.5s)
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.1
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1
+npm notice To update run: npm install -g npm@12.2.1
+npm notice
