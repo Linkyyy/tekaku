@@ -1,0 +1,1 @@
+PASS: All non-root locked dependencies are unchanged from 0.9.0. Only the application version is updated.

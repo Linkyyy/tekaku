@@ -1,0 +1,14 @@
+{
+  "Tekaku.exe": {
+    "bytes": 4491776,
+    "sha256": "31e54543c1ec43b1e029b281b239a0eaf45db242883fe5800119cfb544a971f4"
+  },
+  "WebView2Loader.dll": {
+    "bytes": 137640,
+    "sha256": "c4674acf95f0800793a4a6d61132adf5dfa694c218e482d86093494c4e84100a"
+  },
+  "Tekaku-0.10.0-windows-x64.zip": {
+    "bytes": 1913265,
+    "sha256": "66320d641b0d9b42e4488136563465f35ee56f115d237f09b6c2ba4e52073008"
+  }
+}

@@ -1,0 +1,15 @@
+/scan/Tekaku.exe: OK
+/scan/WebView2Loader.dll: OK
+/scan/Tekaku-0.10.0-windows-x64.zip: OK
+
+----------- SCAN SUMMARY -----------
+Known viruses: 3628192
+Engine version: 1.5.4
+Scanned directories: 0
+Scanned files: 3
+Infected files: 0
+Data scanned: 6.83 MiB
+Data read: 6.24 MiB (ratio 1.09:1)
+Time: 374.859 sec (6 m 14 s)
+Start Date: 2026:10:27 07:42:44
+End Date:   2026:10:27 07:48:59
