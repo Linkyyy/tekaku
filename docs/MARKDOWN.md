@@ -18,6 +18,10 @@
 | 图片 | `![说明](图片路径)` | 拖入 / 粘贴 / Ctrl+Shift+I |
 | GFM 表格 | 竖线与表头分隔行 | 右键菜单、`/` 菜单 |
 
+## 快捷输入指南
+
+左下角悬浮按钮展开侧栏 → 输入指南 → Markdown 快捷输入。指南并排展示输入示例与显示效果，区分行首内容块、文字样式和源码示例。标题与页签始终保留，内容单独滚动，Esc 关闭。源码/预览切换保持同一编辑区域，分别记住滚动位置。
+
 ## 代码编辑
 
 - 支持纯文本，以及 JavaScript、TypeScript、Python、C、C++、C#、Java、Go、Rust、PHP、Ruby、Swift、Kotlin、Dart、JSON、YAML、INI/TOML、HTML/XML、CSS、Shell/Bash、PowerShell、SQL、Markdown、Diff、Dockerfile。

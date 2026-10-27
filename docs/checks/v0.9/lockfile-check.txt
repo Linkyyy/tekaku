@@ -1,0 +1,2 @@
+PASS: Every non-root package-lock entry is byte-for-byte equivalent as JSON to Windows 0.8.0.
+PASS: Root runtime and development dependencies are unchanged; only the application version is updated to 0.9.0.

@@ -143,7 +143,7 @@ test('shortcut guide groups keycaps, follows the skin and scrolls within the win
   await expect(page.locator('.shortcut-group h3')).toHaveText(['文件','编辑','查找与插入','视图']);
   await expect(page.locator('.shortcut-group').filter({hasText:'切换源码'}).locator('kbd').first()).toHaveText('Ctrl');
   const dialog = await page.locator('#help-dialog').boundingBox(); expect(dialog.height).toBeLessThanOrEqual(516);
-  expect(await page.locator('#help-dialog').evaluate(el => el.scrollHeight > el.clientHeight)).toBe(true);
+  expect(await page.locator('#help-body').evaluate(el => el.scrollHeight > el.clientHeight)).toBe(true);
   await page.keyboard.press('Escape'); await expect(page.locator('#help-dialog')).toBeHidden();
 });
 

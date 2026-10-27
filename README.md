@@ -2,9 +2,17 @@
 
 一个简洁、离线优先的 Markdown 编辑器，提供 Windows 桌面版和 Android 手机版。Typora 风格的安静界面，Notion 风格的内容块输入，在同一区域编辑与呈现。
 
-[下载 Windows 0.8.0 便携包](https://github.com/Linkyyy/tekaku/raw/refs/heads/downloads/windows-v0.8.0/Tekaku-0.8.0-windows-x64.zip) · [下载 Android 0.1.0 APK](https://github.com/Linkyyy/tekaku/raw/refs/heads/downloads/android-v0.1.0/Tekaku-0.1.0-android.apk) · [官网源码](https://github.com/Linkyyy/tekaku/tree/gh-pages)
+[下载 Windows 0.9.0 便携包](https://github.com/Linkyyy/tekaku/raw/refs/heads/downloads/windows-v0.9.0/Tekaku-0.9.0-windows-x64.zip) · [下载 Android 0.1.0 APK](https://github.com/Linkyyy/tekaku/raw/refs/heads/downloads/android-v0.1.0/Tekaku-0.1.0-android.apk) · [官网源码](https://github.com/Linkyyy/tekaku/tree/gh-pages)
 
 ![编辑器](docs/editor.png)
+
+## 0.9 桌面更新
+
+- 输入指南分为快捷键与 Markdown 快捷输入页签；输入示例、操作提示与显示效果对照，标题、页签和关闭按钮固定。
+- 应用标题栏独立固定；预览滚动条位于编辑区域右侧，大纲、侧栏、设置和弹窗各自滚动内容。
+- 左侧栏开关移到左下角悬浮；侧栏和大纲支持展开/收起动画，尊重系统减少动态效果的设置。
+- 源码与预览在同一编辑视口切换，去掉源码框的独立高度和缩放柄；分别保留滚动位置，源码/预览图标居中对齐。
+- Android 仍为 0.1.0，本次只更新 PC。
 
 ## 0.8 桌面更新
 
@@ -33,6 +41,8 @@
 ![右键插入菜单](docs/context-menu.png)
 
 ![快捷键指南](docs/shortcuts.png)
+
+![Markdown 快捷输入](docs/markdown-guide.png)
 
 ![代码编辑](docs/code.png)
 
@@ -79,7 +89,7 @@
 - `# `、`## `、`- `、`1. `、`> `、`[] `、三个反引号加空格自动转换对应内容块。
 - 空段落输入 `/`，用方向键和回车选择内容块。
 - `Ctrl+B / I / Z` 粗体 / 斜体 / 撤销；`Ctrl+Shift+M` 在同一区域切换 Markdown 源码。
-- 左上角展开侧栏后可打开设置、文件操作、工具导出和快捷键；Ctrl+, 也可直接打开设置。
+- 左下角悬浮按钮展开侧栏后可打开设置、文件操作、工具导出和输入指南；Ctrl+, 也可直接打开设置。
 - 大纲位于右侧，源码使用右下角 </> 图标或 Ctrl+Shift+M 切换；F11 / Esc 切换和退出全屏。
 - 编辑区右键或 Shift+F10 打开编辑与插入菜单；源码视图同样支持常用 Markdown 插入。
 - 首次启动会加入当前用户 .md / .markdown 的“打开方式”；设置中可添加或移除，默认应用由 Windows 设置选择。
@@ -137,7 +147,7 @@ npm test
 npm run test:native
 ```
 
-已有 Chromium 可用 `TEKAKU_CHROMIUM=/usr/bin/chromium npm test`。43 项桌面界面测试覆盖极简首页、标题占位符、实时编辑、Markdown 转换、导入导出、草稿、源码查看、皮肤和设置持久化、嵌入页面、无 localStorage 桥接、窗口控制协议、自定义保存/关闭弹窗、侧栏文件菜单、右侧大纲、右下角源码、右键编辑/插入、纯文本剪贴板、文件关联协议、分组快捷键和多 DPI 页面边界、图文表格、搜索替换、HTML/打印输出和写入错误，以及完整标题层级、代码围栏、语言别名、缩进撤销、代码复制换行和列表层级。10 项 Go 测试覆盖 UTF-8/BOM、大文件保护、临时文件清理、覆盖保存和草稿设置读写、图片提取去重、相对图解析、另存为复制、代码示例保留、路径边界与文件关联注册计划。Windows GUI、任务栏/资源管理器图标、真实注册表关联、多显示器全屏/DPI、常规 DLL 加载和 Win32 对话框需在实机复核；浏览器桥接测试使用模拟原生接口，不代替实机测试。
+已有 Chromium 可用 `TEKAKU_CHROMIUM=/usr/bin/chromium npm test`。49 项桌面界面测试覆盖极简首页、标题占位符、实时编辑、Markdown 转换、导入导出、草稿、源码查看、皮肤和设置持久化、嵌入页面、无 localStorage 桥接、窗口控制协议、自定义保存/关闭弹窗、侧栏文件菜单、右侧大纲、右下角源码、右键编辑/插入、纯文本剪贴板、文件关联协议、分组快捷键、Markdown 示例对照、固定标题与独立滚动、源码视口尺寸与图标对齐、面板切换、减少动态效果和多 DPI 页面边界、图文表格、搜索替换、HTML/打印输出和写入错误，以及完整标题层级、代码围栏、语言别名、缩进撤销、代码复制换行和列表层级。10 项 Go 测试覆盖 UTF-8/BOM、大文件保护、临时文件清理、覆盖保存和草稿设置读写、图片提取去重、相对图解析、另存为复制、代码示例保留、路径边界与文件关联注册计划。Windows GUI、任务栏/资源管理器图标、真实注册表关联、多显示器全屏/DPI、常规 DLL 加载和 Win32 对话框需在实机复核；浏览器桥接测试使用模拟原生接口，不代替实机测试。
 
 ## 支持范围
 

@@ -46,7 +46,13 @@ let lastCountText;
 let nativeTheme;
 let features;
 document.querySelector('#app').innerHTML = `
-<aside class="sidebar" aria-label="侧边栏">
+  <header id="titlebar">
+    <div class="breadcrumb"><span id="filename"></span><span id="unsaved"></span></div>
+    <div class="titlebar-drag-space" aria-hidden="true"></div>
+    <span id="save-state"></span>
+    <div class="window-controls"><button id="window-minimize" aria-label="最小化" title="最小化"><svg viewBox="0 0 16 16"><path d="M3 8.5h10"/></svg></button><button id="window-maximize" aria-label="还原窗口" title="还原窗口"><svg viewBox="0 0 16 16"><rect x="3.5" y="3.5" width="9" height="9" rx=".5"/></svg></button><button id="window-close" aria-label="关闭窗口" title="关闭窗口"><svg viewBox="0 0 16 16"><path d="m4 4 8 8m0-8-8 8"/></svg></button></div>
+  </header>
+<div class="sidebar-rail"><aside id="sidebar" class="sidebar" aria-label="侧边栏">
   <div class="brand"><span class="brand-mark">手</span><strong>手书 <small>TEKAKU</small></strong></div>
   <div class="sidebar-content">
     <button class="new-document" id="new">＋ <span>新建文档</span><kbd>⌘ N</kbd></button>
@@ -59,28 +65,23 @@ document.querySelector('#app').innerHTML = `
   </div>
   <div class="sidebar-bottom">
     <button class="nav-item" id="settings" aria-label="设置"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="3"/><path d="m8 3 .7-1h2.6l.7 1 .6 1.3 1.4.5 1.5-.2 1.3 2.2-.8 1.3v2.8l.8 1.3-1.3 2.2-1.5-.2-1.4.5L12 17l-.7 1H8.7L8 17l-.6-1.3-1.4-.5-1.5.2-1.3-2.2.8-1.3V8.9l-.8-1.3 1.3-2.2 1.5.2 1.4-.5Z"/></svg><span>设置</span><kbd>Ctrl ,</kbd></button>
-    <button class="nav-item" id="help"><svg viewBox="0 0 20 20"><rect x="2" y="5" width="16" height="10" rx="2"/><path d="M5 8h1m3 0h1m3 0h1M5 11h1m3 0h5"/></svg><span>快捷键</span></button>
+    <button class="nav-item" id="help"><svg viewBox="0 0 20 20"><rect x="2" y="5" width="16" height="10" rx="2"/><path d="M5 8h1m3 0h1m3 0h1M5 11h1m3 0h5"/></svg><span>输入指南</span></button>
   </div>
-</aside>
+</aside></div>
+<div class="sidebar-toggle-dock floating-controls"><button id="expand" aria-label="切换侧栏" title="切换侧栏" aria-controls="sidebar"><svg viewBox="0 0 20 20"><rect x="3" y="4" width="14" height="12" rx="2"/><path d="M8 4v12"/></svg></button></div>
 <main>
-  <header id="titlebar">
-    <div class="breadcrumb"><button id="expand" aria-label="切换侧栏" title="切换侧栏"><svg viewBox="0 0 20 20"><rect x="3" y="4" width="14" height="12" rx="2"/><path d="M8 4v12"/></svg></button><span id="filename"></span><span id="unsaved"></span></div>
-    <div class="titlebar-drag-space" aria-hidden="true"></div>
-    <span id="save-state"></span>
-    <div class="window-controls"><button id="window-minimize" aria-label="最小化" title="最小化"><svg viewBox="0 0 16 16"><path d="M3 8.5h10"/></svg></button><button id="window-maximize" aria-label="还原窗口" title="还原窗口"><svg viewBox="0 0 16 16"><rect x="3.5" y="3.5" width="9" height="9" rx=".5"/></svg></button><button id="window-close" aria-label="关闭窗口" title="关闭窗口"><svg viewBox="0 0 16 16"><path d="m4 4 8 8m0-8-8 8"/></svg></button></div>
-  </header>
   <div class="toolbar"><div class="toolbar-group"><button data-action="paragraph" title="正文">正文⌄</button><span class="toolbar-divider"></span><button data-action="bold" title="粗体 (Ctrl/Cmd+B)"><b>B</b></button><button data-action="italic" title="斜体"><i>I</i></button><button data-action="strike" title="删除线"><s>S</s></button><button data-action="code" title="行内代码">&lt;/&gt;</button><span class="toolbar-divider"></span><button data-action="heading" title="二级标题">H₂</button><button data-action="bulletList" title="无序列表">☷</button><button data-action="taskList" title="待办清单">☑</button><button data-action="blockquote" title="引用">❞</button><button data-action="undo" title="撤销">↶</button><button data-action="redo" title="重做">↷</button></div></div>
-  <div class="workbench"><div class="editor-surface"><section class="page-scroll"><div class="paper"><div id="editor"></div><textarea id="source-editor" spellcheck="false" aria-label="Markdown 源码" hidden></textarea></div></section></div><aside id="outline-panel" class="outline-panel" aria-label="文档大纲"><div class="outline-heading"><h2>大纲</h2><button id="close-outline" aria-label="收起大纲" title="收起大纲">×</button></div><nav id="outline" aria-label="标题导航"></nav></aside></div>
-  <div class="corner-tools"><button id="toggle-outline" aria-label="切换大纲" title="显示或隐藏大纲" aria-expanded="true"><svg viewBox="0 0 20 20"><path d="M4 5h12M8 10h8M8 15h8M4 10h1m-1 5h1"/></svg></button><button id="source" aria-label="切换 Markdown 源码" title="切换源码（Ctrl+Shift+M）" aria-pressed="false"><svg viewBox="0 0 20 20"><path d="m7 5-5 5 5 5m6-10 5 5-5 5m-2-12-2 14"/></svg></button></div>
+  <div class="workbench"><div class="editor-surface"><section class="page-scroll"><div class="paper"><div id="editor"></div></div><textarea id="source-editor" spellcheck="false" aria-label="Markdown 源码" hidden></textarea></section></div><div class="outline-rail"><aside id="outline-panel" class="outline-panel" aria-label="文档大纲"><div class="outline-heading"><h2>大纲</h2><button id="close-outline" aria-label="收起大纲" title="收起大纲">×</button></div><nav id="outline" aria-label="标题导航"></nav></aside></div></div>
+  <div class="corner-tools floating-controls"><button id="toggle-outline" aria-label="切换大纲" title="显示或隐藏大纲" aria-expanded="true"><svg viewBox="0 0 20 20"><path d="M4 5h12M8 10h8M8 15h8M4 10h1m-1 5h1"/></svg></button><button id="source" aria-label="切换 Markdown 源码" title="切换源码（Ctrl+Shift+M）" aria-pressed="false"><svg data-view-icon="source" aria-hidden="true" viewBox="0 0 24 24"><path d="m8 7-5 5 5 5m8-10 5 5-5 5m-3-13-2 16"/></svg><svg data-view-icon="preview" aria-hidden="true" viewBox="0 0 24 24" hidden><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
   <footer><div><span class="local-dot"></span><span id="status">所有内容仅保存在本地</span></div><div><span id="word-count"></span><span>UTF-8</span><span>Markdown</span></div></footer>
 </main>
 <div id="slash-menu" class="floating-menu" hidden><div class="menu-title">添加内容块</div><div id="slash-items"></div><div class="menu-hint">↑ ↓ 选择 · Enter 插入 · Esc 关闭</div></div>
 
 <div id="toast" role="status"></div>
 ${shortcutGuide()}
-<dialog id="settings-dialog" aria-labelledby="settings-title">
+<dialog class="scroll-dialog" id="settings-dialog" aria-labelledby="settings-title">
   <div class="settings-heading"><div><span class="eyebrow">TEKAKU</span><h2 id="settings-title">设置</h2></div><button id="close-settings" aria-label="关闭设置"><svg viewBox="0 0 20 20"><path d="m5 5 10 10m0-10L5 15"/></svg></button></div>
-  <section class="settings-section"><h3>外观</h3><p>选择适合你的写作空间。</p><div class="theme-options" role="group" aria-label="皮肤">${themes.map(theme => `<button class="theme-option" data-theme-choice="${theme.id}" aria-pressed="false"><span class="theme-preview preview-${theme.id}"><span></span><i></i><i></i></span><strong>${theme.name}</strong><small>${theme.detail}</small><span class="theme-check">✓</span></button>`).join('')}</div></section>
+  <div class="dialog-body settings-body"><section class="settings-section"><h3>外观</h3><p>选择适合你的写作空间。</p><div class="theme-options" role="group" aria-label="皮肤">${themes.map(theme => `<button class="theme-option" data-theme-choice="${theme.id}" aria-pressed="false"><span class="theme-preview preview-${theme.id}"><span></span><i></i><i></i></span><strong>${theme.name}</strong><small>${theme.detail}</small><span class="theme-check">✓</span></button>`).join('')}</div></section>
   <section class="settings-section"><h3>编辑器</h3>
     <label class="setting-row"><span>字体</span><select id="setting-font"><option value="system">系统字体</option><option value="serif">衬线字体</option><option value="mono">等宽字体</option></select></label>
     <label class="setting-row"><span>字号 <output id="font-size-value"></output></span><input id="setting-font-size" type="range" min="14" max="24" step="1"></label>
@@ -95,7 +96,7 @@ ${shortcutGuide()}
     <label class="setting-row"><span>启动时收起侧栏</span><span class="switch"><input id="startup-sidebar" type="checkbox"><span></span></span></label>
   </section>
   <section class="settings-section"><h3>文件关联</h3><p id="association-status">Windows 桌面版可加入 Markdown 的打开方式。</p><div class="association-actions"><button id="register-association" class="primary-button">添加到打开方式</button><button id="remove-association">移除关联</button></div><p>仅设置当前用户的 .md / .markdown 打开方式；默认程序由你在 Windows 中选择。</p></section>
-  <div class="settings-footer"><button id="reset-settings">恢复默认设置</button><span>手书 0.8.0 · 自动保存</span></div>
+  </div><div class="settings-footer"><button id="reset-settings">恢复默认设置</button><span>手书 0.9.0 · 自动保存</span></div>
 </dialog>
 <dialog id="confirm-dialog" class="message-dialog" aria-labelledby="confirm-title"><h2 id="confirm-title">保存修改？</h2><p id="confirm-message"></p><div class="dialog-actions"><button id="confirm-cancel">取消</button><button id="confirm-discard">不保存</button><button id="confirm-save" class="primary-button">保存</button></div></dialog>
 <dialog id="error-dialog" class="message-dialog" aria-labelledby="error-title"><h2 id="error-title">操作失败</h2><p id="error-message"></p><div class="dialog-actions"><button id="error-close" class="primary-button">知道了</button></div></dialog>
@@ -111,7 +112,7 @@ function updateState(changed = false) {
   $('#filename').textContent = fileName;
   $('#sidebar-name').textContent = fileName.replace(/\.(md|markdown)$/i, '');
   $('#unsaved').textContent = dirty ? '•' : '';
-  $('#source').title=sourceMode?'切换到编辑视图（Ctrl+Shift+M）':'切换源码（Ctrl+Shift+M）';
+  syncViewMode();
   $('#save-state').textContent = dirty ? '未保存' : '已保存';
   if (settings.showStatusbar && (sourceMode ? lastCountText !== $('#source-editor').value : lastCountDocument !== editor.state.doc)) {
     const text = sourceMode ? markdown() : editor.getText();
@@ -183,8 +184,36 @@ function runSlash(index) {
   else commands[index][3](chain).run();
 }
 $('#slash-items').addEventListener('mousedown', event => { const button = event.target.closest('[data-command]'); if (button) { event.preventDefault(); runSlash(Number(button.dataset.command)); } });
-function exitSource() { if (!sourceMode) return; if ($('#source-editor').value !== sourceBefore) editor.commands.setContent($('#source-editor').value, { contentType: 'markdown' }); sourceMode = false; $('#source-editor').value = ''; sourceBefore = ''; $('#source-editor').hidden = true; $('#editor').hidden = false; $('#source').classList.remove('active'); $('#source').setAttribute('aria-pressed', 'false'); features?.sourceChanged(); }
-function toggleSource() { closeSlash(); if (sourceMode) exitSource(); else { sourceBefore = editor.getMarkdown(); $('#source-editor').value = sourceBefore; sourceMode = true; $('#source-editor').hidden = false; $('#editor').hidden = true; $('#source').classList.add('active'); $('#source').setAttribute('aria-pressed', 'true'); $('#source-editor').focus(); } updateState(); features?.sourceChanged(); }
+let previewScroll = 0, sourceScroll = 0;
+function syncViewMode() {
+  document.body.classList.toggle('is-source', sourceMode);
+  $('#source').classList.toggle('active', sourceMode);
+  $('#source').setAttribute('aria-pressed', String(sourceMode));
+  $('#source').setAttribute('aria-label', sourceMode ? '查看预览' : '查看 Markdown 源码');
+  $('#source').title = sourceMode ? '查看预览（Ctrl+Shift+M）' : '查看源码（Ctrl+Shift+M）';
+  $('[data-view-icon="source"]').toggleAttribute('hidden', sourceMode);
+  $('[data-view-icon="preview"]').toggleAttribute('hidden', !sourceMode);
+}
+function exitSource() {
+  if (!sourceMode) return;
+  sourceScroll = $('#source-editor').scrollTop;
+  if ($('#source-editor').value !== sourceBefore) editor.commands.setContent($('#source-editor').value, { contentType: 'markdown' });
+  sourceMode = false; $('#source-editor').value = ''; sourceBefore = '';
+  $('#source-editor').hidden = true; $('#editor').hidden = false; syncViewMode();
+  $('.page-scroll').scrollTop = previewScroll;
+  features?.sourceChanged();
+}
+function toggleSource() {
+  closeSlash();
+  if (sourceMode) { exitSource(); editor.view.focus(); }
+  else {
+    previewScroll = $('.page-scroll').scrollTop;
+    sourceBefore = editor.getMarkdown(); $('#source-editor').value = sourceBefore; sourceMode = true;
+    $('#source-editor').hidden = false; $('#editor').hidden = true; syncViewMode();
+    $('#source-editor').focus({ preventScroll: true }); $('#source-editor').scrollTop = sourceScroll;
+  }
+  updateState(); features?.sourceChanged();
+}
 let pendingConfirmation;
 function showError(title, message) {
   $('#error-title').textContent = title; $('#error-message').textContent = String(message);
@@ -236,6 +265,7 @@ async function newDocument() {
     if (!await confirmDiscard()) return;
     if (window.desktop && !await window.desktop.new()) return;
     sourceMode = false; $('#source-editor').hidden = true; $('#editor').hidden = false; $('#source').classList.remove('active'); $('#source').setAttribute('aria-pressed', 'false');
+    previewScroll = sourceScroll = 0; $('.page-scroll').scrollTop = 0;
     clearTimeout(persistTimer); resetImageCache();
     replaceDocument(blankDocument, 'json'); fileName = '未命名.md'; filePath = null; dirty = false; storage.removeItem('tekaku-draft'); window.desktop?.dirty(false); updateState(); features?.onLoad(); editor.commands.focus('start');
   } catch (error) { showError('新建失败', error.message || error); }
@@ -250,6 +280,7 @@ function replaceDocument(content, contentType = 'markdown') {
 async function loadDocument(data) {
   if (!data) return;
   sourceMode = false; $('#source-editor').hidden = true; $('#editor').hidden = false; $('#source').classList.remove('active'); $('#source').setAttribute('aria-pressed', 'false');
+  previewScroll = sourceScroll = 0; $('.page-scroll').scrollTop = 0;
   resetImageCache();
   replaceDocument(data.content); fileName = data.name; filePath = data.path || null; dirty = false;
   window.desktop?.dirty(false); persist(); updateState(); features?.onLoad(); toast('文档已打开');
@@ -282,14 +313,17 @@ $('#save-as').onclick = () => saveDocument(true);
 $('#file-input').onchange = async event => { const file = event.target.files[0]; if (file) await loadDocument({ name: file.name, content: await file.text() }); event.target.value = ''; };
 $('#source').onclick = toggleSource;
 $('#source-editor').oninput = () => { updateState(true); features?.sourceChanged(); };
-function toggleSidebar() {
-  const collapsed = document.body.classList.toggle('sidebar-hidden');
+function syncSidebar() {
+  const collapsed = document.body.classList.contains('sidebar-hidden');
   $('#expand').setAttribute('aria-expanded', String(!collapsed));
   $('#expand').title = collapsed ? '展开侧栏' : '收起侧栏';
+  $('#sidebar').inert = collapsed;
+  $('#sidebar').setAttribute('aria-hidden', String(collapsed));
 }
+function toggleSidebar() { document.body.classList.toggle('sidebar-hidden'); syncSidebar(); }
 $('#expand').onclick = toggleSidebar;
-$('#expand').setAttribute('aria-expanded', String(!document.body.classList.contains('sidebar-hidden')));
-$('#expand').title = document.body.classList.contains('sidebar-hidden') ? '展开侧栏' : '收起侧栏';
+syncSidebar();
+requestAnimationFrame(() => document.body.classList.add('layout-ready'));
 $('#current').onclick = () => editor.commands.focus();
 function syncSettings() {
   document.body.dataset.theme = settings.theme;
@@ -301,6 +335,8 @@ function syncSettings() {
   document.body.classList.toggle('show-statusbar', settings.showStatusbar);
   document.body.classList.toggle('outline-hidden', !settings.showOutline);
   $('#toggle-outline').setAttribute('aria-expanded', String(settings.showOutline));
+  $('#outline-panel').inert = !settings.showOutline;
+  $('#outline-panel').setAttribute('aria-hidden', String(!settings.showOutline));
   document.body.style.setProperty('--editor-font-size', `${settings.fontSize}px`);
   document.body.style.setProperty('--editor-line-height', settings.lineHeight);
   document.body.style.setProperty('--content-width', `${settings.contentWidth}px`);
@@ -389,6 +425,24 @@ document.addEventListener('keydown', event => {
   if (event.key === 'Escape' && !document.querySelector('dialog[open]') && !activeSlash && nativeFullscreen) { event.preventDefault(); windowAction('exit-fullscreen'); }
   if ((event.ctrlKey || event.metaKey) && event.key === ',') { event.preventDefault(); if (!$('#settings-dialog').open) openSettings(); }
 });
+function selectGuide(id, focus = false) {
+  for (const tab of document.querySelectorAll('[data-guide-tab]')) {
+    const selected = tab.id === id;
+    tab.setAttribute('aria-selected', String(selected)); tab.tabIndex = selected ? 0 : -1;
+    document.getElementById(tab.getAttribute('aria-controls')).hidden = !selected;
+    if (focus && selected) tab.focus();
+  }
+  $('#help-body').scrollTop = 0;
+}
+for (const tab of document.querySelectorAll('[data-guide-tab]')) {
+  tab.onclick = () => selectGuide(tab.id);
+  tab.onkeydown = event => {
+    if (!['ArrowLeft','ArrowRight','Home','End'].includes(event.key)) return;
+    event.preventDefault();
+    const tabs = [...document.querySelectorAll('[data-guide-tab]')];
+    selectGuide((event.key === 'Home' ? tabs[0] : event.key === 'End' ? tabs.at(-1) : tabs[(tabs.indexOf(tab) + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length]).id, true);
+  };
+}
 $('#help').onclick = () => $('#help-dialog').showModal();
 $('#close-help').onclick = () => $('#help-dialog').close();
 document.addEventListener('click', event => { if (!event.target.closest('#slash-menu') && !event.target.closest('.tiptap')) closeSlash(); });

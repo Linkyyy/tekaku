@@ -12,7 +12,7 @@ test('menus live in the collapsible sidebar and sidebar file actions work', asyn
   });
   await page.goto('/');
   await expect(page.locator('.sidebar')).toBeHidden();
-  await expect(page.locator('#titlebar button')).toHaveCount(4); // sidebar toggle and native window controls only
+  await expect(page.locator('#titlebar button')).toHaveCount(3); // native window controls; sidebar toggle floats at bottom-left
   await expect(page.locator('#focus, #more, #more-menu')).toHaveCount(0);
   await expect(page.getByRole('button', { name: '专注模式', exact: true })).toHaveCount(0);
   await page.locator('#expand').click(); await expect(page.locator('#expand')).toHaveAttribute('aria-expanded', 'true');
