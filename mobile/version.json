@@ -1,0 +1,7 @@
+{
+  "version": "0.1.0",
+  "versionCode": 1,
+  "applicationId": "com.tekaku.mobile",
+  "minSdk": 26,
+  "targetSdk": 35
+}

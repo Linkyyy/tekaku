@@ -112,6 +112,12 @@ func (f *frame) action(action string, dirty *bool) (windowState, error) {
 			releaseCapture.Call()
 			postMessage.Call(f.owner, 0x00A1, 2, 0)
 		}
+	case "resize-left", "resize-right", "resize-top", "resize-bottom", "resize-top-left", "resize-top-right", "resize-bottom-left", "resize-bottom-right":
+		if !f.fullscreen && !f.state().Maximized {
+			hit := map[string]uintptr{"resize-left": 10, "resize-right": 11, "resize-top": 12, "resize-top-left": 13, "resize-top-right": 14, "resize-bottom": 15, "resize-bottom-left": 16, "resize-bottom-right": 17}[action]
+			releaseCapture.Call()
+			postMessage.Call(f.owner, 0x00A1, hit, 0)
+		}
 	default:
 		return f.state(), fmt.Errorf("不支持的窗口操作")
 	}
@@ -120,7 +126,7 @@ func (f *frame) action(action string, dirty *bool) (windowState, error) {
 }
 func (f *frame) stripCaption() {
 	style, _, _ := getWindowStyle.Call(f.owner, ^uintptr(15)) // GWL_STYLE = -16
-	setWindowStyle.Call(f.owner, ^uintptr(15), style&^0x00C00000)
+	setWindowStyle.Call(f.owner, ^uintptr(15), (style&^0x00C00000)|0x00040000|0x00010000|0x00020000|0x00080000)
 	setWindowPos.Call(f.owner, 0, 0, 0, 0, 0, 0x0020|0x0004|0x0001|0x0002)
 }
 func (f *frame) hitTest(lp uintptr) uintptr {

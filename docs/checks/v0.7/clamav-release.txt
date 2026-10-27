@@ -1,0 +1,16 @@
+/scan/Tekaku-0.7.0.exe: OK
+/scan/WebView2Loader.dll: OK
+/scan/Tekaku-0.1.0-android.apk: OK
+/scan/Tekaku-0.7.0.zip: OK
+
+----------- SCAN SUMMARY -----------
+Known viruses: 3628192
+Engine version: 1.5.4
+Scanned directories: 0
+Scanned files: 4
+Infected files: 0
+Data scanned: 8.79 MiB
+Data read: 6.32 MiB (ratio 1.39:1)
+Time: 43.178 sec (0 m 43 s)
+Start Date: 2026:10:27 05:08:11
+End Date:   2026:10:27 05:08:54

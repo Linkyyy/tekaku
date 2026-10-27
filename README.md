@@ -1,10 +1,17 @@
 # 手书 · Tekaku
 
-一个简洁、离线优先的 Windows Markdown 编辑器。Typora 风格的安静界面，Notion 风格的内容块输入，在同一区域编辑与呈现。
+一个简洁、离线优先的 Markdown 编辑器，提供 Windows 桌面版和 Android 手机版。Typora 风格的安静界面，Notion 风格的内容块输入，在同一区域编辑与呈现。
 
-[下载 Windows 0.6.0 便携包](https://github.com/Linkyyy/tekaku/raw/refs/heads/downloads/windows-v0.6.0/Tekaku-0.6.0-windows-x64.zip) · [安全检查记录](docs/SECURITY-CHECK.md) · [官网源码](https://github.com/Linkyyy/tekaku/tree/gh-pages)
+[下载 Windows 0.7.0 便携包](https://github.com/Linkyyy/tekaku/raw/refs/heads/downloads/windows-v0.7.0/Tekaku-0.7.0-windows-x64.zip) · [下载 Android 0.1.0 APK](https://github.com/Linkyyy/tekaku/raw/refs/heads/downloads/android-v0.1.0/Tekaku-0.1.0-android.apk) · [官网源码](https://github.com/Linkyyy/tekaku/tree/gh-pages)
 
 ![编辑器](docs/editor.png)
+
+## 0.7 与 Android 0.1
+
+- Windows：窗口模式支持从四边、四角启动系统原生缩放；全屏与最大化时隐藏缩放区域。支持把 Markdown 直接拖入软件界面，确认未保存修改后导入；首次保存选择位置，避免覆盖前一个文件。
+- 修复连续关闭确认可能收到上一次弹窗 close 事件的问题；代码中 Home / End 直接按逻辑行移动，避免撤销后快速移动光标时出现选区不同步。
+- 新增 Android APK，约 235 KB，使用系统 WebView；支持系统文件选择器、打开方式/分享入口、保存与另存为、私有草稿、写入前副本、四种皮肤和 Markdown 源码。详见 [Android 使用与构建说明](docs/ANDROID.md)。
+- Android 原生文件授权与文件读写需要真机复核；下载体积不代表运行内存。
 
 ## 0.6 更新
 
@@ -114,7 +121,7 @@ npm test
 npm run test:native
 ```
 
-已有 Chromium 可用 `TEKAKU_CHROMIUM=/usr/bin/chromium npm test`。29 项界面测试覆盖极简首页、标题占位符、实时编辑、Markdown 转换、导入导出、草稿、源码查看、皮肤和设置持久化、嵌入页面、无 localStorage 桥接、窗口控制协议、自定义保存/关闭弹窗、侧栏全部菜单、图文表格、搜索替换、HTML/打印输出和写入错误，以及完整标题层级、代码围栏、语言别名、缩进撤销、代码复制换行和列表层级。8 项 Go 测试覆盖 UTF-8/BOM、大文件保护、临时文件清理、覆盖保存和草稿设置读写、图片提取去重、相对图解析、另存为复制、代码示例保留与路径边界。Windows GUI、常规 DLL 加载和 Win32 对话框需在实机复核；浏览器桥接测试使用模拟原生接口，不代替实机测试。
+已有 Chromium 可用 `TEKAKU_CHROMIUM=/usr/bin/chromium npm test`。32 项桌面界面测试覆盖极简首页、标题占位符、实时编辑、Markdown 转换、导入导出、草稿、源码查看、皮肤和设置持久化、嵌入页面、无 localStorage 桥接、窗口控制协议、自定义保存/关闭弹窗、侧栏全部菜单、图文表格、搜索替换、HTML/打印输出和写入错误，以及完整标题层级、代码围栏、语言别名、缩进撤销、代码复制换行和列表层级。8 项 Go 测试覆盖 UTF-8/BOM、大文件保护、临时文件清理、覆盖保存和草稿设置读写、图片提取去重、相对图解析、另存为复制、代码示例保留与路径边界。Windows GUI、常规 DLL 加载和 Win32 对话框需在实机复核；浏览器桥接测试使用模拟原生接口，不代替实机测试。
 
 ## 支持范围
 

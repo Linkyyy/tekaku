@@ -61,4 +61,4 @@ Windows PowerShell 可用 `Get-FileHash .\Tekaku.exe -Algorithm SHA256` 或对�
 
 此云环境是 Linux，没有执行 Windows Defender、SmartScreen 或 Windows 原生界面测试；新版常规 DLL 加载、原生文件/打印对话框、中文输入法、实际运行内存和 Windows 签名信任均需 Windows 实机复核。尚未取得多引擎在线扫描报告。
 
-随包“检查记录”提供实际扫描、依赖检查、签名检查及测试输出。[应用源码](https://github.com/Linkyyy/tekaku/tree/main)提供构建脚本、锁定依赖和 SDK 文件来源说明，便于复核。
+随包“检查记录”提供实际扫描、依赖检查、签名检查及测试输出。[应用源码](https://github.com/Linkyyy/tekaku/tree/e6b6985f047f943a8a7271756c36039f76fd05a3)提供构建脚本、锁定依赖和 SDK 文件来源说明，便于复核。

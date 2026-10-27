@@ -19,6 +19,16 @@ const RichCodeBlock = CodeBlockLowlight.extend({
     return `${fence}${language}\n${text}\n${fence}`;
   },
   addKeyboardShortcuts() {
+    const boundary = (end, extend) => {
+      const { state, view } = this.editor;
+      const { $head, anchor } = state.selection;
+      if ($head.parent.type !== this.type) return false;
+      const text = $head.parent.textContent, offset = $head.parentOffset;
+      const next = end ? text.indexOf('\n', offset) : offset === 0 ? -1 : text.lastIndexOf('\n', offset - 1);
+      const position = $head.start() + (end ? next < 0 ? text.length : next : next + 1);
+      view.dispatch(state.tr.setSelection(TextSelection.create(state.doc, extend ? anchor : position, position)).scrollIntoView());
+      return true;
+    };
     const indent = reverse => {
       const { state, view } = this.editor;
       const { $from, $to, from, to } = state.selection;
@@ -31,7 +41,7 @@ const RichCodeBlock = CodeBlockLowlight.extend({
       view.dispatch(tr.scrollIntoView());
       return true;
     };
-    return { ...this.parent?.(), Tab: () => indent(false), 'Shift-Tab': () => indent(true) };
+    return { ...this.parent?.(), Tab: () => indent(false), 'Shift-Tab': () => indent(true), Home: () => boundary(false, false), End: () => boundary(true, false), 'Shift-Home': () => boundary(false, true), 'Shift-End': () => boundary(true, true) };
   },
 }).configure({ lowlight, defaultLanguage: 'plaintext' });
 const imageCache = new Map();

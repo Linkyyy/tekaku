@@ -12,6 +12,7 @@ import (
 	"runtime"
 	"strings"
 	"unicode/utf16"
+	"unicode/utf8"
 	"unsafe"
 
 	webview "github.com/jchv/go-webview2"
@@ -136,6 +137,7 @@ func main() {
 	owner := uintptr(w.Window())
 	dirty := false
 	currentPath := ""
+	importedName := ""
 	prefsPath := filepath.Join(dataDir, "preferences.json")
 	prefs := loadPreferences(prefsPath)
 	var recovered struct {
@@ -203,9 +205,18 @@ func main() {
 	bind("tekakuDirty", func(value bool) { dirty = value })
 	bind("tekakuNew", func() bool {
 		currentPath = ""
+		importedName = ""
 		dirty = false
 		return true
 	})
+	bind("tekakuImportFile", func(request struct {
+		Name    string `json:"name"`
+		Content string `json:"content"`
+	}) (*document, error) { name := filepath.Base(request.Name); ext := strings.ToLower(filepath.Ext(name)); if name != request.Name || strings.ContainsAny(name, "\x00\r\n<>:\"/\\|?*") || !(ext == ".md" || ext == ".markdown" || ext == ".txt") {
+		return nil, fmt.Errorf("不支持此文件名或文件类型")
+	}; if len(request.Content) > maxDocumentBytes || !utf8.ValidString(request.Content) {
+		return nil, fmt.Errorf("请使用不超过 8 MiB 的 UTF-8 Markdown 文件")
+	}; currentPath, importedName, dirty = "", name, false; return &document{Name: name, Content: request.Content}, nil })
 	bind("tekakuOpen", func() (*document, error) {
 		path, err := chooseFile(owner, false, currentPath)
 		if err != nil || path == "" {
@@ -229,7 +240,11 @@ func main() {
 		path := currentPath
 		if request.SaveAs || path == "" {
 			var err error
-			path, err = chooseFile(owner, true, currentPath)
+			seed := currentPath
+			if seed == "" {
+				seed = importedName
+			}
+			path, err = chooseFile(owner, true, seed)
 			if err != nil || path == "" {
 				return nil, err
 			}
@@ -311,6 +326,7 @@ func main() {
 	w.Init(`window.desktop = Object.freeze({
   open: () => window.tekakuOpen(), save: data => window.tekakuSave(data),
   new: () => window.tekakuNew(), dirty: value => window.tekakuDirty(value),
+  importFile: data => window.tekakuImportFile(data),
   readState: () => window.tekakuReadState(), writeState: (key, value) => window.tekakuWriteState(key, value),
   resolveImages: refs => window.tekakuResolveImages(refs), openURL: url => window.tekakuOpenURL(url), exportHTML: data => window.tekakuExportHTML(data),
   initialFile: accept => window.tekakuInitialFile(Boolean(accept)), window: action => window.tekakuWindow(action)

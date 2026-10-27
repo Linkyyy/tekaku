@@ -8,6 +8,7 @@ import './style.css';
 import { extraExtensions, resetImageCache } from './editor-extensions';
 import { installFeatures } from './features';
 import storage from './storage.js';
+import { installWindowFiles } from './window-files';
 await storage.ready;
 
 const blankDocument = { type: 'doc', content: [{ type: 'heading', attrs: { level: 1 } }, { type: 'paragraph' }] };
@@ -91,7 +92,7 @@ document.querySelector('#app').innerHTML = `
     <label class="setting-row"><span>启动时全屏 <small>F11 切换，Esc 退出</small></span><span class="switch"><input id="startup-fullscreen" type="checkbox"><span></span></span></label>
     <label class="setting-row"><span>启动时收起侧栏</span><span class="switch"><input id="startup-sidebar" type="checkbox"><span></span></span></label>
   </section>
-  <div class="settings-footer"><button id="reset-settings">恢复默认设置</button><span>手书 0.6.0 · 自动保存</span></div>
+  <div class="settings-footer"><button id="reset-settings">恢复默认设置</button><span>手书 0.7.0 · 自动保存</span></div>
 </dialog>
 <dialog id="confirm-dialog" class="message-dialog" aria-labelledby="confirm-title"><h2 id="confirm-title">保存修改？</h2><p id="confirm-message"></p><div class="dialog-actions"><button id="confirm-cancel">取消</button><button id="confirm-discard">不保存</button><button id="confirm-save" class="primary-button">保存</button></div></dialog>
 <dialog id="error-dialog" class="message-dialog" aria-labelledby="error-title"><h2 id="error-title">操作失败</h2><p id="error-message"></p><div class="dialog-actions"><button id="error-close" class="primary-button">知道了</button></div></dialog>
@@ -207,7 +208,9 @@ function confirmDiscard() {
     resolveDecision(result);
   };
   const cancel = event => { event.preventDefault(); if (!saving) finish(false); };
-  const closed = () => finish(false);
+  // A previous close event may be queued when a new confirmation has already
+  // opened. Only settle this decision if this dialog is actually closed.
+  const closed = () => { if (!dialog.open) finish(false); };
   dialog.addEventListener('cancel', cancel);
   dialog.addEventListener('close', closed);
   $('#confirm-message').textContent = `“${fileName}”有未保存的修改。`;
@@ -376,6 +379,7 @@ document.addEventListener('keydown', event => {
 window.addEventListener('tekaku-close-request', async () => { if (await confirmDiscard()) windowAction('close-confirmed'); });
 window.addEventListener('beforeunload', event => { if (dirty && !window.desktop) { event.preventDefault(); event.returnValue = ''; } });
 features = installFeatures({ editor, exitSource, isSource: () => sourceMode, sourceField: () => $('#source-editor'), fileName: () => fileName, showError, toast });
+installWindowFiles({ confirmDiscard, loadDocument, showError, toast, windowAction });
 updateState(); await window.desktop?.dirty(dirty);
 if (window.desktop?.initialFile) {
   try { const initial = await window.desktop.initialFile(false); if (initial && await confirmDiscard()) await loadDocument(await window.desktop.initialFile(true)); } catch (error) { showError('打开失败', error.message || error); }

@@ -1,0 +1,2 @@
+import { defineConfig } from '@playwright/test';
+export default defineConfig({testDir:'./tests',workers:1,timeout:60000,use:{baseURL:'http://127.0.0.1:5174',viewport:{width:393,height:851},isMobile:true,hasTouch:true,launchOptions:process.env.TEKAKU_CHROMIUM?{executablePath:process.env.TEKAKU_CHROMIUM}:{}},webServer:{command:'npm run dev:mobile',url:'http://127.0.0.1:5174',reuseExistingServer:!process.env.CI}});

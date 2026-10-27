@@ -34,9 +34,8 @@ test('typed code fences, language choice, tabs, undo and block exit work togethe
 
 test('partial multiline code selection indents whole lines and reverses without changing code', async ({page}) => {
   await open(page,'```text\nalpha\nbeta\ngamma\n```');
-  await page.locator('.tiptap pre code').click();await page.keyboard.press('Control+Home');
-  await page.keyboard.press('ArrowRight');await page.keyboard.press('Shift+ArrowDown');
-  await expect.poll(()=>page.locator('.tiptap').evaluate(el=>el.editor.state.selection.empty)).toBe(false);
+  await page.locator('.tiptap pre code').click();
+  await page.locator('.tiptap').evaluate(el=>{el.editor.commands.setTextSelection({from:2,to:8});el.editor.view.focus();});
   await page.keyboard.press('Tab');
   await expect(page.locator('.tiptap pre code')).toHaveText('  alpha\n  beta\ngamma');
   await page.keyboard.press('Shift+Tab');await expect(page.locator('.tiptap pre code')).toHaveText('alpha\nbeta\ngamma');

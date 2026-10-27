@@ -1,6 +1,6 @@
 {
   "name": "tekaku",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "手书 — Windows WebView2 轻量 Markdown 编辑器",
   "scripts": {
     "dev": "vite",
@@ -10,7 +10,12 @@
     "package": "npm run package:windows",
     "package:windows": "npm run build && node scripts/build-windows.mjs",
     "test": "npm run build && node scripts/embed-ui.mjs && playwright test",
-    "test:native": "node scripts/test-native.mjs"
+    "test:native": "node scripts/test-native.mjs",
+    "dev:mobile": "vite --config mobile/vite.config.js",
+    "build:mobile": "vite build --config mobile/vite.config.js && node scripts/prepare-android-assets.mjs",
+    "setup:android": "node scripts/setup-android.mjs",
+    "package:android": "npm run build:mobile && node scripts/build-android.mjs",
+    "test:mobile": "playwright test --config mobile/playwright.config.js"
   },
   "repository": {
     "type": "git",

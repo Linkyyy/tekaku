@@ -1,0 +1,58 @@
+
+> tekaku@0.7.0 package:android
+> npm run build:mobile && node scripts/build-android.mjs
+
+
+> tekaku@0.7.0 build:mobile
+> vite build --config mobile/vite.config.js && node scripts/prepare-android-assets.mjs
+
+vite v8.3.5 building client environment for production...
+transforming...
+✓ 296 modules transformed.
+rendering chunks...
+computing gzip size...
+mobile/android/build/web/index.html                   0.80 kB │ gzip:   0.53 kB
+mobile/android/build/web/assets/index-DzvS2g0u.css    9.02 kB │ gzip:   2.92 kB
+mobile/android/build/web/assets/index-311s-Aku.js   664.51 kB │ gzip: 205.80 kB
+
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 825ms
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.1
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1
+npm notice To update run: npm install -g npm@12.2.1
+npm notice
+warning: [options] source value 8 is obsolete and will be removed in a future release
+warning: [options] target value 8 is obsolete and will be removed in a future release
+warning: [options] To suppress warnings about obsolete options, use -Xlint:-options.
+Note: /workspace/tekaku/mobile/android/src/com/tekaku/mobile/MainActivity.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+3 warnings
+Verifies
+Verified using v1 scheme (JAR signing): false
+Verified using v2 scheme (APK Signature Scheme v2): true
+Verified using v3 scheme (APK Signature Scheme v3): true
+Verified using v3.1 scheme (APK Signature Scheme v3.1): false
+Verified using v4 scheme (APK Signature Scheme v4): false
+Verified for SourceStamp: false
+Number of signers: 1
+Signer #1 certificate DN: CN=Tekaku Android Release
+Signer #1 certificate SHA-256 digest: 6515f68158791ac3ff8bbe181174e817facf4eb41a22d96b8832fc8985489ba3
+Signer #1 certificate SHA-1 digest: ae25d225525a7250ecfb09db23c4d4f7ffb0c57a
+Signer #1 certificate MD5 digest: 4593a2ddbbc68fce3f23024cfb800f4e
+Signer #1 key algorithm: RSA
+Signer #1 key size (bits): 2048
+Signer #1 public key SHA-256 digest: c2a10e15243b4d5abb05a20b96b02b8f8a99ce1c48ae4e2e7744fdaa28b7d318
+Signer #1 public key SHA-1 digest: 513b42cf8379dc00f0d4cf4b16a1a996a33eacdc
+Signer #1 public key MD5 digest: a538c2104b79890f0684acc35a2cba9c
+
+Android APK: 228.7 KiB; SHA-256: 1f56340461b7805f57674636a32e10d6b049633de7ada106368367c18ddcacdc
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.1
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1
+npm notice To update run: npm install -g npm@12.2.1
+npm notice

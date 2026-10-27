@@ -5,3 +5,7 @@ test-results/
 playwright-report/
 
 native/web/index.html
+mobile/android/build/
+*.keystore
+*.jks
+*.p12
