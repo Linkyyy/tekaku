@@ -13,6 +13,7 @@ import { installWindowFiles } from './window-files';
 import { shortcutGuide } from './shortcuts';
 import { icon } from './icons';
 import { installDocumentScroll } from './document-scroll';
+import { installExternalFiles } from './external-files';
 await storage.ready;
 
 const blankDocument = { type: 'doc', content: [{ type: 'heading', attrs: { level: 1 } }, { type: 'paragraph' }] };
@@ -603,7 +604,8 @@ features = installFeatures({ editor, exitSource, isSource: () => sourceMode, sou
 installWindowFiles({ loadDocument, showError, toast, windowAction });
 documentScroll = installDocumentScroll();
 resetImageCache(filePath); updateState();
-if (window.desktop?.initialFile) {
+installExternalFiles({ loadDocument, showError, isBusy: () => closingTabs });
+if (!window.desktop?.nextOpenFile && window.desktop?.initialFile) {
   try { const initial = await window.desktop.initialFile(false); if (initial) await loadDocument(await window.desktop.initialFile(true)); } catch (error) { showError('打开失败', error.message || error); }
 }
 window.addEventListener('blur', () => { if (tabs.some(tab => tab.dirty)) persist(); });

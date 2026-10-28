@@ -2,11 +2,23 @@
 
 一个简洁、离线优先的 Markdown 编辑器，提供 Windows 桌面版和 Android 手机版。Typora 风格的安静界面，Notion 风格的内容块输入，在同一区域编辑与呈现。
 
-[下载 Windows 0.11.0](https://github.com/Linkyyy/tekaku/raw/refs/heads/downloads/windows-v0.11.0/Tekaku-0.11.0-windows-x64.zip) · [下载 Android 0.1.0 APK](https://github.com/Linkyyy/tekaku/raw/refs/heads/downloads/android-v0.1.0/Tekaku-0.1.0-android.apk) · [官网源码](https://github.com/Linkyyy/tekaku/tree/gh-pages)
+[下载 Windows 0.11.1](https://github.com/Linkyyy/tekaku/raw/refs/heads/downloads/windows-v0.11.1/Tekaku-0.11.1-windows-x64.zip) · [下载 Android 0.1.0 APK](https://github.com/Linkyyy/tekaku/raw/refs/heads/downloads/android-v0.1.0/Tekaku-0.1.0-android.apk) · [官网源码](https://github.com/Linkyyy/tekaku/tree/gh-pages)
 
-> **安全核查未结束：** 下载入口已恢复，但此前“检测到病毒”的报告仍缺少威胁名称及涉事版本。0.11.0 是功能更新，不能据此认定安全拦截已解决；EXE 仍未签名。若被拦截，请保留防护，不要加白名单。[核查记录](docs/SECURITY-ALERT-0.10.md)。
+> **安全核查未结束：** 下载入口已恢复，但此前“检测到病毒”的报告仍缺少威胁名称及涉事版本。0.11.1 是功能修复，不能据此认定安全拦截已解决；EXE 仍未签名。若被拦截，请保留防护，不要加白名单。[核查记录](docs/SECURITY-ALERT-0.10.md)。
 
 ![编辑器](docs/editor.png)
+
+## 0.11.1：外部文件复用同一窗口
+
+- 从资源管理器双击 Markdown、使用“打开方式”、拖文件到程序图标或再次启动程序时，转交给当前用户、当前登录会话中已有的手书窗口。
+- 新文件添加为原窗口的 Tab；已打开路径切回已有标签，保留未保存的修改。
+- 第二次启动只转交路径并退出，不创建 WebView2 或编辑器窗口；原窗口最小化时尝试恢复并激活。
+- 编辑器尚未就绪时排队接收文件；保存确认等弹窗打开期间，延后切换文档。
+- 初次启动支持接收全部文件参数；窗口繁忙或请求失败时提示重试，不擅自创建第二个编辑器窗口。
+
+升级时请先完全退出 0.11.0 及更早版本，再启动新版一次。旧版没有单实例接收逻辑，不能接收本版的转交请求。
+
+[本版检查](docs/RELEASE-CHECK-0.11.1.md)
 
 ## 0.11 桌面更新
 

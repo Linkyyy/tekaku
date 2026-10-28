@@ -2,7 +2,7 @@
 
 手书 Windows 与 Android 编辑器的中文产品官网。
 
-**Windows 下载已恢复为 0.11.0，安全核查仍在进行。** 此前“检测到病毒”的报告尚未确认具体威胁名称与涉事版本；新版是功能更新，不是已验证的安全修复。保留防护，不应绕过拦截。见 [核查记录](https://github.com/Linkyyy/tekaku/blob/main/docs/SECURITY-ALERT-0.10.md)。
+**Windows 下载已恢复为 0.11.1，安全核查仍在进行。** 此前“检测到病毒”的报告尚未确认具体威胁名称与涉事版本；新版是功能更新，不是已验证的安全修复。保留防护，不应绕过拦截。见 [核查记录](https://github.com/Linkyyy/tekaku/blob/main/docs/SECURITY-ALERT-0.10.md)。
 
 纯静态 HTML / CSS / JavaScript，**没有构建步骤、运行依赖、外部字体、追踪脚本或账号功能**。图片均随站点提供；五种桌面编辑器皮肤预览来自实际软件界面的浏览器渲染截图。界面功能示意已明确标注。
 
@@ -44,9 +44,9 @@ python3 -m http.server 8080
 
 ## 下载与维护
 
-- [Windows 0.11.0 便携包](https://github.com/Linkyyy/tekaku/raw/refs/heads/downloads/windows-v0.11.0/Tekaku-0.11.0-windows-x64.zip)（安全报告仍在核查）
-- [版本说明](https://github.com/Linkyyy/tekaku/tree/downloads/windows-v0.11.0)
-- 下载 ZIP 的 SHA-256：`61c7e4d556a598aa967e07aa778099cd0cbd8e17e560c8f4aa3a9e0271013c47`
+- [Windows 0.11.1 便携包](https://github.com/Linkyyy/tekaku/raw/refs/heads/downloads/windows-v0.11.1/Tekaku-0.11.1-windows-x64.zip)（安全报告仍在核查）
+- [版本说明](https://github.com/Linkyyy/tekaku/tree/downloads/windows-v0.11.1)
+- 下载 ZIP 的 SHA-256：`20774ce771ec83515538c9dd62494dd22ee47d97b3cb27f8496bfacfcf877b78`
 
 新版本发布时，更新 `index.html` 中的版本号、下载链接、体积、最近更新内容和 SHA-256，以及本说明。替换皮肤截图时保留 `assets/editor-{slate,white,paper,sage,night}.webp` 文件名。分享预览图使用 gh-pages 分支上的公开图片地址，不依赖 GitHub Pages 域名；确定正式域名后也可换成站点自身的绝对地址。
 
@@ -54,7 +54,7 @@ python3 -m http.server 8080
 
 ## 当前安全核查（未解决）
 
-新截图明确显示“检测到病毒”，不能按此前“下载不常见”的信誉提示处理。入口已恢复为 0.11.0，尚待具体威胁名称，不能认定误报或声称已解除拦截。EXE 仍未签名，不能承诺提示消失。扫描和校验记录见 [安全检查说明](https://github.com/Linkyyy/tekaku/blob/downloads/windows-v0.11.0/SECURITY-CHECK.md)。[应用源码](https://github.com/Linkyyy/tekaku/tree/main)可复核。下载包应完整解压，保留 EXE 和 WebView2Loader.dll 在同一目录。
+新截图明确显示“检测到病毒”，不能按此前“下载不常见”的信誉提示处理。入口已恢复为 0.11.1，尚待具体威胁名称，不能认定误报或声称已解除拦截。EXE 仍未签名，不能承诺提示消失。扫描和校验记录见 [安全检查说明](https://github.com/Linkyyy/tekaku/blob/downloads/windows-v0.11.1/SECURITY-CHECK.md)。[应用源码](https://github.com/Linkyyy/tekaku/tree/main)可复核。下载包应完整解压，保留 EXE 和 WebView2Loader.dll 在同一目录。
 
 ## Android 手机版
 
@@ -67,3 +67,5 @@ Windows 0.10.0：仅内容保留可见滚动条、滚动条位于大纲右侧、
 ## 0.11 官网同步
 
 主站、导航、下载插画和 favicon 使用与程序一致的蓝色 SVG 标识；favicon 带版本参数刷新旧缓存。默认网站配色和真实软件预览为灰蓝，另外提供四种桌面皮肤切换。Windows 新增多 Tab；Android APK 保持不变。
+
+Windows 0.11.1 新增单实例文件转交。升级时先完全退出旧版本，再启动本版一次；后续资源管理器打开文件会进入原窗口的标签。

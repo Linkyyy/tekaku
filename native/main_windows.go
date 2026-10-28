@@ -116,11 +116,20 @@ func chooseFilesFiltered(owner uintptr, save bool, current, filterText, extensio
 
 func main() {
 	runtime.LockOSThread()
+	defer runtime.UnlockOSThread()
 	setApplicationID()
 	if dpi := user32.NewProc("SetProcessDpiAwarenessContext"); dpi.Find() == nil {
 		dpi.Call(^uintptr(3))
 	} // Per-monitor DPI v2
-	defer runtime.UnlockOSThread()
+	instance, err := acquireAppInstance(os.Args[1:])
+	if err != nil {
+		showMessage(0, err.Error(), 0x10)
+		return
+	}
+	if instance == nil {
+		return
+	} // Request accepted by the original window.
+	defer instance.close()
 	version, loaderErr := webviewloader.GetInstalledVersion()
 	if loaderErr != nil {
 		showMessage(0, loaderErr.Error(), 0x10)
@@ -418,19 +427,22 @@ func main() {
 		prefs = next
 		return nil
 	})
-	bind("tekakuInitialFile", func(accept bool) (*document, error) {
-		if len(os.Args) < 2 {
+	bind("tekakuNextOpenFile", func() (*document, error) {
+		path, ok := instance.queue.next()
+		if !ok {
 			return nil, nil
 		}
-		path, err := filepath.Abs(os.Args[1])
-		if err != nil {
-			return nil, err
-		}
 		doc, err := readDocument(path)
-		if err == nil && accept {
+		if err == nil {
 			currentPath = path
 		}
 		return doc, err
+	})
+	instance.queue.setNotify(func() {
+		w.Dispatch(func() {
+			activateExistingWindow(owner)
+			w.Eval("window.dispatchEvent(new Event('tekaku-open-files'))")
+		})
 	})
 	w.Init(`window.desktop = Object.freeze({
   open: () => window.tekakuOpen(), openFiles: () => window.tekakuOpenFiles(), save: data => window.tekakuSave(data),
@@ -440,7 +452,7 @@ func main() {
   clipboardRead: () => window.tekakuClipboardRead(), clipboardWrite: value => window.tekakuClipboardWrite(value),
   readState: () => window.tekakuReadState(), writeState: (key, value) => window.tekakuWriteState(key, value),
   resolveImages: (refs, path) => window.tekakuResolveImages({refs, path}), openURL: url => window.tekakuOpenURL(url), exportHTML: data => window.tekakuExportHTML(data),
-  initialFile: accept => window.tekakuInitialFile(Boolean(accept)), window: action => window.tekakuWindow(action)
+  nextOpenFile: () => window.tekakuNextOpenFile(), window: action => window.tekakuWindow(action)
  });
  document.addEventListener('click', e => { if (e.target.closest('a')) e.preventDefault(); }, true);
  document.addEventListener('auxclick', e => { if (e.target.closest('a')) e.preventDefault(); }, true);

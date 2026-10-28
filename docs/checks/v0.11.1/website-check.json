@@ -1,0 +1,29 @@
+{
+  "results": [
+    {
+      "width": 1440,
+      "downloads": 2,
+      "skins": 5,
+      "overflow": 0,
+      "security_notice": true,
+      "program_logo": true
+    },
+    {
+      "width": 768,
+      "downloads": 2,
+      "skins": 5,
+      "overflow": 0,
+      "security_notice": true,
+      "program_logo": true
+    },
+    {
+      "width": 390,
+      "downloads": 2,
+      "skins": 5,
+      "overflow": 0,
+      "security_notice": true,
+      "program_logo": true
+    }
+  ],
+  "javascript_errors": []
+}

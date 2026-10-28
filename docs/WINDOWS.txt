@@ -2,7 +2,7 @@
 本版是界面与多 Tab 功能更新，并非已验证的安全修复，EXE 仍未签名。若被拦截，请保留防护，不要加白名单。
 核查记录：https://github.com/Linkyyy/tekaku/blob/main/docs/SECURITY-ALERT-0.10.md
 
-手书 Tekaku · Windows 轻量版 0.11.0
+手书 Tekaku · Windows 轻量版 0.11.1
 
 系统：Windows 10/11，64 位 x64。
 请完整解压下载包，将 Tekaku.exe 和 WebView2Loader.dll 放在同一目录。
@@ -11,6 +11,10 @@
 需要 Microsoft Edge WebView2 Evergreen Runtime。Windows 11 通常已自带；
 Windows 10 若缺少，请从微软官网安装：
 https://developer.microsoft.com/microsoft-edge/webview2/
+
+从 0.11.0 及更早版本更新时，请先完全退出旧版，再启动本版一次，以启用同窗口打开与更新文件关联路径。
+已有本版窗口时，双击 Markdown、“打开方式”或再次启动会转交到原窗口，新文件添加 Tab，已打开路径直接切换。
+第二次启动不创建编辑器窗口；原窗口最小化时会尝试恢复。无文件参数时只激活原窗口。
 
 Ctrl+O 打开（可多选），Ctrl+S 保存当前标签，Ctrl+Shift+S 另存为，Ctrl+N 新建标签。
 Ctrl+W 关闭标签，Ctrl+Tab / Ctrl+Shift+Tab 切换标签。关闭未保存标签会询问保存；退出检查所有未保存标签。
