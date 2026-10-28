@@ -1,0 +1,2 @@
+Windows x64 executable: 4.32 MiB
+SHA-256: fcfdcd1a171f1557ac38827c4741179bcdde50032e365f5a9975d9de753b6d12

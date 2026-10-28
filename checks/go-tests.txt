@@ -1,0 +1,38 @@
+=== RUN   TestImageAttachmentsResolveAndSaveAs
+--- PASS: TestImageAttachmentsResolveAndSaveAs (0.00s)
+=== RUN   TestImagesInsideCodeRemainLiteral
+--- PASS: TestImagesInsideCodeRemainLiteral (0.00s)
+=== RUN   TestRejectImageTraversalAndAssetSymlink
+--- PASS: TestRejectImageTraversalAndAssetSymlink (0.00s)
+=== RUN   TestSaveAsDoesNotOverwriteUnrelatedAsset
+--- PASS: TestSaveAsDoesNotOverwriteUnrelatedAsset (0.00s)
+=== RUN   TestAssociationPlanPreservesWindowsDefaults
+--- PASS: TestAssociationPlanPreservesWindowsDefaults (0.00s)
+=== RUN   TestAssociationPlanRejectsInvalidCommandPaths
+--- PASS: TestAssociationPlanRejectsInvalidCommandPaths (0.00s)
+=== RUN   TestReadUTF8AndBOM
+--- PASS: TestReadUTF8AndBOM (0.00s)
+=== RUN   TestRejectsNonUTF8AndLargeFiles
+--- PASS: TestRejectsNonUTF8AndLargeFiles (0.02s)
+=== RUN   TestReplaceExistingAndCleanupOnFailure
+--- PASS: TestReplaceExistingAndCleanupOnFailure (0.00s)
+=== RUN   TestPreferencesRoundtripAndCorruptRecovery
+--- PASS: TestPreferencesRoundtripAndCorruptRecovery (0.00s)
+=== RUN   TestDialogSelectionParts
+--- PASS: TestDialogSelectionParts (0.00s)
+=== RUN   TestOpenRequestRoundTripAndActivation
+--- PASS: TestOpenRequestRoundTripAndActivation (0.00s)
+=== RUN   TestOpenRequestRejectsMalformedPackets
+--- PASS: TestOpenRequestRejectsMalformedPackets (0.00s)
+=== RUN   TestOpenQueuePreservesStartupOrderAndCopiesArguments
+--- PASS: TestOpenQueuePreservesStartupOrderAndCopiesArguments (0.00s)
+=== RUN   TestOpenQueueCapacityIsAtomicAndNotificationDoesNotHoldLock
+--- PASS: TestOpenQueueCapacityIsAtomicAndNotificationDoesNotHoldLock (0.00s)
+=== RUN   TestOpenQueueConcurrentRequestsDoNotLoseFiles
+--- PASS: TestOpenQueueConcurrentRequestsDoNotLoseFiles (0.00s)
+=== RUN   TestNativeResizeCommandDirections
+--- PASS: TestNativeResizeCommandDirections (0.00s)
+=== RUN   TestNativeResizeCoordinatesAndDPI
+--- PASS: TestNativeResizeCoordinatesAndDPI (0.00s)
+PASS
+ok  	tekaku.local/desktop	0.034s
