@@ -1,0 +1,56 @@
+{
+  "version": {
+    "file_version": "0.11.0.0",
+    "product_version": "0.11.0.0"
+  },
+  "icon_sizes": [
+    [
+      16,
+      16
+    ],
+    [
+      20,
+      20
+    ],
+    [
+      24,
+      24
+    ],
+    [
+      32,
+      32
+    ],
+    [
+      40,
+      40
+    ],
+    [
+      48,
+      48
+    ],
+    [
+      64,
+      64
+    ],
+    [
+      128,
+      128
+    ],
+    [
+      256,
+      256
+    ]
+  ],
+  "matches_program_icon": true,
+  "pe_certificate_table": {
+    "Tekaku.exe": {
+      "certificate_table_offset": 0,
+      "certificate_table_size": 0
+    },
+    "WebView2Loader.dll": {
+      "certificate_table_offset": 128512,
+      "certificate_table_size": 9128
+    }
+  },
+  "note": "Certificate table presence only, not a signature chain validation."
+}
