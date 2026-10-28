@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"unicode/utf16"
 	"unicode/utf8"
 )
 
@@ -77,4 +78,19 @@ func savePreferences(path string, prefs map[string]string) error {
 		return err
 	}
 	return replaceFile(path, data)
+}
+
+// Explorer returns either a full path or a directory followed by selected names.
+// Stop at the double NUL, never interpret the unused buffer tail as filenames.
+func dialogSelectionParts(buffer []uint16) []string {
+	var parts []string
+	for start := 0; start < len(buffer) && buffer[start] != 0; {
+		end := start
+		for end < len(buffer) && buffer[end] != 0 {
+			end++
+		}
+		parts = append(parts, string(utf16.Decode(buffer[start:end])))
+		start = end + 1
+	}
+	return parts
 }

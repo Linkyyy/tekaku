@@ -81,3 +81,24 @@ func TestPreferencesRoundtripAndCorruptRecovery(t *testing.T) {
 		t.Fatal("expected fresh preferences after corrupt file")
 	}
 }
+
+func TestDialogSelectionParts(t *testing.T) {
+	for _, tc := range []struct {
+		input []uint16
+		want  []string
+	}{
+		{[]uint16{65, 0, 0, 66}, []string{"A"}},
+		{[]uint16{67, 58, 92, 0, 25991, 46, 109, 100, 0, 98, 46, 109, 100, 0, 0}, []string{"C:\\", "文.md", "b.md"}},
+		{[]uint16{65, 66}, []string{"AB"}},
+	} {
+		got := dialogSelectionParts(tc.input)
+		if len(got) != len(tc.want) {
+			t.Fatalf("bad selection: %v", got)
+		}
+		for i := range got {
+			if got[i] != tc.want[i] {
+				t.Fatalf("bad selection: %v", got)
+			}
+		}
+	}
+}

@@ -65,6 +65,13 @@ func chooseFile(owner uintptr, save bool, current string) (string, error) {
 	return chooseFileFiltered(owner, save, current, "Markdown (*.md;*.markdown;*.txt)\x00*.md;*.markdown;*.txt\x00所有文件 (*.*)\x00*.*\x00\x00", "md")
 }
 func chooseFileFiltered(owner uintptr, save bool, current, filterText, extension string) (string, error) {
+	paths, err := chooseFilesFiltered(owner, save, current, filterText, extension, false)
+	if len(paths) == 0 {
+		return "", err
+	}
+	return paths[0], err
+}
+func chooseFilesFiltered(owner uintptr, save bool, current, filterText, extension string, multiple bool) ([]string, error) {
 	buffer := make([]uint16, 32768)
 	if save {
 		initial := current
@@ -74,10 +81,7 @@ func chooseFileFiltered(owner uintptr, save bool, current, filterText, extension
 		copy(buffer, windows.StringToUTF16(initial))
 	}
 	filter := utf16.Encode([]rune(filterText))
-	options := openFileName{
-		Owner: owner, Filter: &filter[0], FilterIndex: 1, File: &buffer[0], MaxFile: uint32(len(buffer)),
-		DefaultExtension: text(extension), Flags: 0x00080000 | 0x00000008 | 0x00000800, // EXPLORER | NOCHANGEDIR | PATHMUSTEXIST
-	}
+	options := openFileName{Owner: owner, Filter: &filter[0], FilterIndex: 1, File: &buffer[0], MaxFile: uint32(len(buffer)), DefaultExtension: text(extension), Flags: 0x00080000 | 0x00000008 | 0x00000800}
 	options.Size = uint32(unsafe.Sizeof(options))
 	proc := getOpenFile
 	if save {
@@ -86,17 +90,28 @@ func chooseFileFiltered(owner uintptr, save bool, current, filterText, extension
 	} else {
 		options.Flags |= 0x1000
 	}
+	if multiple {
+		options.Flags |= 0x200
+	} // OFN_ALLOWMULTISELECT, Explorer's double-NUL format.
 	result, _, _ := proc.Call(uintptr(unsafe.Pointer(&options)))
 	runtime.KeepAlive(buffer)
 	runtime.KeepAlive(filter)
 	if result == 0 {
 		code, _, _ := dialogError.Call()
 		if code != 0 {
-			return "", fmt.Errorf("无法显示文件选择窗口 (0x%x)", code)
+			return nil, fmt.Errorf("无法显示文件选择窗口 (0x%x)", code)
 		}
-		return "", nil
+		return nil, nil
 	}
-	return windows.UTF16ToString(buffer), nil
+	parts := dialogSelectionParts(buffer)
+	if len(parts) <= 1 {
+		return parts, nil
+	}
+	paths := make([]string, 0, len(parts)-1)
+	for _, name := range parts[1:] {
+		paths = append(paths, filepath.Join(parts[0], name))
+	}
+	return paths, nil
 }
 
 func main() {
@@ -138,7 +153,6 @@ func main() {
 	owner := uintptr(w.Window())
 	dirty := false
 	currentPath := ""
-	importedName := ""
 	prefsPath := filepath.Join(dataDir, "preferences.json")
 	prefs := loadPreferences(prefsPath)
 	executable, executableErr := executablePath()
@@ -180,15 +194,8 @@ func main() {
 		case 0x031E: // WM_DWMCOMPOSITIONCHANGED
 			frame.effectsInitialized = false
 			frame.updateEffects()
-		case 0x0083: // WM_NCCALCSIZE: keep a real, caption-free resize edge.
-			if !frame.fullscreen && !frame.state().Maximized {
-				bounds := (*rect)(unsafe.Pointer(lp))
-				border := resizeBorder(frame.dpi())
-				bounds.Left += border
-				bounds.Top += border
-				bounds.Right -= border
-				bounds.Bottom -= border
-			}
+		case 0x0083: // WM_NCCALCSIZE: the custom titlebar owns the entire client.
+			// Do not reserve a second native strip above the CSS frame.
 			return 0
 		case 0x0084: // WM_NCHITTEST: retain border resizing in windowed mode.
 			return frame.hitTest(lp)
@@ -198,7 +205,11 @@ func main() {
 			info := frame.monitor()
 			width, height := minimumWindowSize(frame.dpi(), info.Work.Right-info.Work.Left, info.Work.Bottom-info.Work.Top, frame.fullscreen)
 			bounds.MinTrack = point{width, height}
-			if !frame.fullscreen {
+			if frame.fullscreen {
+				bounds.MaxPosition = point{0, 0}
+				bounds.MaxSize = point{info.Bounds.Right - info.Bounds.Left, info.Bounds.Bottom - info.Bounds.Top}
+				bounds.MaxTrack = bounds.MaxSize
+			} else {
 				bounds.MaxPosition = point{info.Work.Left - info.Bounds.Left, info.Work.Top - info.Bounds.Top}
 				bounds.MaxSize = point{info.Work.Right - info.Work.Left, info.Work.Bottom - info.Work.Top}
 			}
@@ -272,8 +283,6 @@ func main() {
 	})
 	bind("tekakuNew", func() bool {
 		currentPath = ""
-		importedName = ""
-		dirty = false
 		return true
 	})
 	bind("tekakuImportFile", func(request struct {
@@ -288,7 +297,7 @@ func main() {
 		if len(request.Content) > maxDocumentBytes || !utf8.ValidString(request.Content) {
 			return nil, fmt.Errorf("请使用不超过 8 MiB 的 UTF-8 Markdown 文件")
 		}
-		currentPath, importedName, dirty = "", name, false
+		currentPath = ""
 		return &document{Name: name, Content: request.Content}, nil
 	})
 	bind("tekakuOpen", func() (*document, error) {
@@ -301,37 +310,63 @@ func main() {
 			return nil, err
 		}
 		currentPath = path
-		dirty = false
 		return doc, nil
+	})
+	bind("tekakuOpenFiles", func() ([]*document, error) {
+		paths, err := chooseFilesFiltered(owner, false, currentPath, "Markdown (*.md;*.markdown;*.txt)\x00*.md;*.markdown;*.txt\x00所有文件 (*.*)\x00*.*\x00\x00", "md", true)
+		if err != nil {
+			return nil, err
+		}
+		docs := make([]*document, 0, len(paths))
+		for _, path := range paths {
+			doc, err := readDocument(path)
+			if err != nil {
+				return nil, err
+			}
+			docs = append(docs, doc)
+		}
+		if len(paths) > 0 {
+			currentPath = paths[len(paths)-1]
+		}
+		return docs, nil
 	})
 	bind("tekakuSave", func(request struct {
 		Content string `json:"content"`
 		SaveAs  bool   `json:"saveAs"`
+		Path    string `json:"path"`
+		Name    string `json:"name"`
 	}) (map[string]string, error) {
 		if len(request.Content) > maxEditorPayload {
 			return nil, fmt.Errorf("待保存内容过大，请减少图片数量")
 		}
-		path := currentPath
+		path := request.Path
+		if path != "" && !filepath.IsAbs(path) {
+			return nil, fmt.Errorf("保存路径必须是绝对路径")
+		}
 		if request.SaveAs || path == "" {
 			var err error
-			seed := currentPath
+			seed := path
 			if seed == "" {
-				seed = importedName
+				seed = filepath.Base(request.Name)
 			}
 			path, err = chooseFile(owner, true, seed)
 			if err != nil || path == "" {
 				return nil, err
 			}
 		}
-		content, err := saveDocumentImages(request.Content, currentPath, path)
+		content, err := saveDocumentImages(request.Content, request.Path, path)
 		if err != nil {
 			return nil, err
 		}
 		currentPath = path
-		dirty = false
 		return map[string]string{"name": filepath.Base(path), "path": path, "content": content}, nil
 	})
-	bind("tekakuResolveImages", func(refs []string) map[string]string { return resolveImages(currentPath, refs) })
+	bind("tekakuResolveImages", func(request struct {
+		Refs []string `json:"refs"`
+		Path string   `json:"path"`
+	}) map[string]string {
+		return resolveImages(request.Path, request.Refs)
+	})
 	bind("tekakuOpenURL", func(raw string) error {
 		u, err := url.Parse(raw)
 		if err != nil || !(u.Scheme == "https" || u.Scheme == "http" || u.Scheme == "mailto") {
@@ -398,13 +433,13 @@ func main() {
 		return doc, err
 	})
 	w.Init(`window.desktop = Object.freeze({
-  open: () => window.tekakuOpen(), save: data => window.tekakuSave(data),
+  open: () => window.tekakuOpen(), openFiles: () => window.tekakuOpenFiles(), save: data => window.tekakuSave(data),
   new: () => window.tekakuNew(), dirty: value => window.tekakuDirty(value),
   importFile: data => window.tekakuImportFile(data),
   integration: action => window.tekakuIntegration(action),
   clipboardRead: () => window.tekakuClipboardRead(), clipboardWrite: value => window.tekakuClipboardWrite(value),
   readState: () => window.tekakuReadState(), writeState: (key, value) => window.tekakuWriteState(key, value),
-  resolveImages: refs => window.tekakuResolveImages(refs), openURL: url => window.tekakuOpenURL(url), exportHTML: data => window.tekakuExportHTML(data),
+  resolveImages: (refs, path) => window.tekakuResolveImages({refs, path}), openURL: url => window.tekakuOpenURL(url), exportHTML: data => window.tekakuExportHTML(data),
   initialFile: accept => window.tekakuInitialFile(Boolean(accept)), window: action => window.tekakuWindow(action)
  });
  document.addEventListener('click', e => { if (e.target.closest('a')) e.preventDefault(); }, true);

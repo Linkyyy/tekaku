@@ -111,7 +111,7 @@ func (f *frame) setFullscreen(value bool) {
 func (f *frame) action(action string, dirty *bool) (windowState, error) {
 	switch action {
 	case "state":
-	case "theme-white", "theme-paper", "theme-sage", "theme-night":
+	case "theme-slate", "theme-white", "theme-paper", "theme-sage", "theme-night":
 		f.theme = strings.TrimPrefix(action, "theme-")
 	case "minimize":
 		showWindow.Call(f.owner, 6)
@@ -213,15 +213,9 @@ func (f *frame) updateEffects() {
 		margins.Bottom = 1
 	}
 	dwmSetAttribute.Call(f.owner, 33, uintptr(unsafe.Pointer(&corner)), 4)
-	border := uint32(0x00d9cfc8)
-	switch f.theme {
-	case "paper":
-		border = 0x00b3c4cf
-	case "sage":
-		border = 0x00bacdc2
-	case "night":
-		border = 0x005b4c42
-	}
+	// DWMWA_COLOR_NONE suppresses the extra native outline on Windows 11.
+	// The full client has one CSS edge; DWM composition still casts a shadow.
+	border := uint32(0xfffffffe)
 	dwmSetAttribute.Call(f.owner, 34, uintptr(unsafe.Pointer(&border)), 4)
 	dwmExtendFrame.Call(f.owner, uintptr(unsafe.Pointer(&margins)))
 }

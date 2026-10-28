@@ -1,11 +1,12 @@
 (() => {
   const descriptions = {
+    slate: '灰蓝 · 默认主题，柔和清晰的写作空间。',
     white: '纯白 · 干净明亮，留住文字的本色。',
     paper: '纸笺 · 柔和暖色，像在纸上慢慢书写。',
     sage: '青苔 · 清新自然，给思绪一点绿意。',
     night: '深夜 · 沉静深色，陪伴安静的夜晚。',
   };
-  const names = { white: '纯白', paper: '纸笺', sage: '青苔', night: '深夜' };
+  const names = { slate: '灰蓝', white: '纯白', paper: '纸笺', sage: '青苔', night: '深夜' };
   const image = document.querySelector('#theme-image');
   const preview = document.querySelector('.theme-preview');
   const caption = document.querySelector('#theme-caption');

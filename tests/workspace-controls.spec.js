@@ -75,7 +75,7 @@ test('actual mouse border drags use all native resize directions after restore',
 test('application icons use shared blue vectors in every skin, including block menu and toolbar',async({page})=>{
  await native(page);await page.goto('/');await page.keyboard.press('Control+,');
  await page.locator('#show-toolbar').check();
- for(const theme of ['white','paper','sage','night']){
+ for(const theme of ['slate','white','paper','sage','night']){
   await page.locator(`[data-theme-choice=${theme}]`).click();
   const colors=await page.locator('svg.app-icon').evaluateAll(nodes=>[...new Set(nodes.map(node=>getComputedStyle(node).color))]);
   expect(colors).toEqual([theme==='night'?'rgb(154, 175, 208)':'rgb(75, 101, 133)']);

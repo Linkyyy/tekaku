@@ -17,26 +17,35 @@ await storage.ready;
 
 const blankDocument = { type: 'doc', content: [{ type: 'heading', attrs: { level: 1 } }, { type: 'paragraph' }] };
 const themes = [
+  { id: 'slate', name: '灰蓝', detail: '柔和 · 默认' },
   { id: 'white', name: '纯白', detail: '干净 · 明亮' },
   { id: 'paper', name: '纸笺', detail: '柔和 · 暖色' },
   { id: 'sage', name: '青苔', detail: '清新 · 护眼' },
   { id: 'night', name: '深夜', detail: '沉静 · 深色' },
 ];
-let settings = { theme: 'white', startupFullscreen: true, startupSidebarCollapsed: true, showToolbar: false, showStatusbar: false, showOutline: true, panelAnimations: true, font: 'system', fontSize: 16, lineHeight: 1.9, contentWidth: 780 };
+let settings = { theme: 'slate', startupFullscreen: true, startupSidebarCollapsed: true, showToolbar: false, showStatusbar: false, showOutline: true, panelAnimations: true, font: 'system', fontSize: 16, lineHeight: 1.9, contentWidth: 780 };
 try {
   const saved = JSON.parse(storage.getItem('tekaku-settings') || 'null');
   if (themes.some(theme => theme.id === saved?.theme)) settings.theme = saved.theme;
   for (const key of ['startupFullscreen', 'startupSidebarCollapsed', 'showToolbar', 'showStatusbar', 'showOutline', 'panelAnimations']) if (typeof saved?.[key] === 'boolean') settings[key] = saved[key];
   if (['system', 'serif', 'mono'].includes(saved?.font)) settings.font = saved.font;
   for (const [key, min, max] of [['fontSize', 14, 24], ['lineHeight', 1.5, 2.4], ['contentWidth', 600, 1100]]) if (Number.isFinite(saved?.[key])) settings[key] = Math.min(max, Math.max(min, saved[key]));
-} catch { /* Use white defaults if settings cannot be read. */ }
+} catch { /* Use default settings if settings cannot be read. */ }
 document.body.classList.toggle('sidebar-hidden', settings.startupSidebarCollapsed);
 document.body.dataset.theme = settings.theme;
 let stored = null;
 try { const value = JSON.parse(storage.getItem('tekaku-draft') || 'null'); if (typeof value?.content === 'string' && typeof value?.name === 'string') stored = value; } catch { /* Ignore a damaged local draft. */ }
-let fileName = stored?.name || '未命名.md';
-let filePath = stored?.path || null;
-let dirty = Boolean(stored);
+let nextTabId = 0;
+function makeTab(data = {}) {
+  return { id: ++nextTabId, name: data.name || '未命名.md', path: data.path || null,
+    content: typeof data.content === 'string' ? data.content : null, dirty: Boolean(data.dirty),
+    mode: false, state: null, previewScroll: 0, sourceScroll: 0, revision: 0 };
+}
+const recovered = Array.isArray(stored?.tabs) ? stored.tabs.filter(tab => typeof tab?.name === 'string' && typeof tab?.content === 'string') : [];
+let tabs = recovered.length ? recovered.map(makeTab) : [makeTab(stored ? { ...stored, dirty: true } : {})];
+let activeTab = tabs[Math.min(Math.max(0, Number(stored?.activeIndex) || 0), tabs.length - 1)];
+let fileName = activeTab.name, filePath = activeTab.path, dirty = activeTab.dirty;
+let switchingTab = false, nativeDirty, closingTabs = false;
 let sourceMode = false;
 let sourceBefore = '';
 let activeSlash = false;
@@ -50,7 +59,9 @@ let features;
 let documentScroll;
 document.querySelector('#app').innerHTML = `
   <header id="titlebar">
-    <div class="breadcrumb"><span id="filename"></span><span id="unsaved"></span></div>
+    <div class="breadcrumb" aria-live="polite"><span id="filename"></span><span id="unsaved"></span></div>
+    <div id="document-tabs" role="tablist" aria-label="打开的文档"></div>
+    <button id="new-tab" aria-label="新建标签" title="新建文档（Ctrl+N）">${icon('plus')}</button>
     <div class="titlebar-drag-space" aria-hidden="true"></div>
     <span id="save-state"></span>
     <div class="window-controls"><button id="window-minimize" aria-label="最小化" title="最小化">${icon('minimize')}</button><button id="window-maximize" aria-label="还原窗口" title="还原窗口">${icon('maximize')}</button><button id="window-close" aria-label="关闭窗口" title="关闭窗口">${icon('close')}</button></div>
@@ -74,7 +85,7 @@ document.querySelector('#app').innerHTML = `
 
 <main>
   <div class="toolbar"><div class="toolbar-group"><button data-action="paragraph" title="正文">${icon('paragraph')}</button><span class="toolbar-divider"></span><button data-action="bold" title="粗体 (Ctrl/Cmd+B)">${icon('bold')}</button><button data-action="italic" title="斜体">${icon('italic')}</button><button data-action="strike" title="删除线">${icon('strike')}</button><button data-action="code" title="行内代码">${icon('code')}</button><span class="toolbar-divider"></span><button data-action="heading" title="二级标题">${icon('heading')}</button><button data-action="bulletList" title="无序列表">${icon('bulletList')}</button><button data-action="taskList" title="待办清单">${icon('taskList')}</button><button data-action="blockquote" title="引用">${icon('quote')}</button><button data-action="undo" title="撤销">${icon('undo')}</button><button data-action="redo" title="重做">${icon('redo')}</button></div></div>
-  <div class="workbench"><div class="editor-surface"><div class="sidebar-toggle-dock floating-controls"><button id="expand" aria-label="切换侧栏" title="切换侧栏" aria-controls="sidebar">${icon('panel')}</button></div>  <div class="corner-tools floating-controls"><button id="toggle-outline" aria-label="切换大纲" title="显示或隐藏大纲" aria-expanded="true">${icon('outline')}</button><button id="source" aria-label="切换 Markdown 源码" title="切换源码（Ctrl+Shift+M）" aria-pressed="false">${icon('code', 'data-view-icon="source"')}${icon('preview', 'data-view-icon="preview" hidden')}</button></div><section class="page-scroll"><div class="paper"><div id="editor"></div></div><textarea id="source-editor" spellcheck="false" aria-label="Markdown 源码" hidden></textarea></section></div><div class="outline-rail"><aside id="outline-panel" class="outline-panel" aria-label="文档大纲"><div class="outline-heading"><h2>大纲</h2></div><nav id="outline" aria-label="标题导航"></nav></aside></div><div id="document-scrollbar" tabindex="0" aria-label="文档滚动条" aria-controls="editor"><div></div></div></div>
+  <div class="workbench"><div class="editor-surface"><div class="sidebar-toggle-dock floating-controls"><button id="expand" aria-label="切换侧栏" title="切换侧栏" aria-controls="sidebar">${icon('panel')}</button></div>  <div class="corner-tools floating-controls"><button id="toggle-outline" aria-label="切换大纲" title="显示或隐藏大纲" aria-expanded="true">${icon('outline')}</button><button id="source" aria-label="切换 Markdown 源码" title="切换源码（Ctrl+Shift+M）" aria-pressed="false">${icon('code', 'data-view-icon="source"')}${icon('preview', 'data-view-icon="preview" hidden')}</button></div><section id="document-view" class="page-scroll" role="tabpanel"><div class="paper"><div id="editor"></div></div><textarea id="source-editor" spellcheck="false" aria-label="Markdown 源码" hidden></textarea></section></div><div class="outline-rail"><aside id="outline-panel" class="outline-panel" aria-label="文档大纲"><div class="outline-heading"><h2>大纲</h2></div><nav id="outline" aria-label="标题导航"></nav></aside></div><div id="document-scrollbar" tabindex="0" aria-label="文档滚动条" aria-controls="editor"><div></div></div></div>
 
   <footer><div><span class="local-dot"></span><span id="status">所有内容仅保存在本地</span></div><div><span id="word-count"></span><span>UTF-8</span><span>Markdown</span></div></footer>
 </main>
@@ -104,15 +115,101 @@ ${shortcutGuide()}
 </dialog>
 <dialog id="confirm-dialog" class="message-dialog" aria-labelledby="confirm-title"><h2 id="confirm-title">保存修改？</h2><p id="confirm-message"></p><div class="dialog-actions"><button id="confirm-cancel">取消</button><button id="confirm-discard">不保存</button><button id="confirm-save" class="primary-button">保存</button></div></dialog>
 <dialog id="error-dialog" class="message-dialog" aria-labelledby="error-title"><h2 id="error-title">操作失败</h2><p id="error-message"></p><div class="dialog-actions"><button id="error-close" class="primary-button">知道了</button></div></dialog>
-<input id="file-input" type="file" accept=".md,.markdown,.txt,text/markdown,text/plain" hidden>`;
+<input id="file-input" type="file" accept=".md,.markdown,.txt,text/markdown,text/plain" multiple hidden>`;
 const $ = (selector) => document.querySelector(selector);
 function toast(message) { $('#toast').textContent = message; $('#toast').classList.add('visible'); clearTimeout(toastTimer); toastTimer = setTimeout(() => $('#toast').classList.remove('visible'), 3000); }
 function markdown() { return sourceMode ? $('#source-editor').value : editor.getMarkdown(); }
-function persist() { clearTimeout(persistTimer); storage.setItem('tekaku-draft', JSON.stringify({ name: fileName, path: filePath, content: markdown() })); }
+function snapshotTab() {
+  Object.assign(activeTab, { name: fileName, path: filePath, dirty, content: markdown(), state: editor.state,
+    mode: sourceMode, sourceBefore, previewScroll: sourceMode ? previewScroll : $('.page-scroll').scrollTop,
+    sourceScroll: sourceMode ? $('#source-editor').scrollTop : sourceScroll,
+    sourceSelection: [$('#source-editor').selectionStart, $('#source-editor').selectionEnd] });
+}
+function persist() {
+  clearTimeout(persistTimer); snapshotTab();
+  storage.setItem('tekaku-draft', JSON.stringify({ name: fileName, path: filePath, content: activeTab.content,
+    activeIndex: tabs.indexOf(activeTab), tabs: tabs.map(({name,path,content,dirty}) => ({name,path,content:content ?? '',dirty})) }));
+}
+function syncNativeDirty() {
+  const value = tabs.some(tab => tab === activeTab ? dirty : tab.dirty);
+  if (value !== nativeDirty) { nativeDirty = value; window.desktop?.dirty(value); }
+}
+function renderTabs() {
+  const strip = $('#document-tabs');
+  for (const node of strip.querySelectorAll('[data-tab-id]')) if (!tabs.some(tab => tab.id === Number(node.dataset.tabId))) node.remove();
+  for (const tab of tabs) {
+    let item = strip.querySelector(`[data-tab-id="${tab.id}"]`);
+    if (!item) {
+      item = document.createElement('div'); item.className = 'document-tab'; item.dataset.tabId = tab.id;
+      const button = document.createElement('button'); button.className = 'tab-select'; button.role = 'tab'; button.id = `document-tab-${tab.id}`; button.setAttribute('aria-controls', 'document-view');
+      button.innerHTML = `${icon('document')}<span class="tab-name"></span><span class="tab-dirty" aria-hidden="true"></span>`;
+      button.onclick = () => switchTab(tab);
+      const close = document.createElement('button'); close.className = 'tab-close'; close.innerHTML = icon('close'); close.onclick = () => closeTab(tab);
+      item.append(button, close); strip.append(item);
+    }
+    const selected = tab === activeTab, button = item.querySelector('.tab-select');
+    button.setAttribute('aria-selected', String(selected)); button.tabIndex = selected ? 0 : -1;
+    button.title = tab.path || tab.name; button.setAttribute('aria-label', tab.name + (tab.dirty ? '，未保存' : ''));
+    item.querySelector('.tab-name').textContent = tab.name;
+    item.querySelector('.tab-dirty').textContent = tab.dirty ? '•' : '';
+    item.querySelector('.tab-close').setAttribute('aria-label', `关闭 ${tab.name}`);
+    item.classList.toggle('selected', selected);
+  }
+  $('#document-view').setAttribute('aria-labelledby', `document-tab-${activeTab.id}`);
+}
+function revealTab() { $('#document-tabs .selected')?.scrollIntoView({block:'nearest', inline:'nearest'}); }
+function switchTab(tab) {
+  if (!tab || tab === activeTab || switchingTab) return;
+  snapshotTab(); switchingTab = true; closeSlash();
+  try {
+    activeTab = tab; fileName = tab.name; filePath = tab.path; dirty = tab.dirty;
+    resetImageCache(filePath);
+    if (tab.state) editor.view.updateState(tab.state);
+    else replaceDocument(tab.content ?? blankDocument, tab.content === null ? 'json' : 'markdown');
+    sourceMode = tab.mode; previewScroll = tab.previewScroll; sourceScroll = tab.sourceScroll;
+    sourceBefore = sourceMode ? tab.sourceBefore : '';
+    $('#source-editor').value = sourceMode ? tab.content : '';
+    $('#source-editor').hidden = !sourceMode; $('#editor').hidden = sourceMode;
+    syncViewMode();
+    $('.page-scroll').scrollTop = previewScroll; $('#source-editor').scrollTop = sourceScroll;
+    if (tab.sourceSelection) $('#source-editor').setSelectionRange(...tab.sourceSelection);
+    features?.onLoad();
+  } finally { switchingTab = false; }
+  updateState(); revealTab(); persist();
+}
+async function closeTab(tab = activeTab) {
+  if (closingTabs) return;
+  closingTabs = true;
+  try {
+    switchTab(tab);
+    if (!await confirmDiscard()) return;
+    const index = tabs.indexOf(tab), next = tabs[index + 1] || tabs[index - 1] || makeTab();
+    if (!tabs.includes(next)) tabs.push(next);
+    switchTab(next); tabs = tabs.filter(item => item !== tab);
+    updateState(); revealTab(); persist();
+  } finally { closingTabs = false; }
+}
+async function confirmAllTabs() {
+  if (closingTabs) return false;
+  closingTabs = true; const discard = [];
+  try {
+    snapshotTab();
+    for (const tab of tabs.filter(tab => tab.dirty)) {
+      switchTab(tab); if (!await confirmDiscard()) return false;
+      if (dirty) discard.push(tab);
+    }
+    const keep = tabs.filter(tab => !discard.includes(tab));
+    if (!keep.length) keep.push(makeTab());
+    if (!keep.includes(activeTab)) switchTab(keep[0]);
+    tabs = keep; updateState(); persist(); return true;
+  } finally { closingTabs = false; }
+}
 function schedulePersist() { clearTimeout(persistTimer); persistTimer = setTimeout(persist, 600); }
 storage.onError = () => toast('本地草稿写入失败，请保存文档到文件');
 function updateState(changed = false) {
-  if (changed) { if (!dirty) window.desktop?.dirty(true); dirty = true; schedulePersist(); }
+  if (switchingTab) return;
+  if (changed) { dirty = true; activeTab.revision++; schedulePersist(); }
+  Object.assign(activeTab, {name:fileName, path:filePath, dirty}); renderTabs(); syncNativeDirty();
   documentScroll?.refresh();
   $('#filename').textContent = fileName;
   $('#sidebar-name').textContent = fileName.replace(/\.(md|markdown)$/i, '');
@@ -149,7 +246,7 @@ const commands = [
 const editor = new Editor({
   element: $('#editor'),
   extensions: [StarterKit.configure({ codeBlock: false, link: { openOnClick: false }, undoRedo: { depth: 40 } }), Placeholder.configure({ showOnlyCurrent: false, placeholder: ({ node }) => node.type.name === 'heading' && node.attrs.level === 1 ? '请输入标题' : '写点什么，或输入 / 添加内容…' }), TaskList, TaskItem.configure({ nested: true }), ...extraExtensions, Markdown],
-  content: stored?.content ?? blankDocument, contentType: stored ? 'markdown' : 'json',
+  content: activeTab.content ?? blankDocument, contentType: activeTab.content === null ? 'json' : 'markdown',
   editorProps: {
     attributes: { 'aria-label': '文档编辑器', spellcheck: 'false' },
     handleKeyDown(view, event) {
@@ -267,14 +364,7 @@ function confirmDiscard() {
   return decision;
 }
 async function newDocument() {
-  try {
-    if (!await confirmDiscard()) return;
-    if (window.desktop && !await window.desktop.new()) return;
-    sourceMode = false; $('#source-editor').hidden = true; $('#editor').hidden = false; $('#source').classList.remove('active'); $('#source').setAttribute('aria-pressed', 'false');
-    previewScroll = sourceScroll = 0; $('.page-scroll').scrollTop = 0;
-    clearTimeout(persistTimer); resetImageCache();
-    replaceDocument(blankDocument, 'json'); fileName = '未命名.md'; filePath = null; dirty = false; storage.removeItem('tekaku-draft'); window.desktop?.dirty(false); updateState(); features?.onLoad(); editor.commands.focus('start');
-  } catch (error) { showError('新建失败', error.message || error); }
+  const tab = makeTab(); tabs.push(tab); switchTab(tab); editor.commands.focus('start');
 }
 function replaceDocument(content, contentType = 'markdown') {
   editor.commands.setContent(content, { contentType, emitUpdate: false });
@@ -285,38 +375,74 @@ function replaceDocument(content, contentType = 'markdown') {
 }
 async function loadDocument(data) {
   if (!data) return;
-  sourceMode = false; $('#source-editor').hidden = true; $('#editor').hidden = false; $('#source').classList.remove('active'); $('#source').setAttribute('aria-pressed', 'false');
-  previewScroll = sourceScroll = 0; $('.page-scroll').scrollTop = 0;
-  resetImageCache();
-  replaceDocument(data.content); fileName = data.name; filePath = data.path || null; dirty = false;
-  window.desktop?.dirty(false); persist(); updateState(); features?.onLoad(); toast('文档已打开');
+  if (data.path) {
+    const canonical = path => path.replaceAll('\\', '/').toLowerCase();
+    const existing = tabs.find(tab => tab.path && canonical(tab.path) === canonical(data.path));
+    if (existing) { switchTab(existing); return; }
+  }
+  const replaceBlank = tabs.length === 1 && !dirty && !filePath && editor.isEmpty && !sourceMode;
+  const blank = activeTab, tab = makeTab(data); tabs.push(tab); switchTab(tab);
+  if (replaceBlank) { tabs = tabs.filter(item => item !== blank); renderTabs(); persist(); }
+  toast('文档已打开');
 }
 async function openDocument() {
   try {
-    if (!await confirmDiscard()) return;
-    if (window.desktop) await loadDocument(await window.desktop.open());
+    if (window.desktop?.openFiles) { for (const data of await window.desktop.openFiles() || []) await loadDocument(data); }
+    else if (window.desktop) await loadDocument(await window.desktop.open());
     else $('#file-input').click();
   } catch (error) { showError('打开失败', error.message || error); }
 }
 async function saveDocument(saveAs = false) {
+  const target = activeTab; snapshotTab(); const revision = target.revision, content = target.content;
   try {
-    const content = markdown();
-    if (window.desktop) { const result = await window.desktop.save({ content, saveAs }); if (!result) return false; fileName = result.name; filePath = result.path || filePath;
-      if (typeof result.content === 'string' && result.content !== content) {
-        resetImageCache();
-        if (sourceMode) $('#source-editor').value = result.content;
-        else editor.commands.setContent(result.content, { contentType: 'markdown', emitUpdate: false });
-        features?.onLoad();
-      } }
-    else { const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' }); const url = URL.createObjectURL(blob); const link = document.createElement('a'); link.href = url; link.download = fileName; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); }
-    dirty = false; persist(); updateState(); toast(window.desktop ? '文档已保存' : 'Markdown 文件已导出'); return true;
+    if (window.desktop) {
+      const result = await window.desktop.save({ content, saveAs, path: target.path, name: target.name });
+      if (!result) return false;
+      target.name = result.name; target.path = result.path || target.path;
+      if (target === activeTab) { fileName = target.name; filePath = target.path; }
+      if (target.revision === revision && typeof result.content === 'string' && result.content !== content) {
+        target.content = result.content; target.state = null;
+        if (target === activeTab) {
+          resetImageCache(target.path);
+          if (sourceMode) $('#source-editor').value = result.content;
+          else editor.commands.setContent(result.content, { contentType: 'markdown', emitUpdate: false });
+          features?.onLoad();
+        }
+      }
+    } else {
+      const url = URL.createObjectURL(new Blob([content], { type: 'text/markdown;charset=utf-8' }));
+      const link = document.createElement('a'); link.href = url; link.download = target.name; link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+    target.dirty = target.revision !== revision;
+    if (target === activeTab) { fileName = target.name; filePath = target.path; dirty = target.dirty; resetImageCache(filePath); }
+    persist(); updateState(); toast(window.desktop ? '文档已保存' : 'Markdown 文件已导出'); return !target.dirty;
   } catch (error) { showError('保存失败', error.message || error); return false; }
 }
 $('#new').onclick = newDocument;
 $('#open').onclick = openDocument;
 $('#save').onclick = () => saveDocument();
 $('#save-as').onclick = () => saveDocument(true);
-$('#file-input').onchange = async event => { const file = event.target.files[0]; if (file) await loadDocument({ name: file.name, content: await file.text() }); event.target.value = ''; };
+$('#file-input').onchange = async event => {
+  const files = [...event.target.files]; event.target.value = '';
+  for (const file of files) {
+    try {
+      if (file.size > 8 * 1024 * 1024) throw new Error('文档不能超过 8 MiB');
+      const content = new TextDecoder('utf-8', {fatal:true}).decode(await file.arrayBuffer());
+      await loadDocument({name:file.name, content});
+    } catch (error) { showError('打开失败', error.message || error); break; }
+  }
+};
+$('#new-tab').onclick = newDocument;
+$('#document-tabs').addEventListener('wheel', event => {
+  if (event.deltaY && !event.ctrlKey) { event.preventDefault(); event.currentTarget.scrollLeft += event.deltaY; }
+}, {passive:false});
+$('#document-tabs').addEventListener('keydown', event => {
+  if (!event.target.matches('.tab-select') || !['ArrowLeft','ArrowRight','Home','End'].includes(event.key)) return;
+  event.preventDefault();
+  const index = tabs.indexOf(activeTab), tab = event.key === 'Home' ? tabs[0] : event.key === 'End' ? tabs.at(-1) : tabs[(index + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length];
+  switchTab(tab); $(`#document-tab-${tab.id}`).focus();
+});
 $('#source').onclick = toggleSource;
 $('#source-editor').oninput = () => { updateState(true); features?.sourceChanged(); };
 function syncSidebar() {
@@ -393,7 +519,7 @@ document.querySelectorAll('[data-theme-choice]').forEach(button => button.onclic
 for (const [id, key] of [['startup-fullscreen', 'startupFullscreen'], ['startup-sidebar', 'startupSidebarCollapsed'], ['show-toolbar', 'showToolbar'], ['show-statusbar', 'showStatusbar'], ['show-outline', 'showOutline'], ['panel-animations', 'panelAnimations']]) $(`#${id}`).onchange = event => { settings[key] = event.target.checked; syncSettings(); saveSettings(); };
 $('#setting-font').onchange = event => { settings.font = event.target.value; syncSettings(); saveSettings(); };
 for (const [id, key] of [['setting-font-size', 'fontSize'], ['setting-line-height', 'lineHeight'], ['setting-content-width', 'contentWidth']]) $(`#${id}`).oninput = event => { settings[key] = Number(event.target.value); syncSettings(); saveSettings(); };
-$('#reset-settings').onclick = () => { settings = { theme: 'white', startupFullscreen: true, startupSidebarCollapsed: true, showToolbar: false, showStatusbar: false, showOutline: true, panelAnimations: true, font: 'system', fontSize: 16, lineHeight: 1.9, contentWidth: 780 }; syncSettings(); saveSettings(); };
+$('#reset-settings').onclick = () => { settings = { theme: 'slate', startupFullscreen: true, startupSidebarCollapsed: true, showToolbar: false, showStatusbar: false, showOutline: true, panelAnimations: true, font: 'system', fontSize: 16, lineHeight: 1.9, contentWidth: 780 }; syncSettings(); saveSettings(); };
 
 syncSettings();
 let nativeFullscreen = Boolean(window.desktop?.window);
@@ -417,19 +543,20 @@ async function windowAction(action) {
   } catch (error) { toast(`窗口操作失败：${error.message || error}`); }
 }
 window.addEventListener('tekaku-window-state', event => syncWindowState(event.detail));
+document.addEventListener('fullscreenchange', () => { if (!window.desktop?.window) syncWindowState({fullscreen:Boolean(document.fullscreenElement),maximized:false}); });
 if (!window.desktop?.window) $('.window-controls').hidden = true;
 $('#window-minimize').onclick = () => windowAction('minimize');
 $('#window-maximize').onclick = () => windowAction('maximize');
 $('#window-close').onclick = () => windowAction('close');
 let dragStart;
 $('#titlebar').addEventListener('pointerdown', event => {
-  if (event.button === 0 && !event.target.closest('button, input, a')) dragStart = { x: event.screenX, y: event.screenY };
+  if (event.button === 0 && !event.target.closest('button, input, a, #document-tabs')) dragStart = { x: event.screenX, y: event.screenY };
 });
 $('#titlebar').addEventListener('pointermove', event => {
   if (dragStart && event.buttons === 1 && Math.hypot(event.screenX - dragStart.x, event.screenY - dragStart.y) > 4) { dragStart = null; windowAction('drag'); }
 });
 window.addEventListener('pointerup', () => { dragStart = null; });
-$('#titlebar').addEventListener('dblclick', event => { if (!event.target.closest('button, input, a')) windowAction('maximize'); });
+$('#titlebar').addEventListener('dblclick', event => { if (!event.target.closest('button, input, a, #document-tabs')) windowAction('maximize'); });
 document.addEventListener('keydown', event => {
   if (event.defaultPrevented) return;
   if (event.key === 'F11') { event.preventDefault(); windowAction('fullscreen'); }
@@ -466,19 +593,21 @@ document.querySelector('.toolbar-group').onmousedown = event => {
 document.addEventListener('keydown', event => {
   if (!(event.metaKey || event.ctrlKey)) return;
   const key = event.key.toLowerCase();
+  if (key === 'w') { event.preventDefault(); if (!document.querySelector('dialog[open]')) closeTab(); return; }
+  if (event.key === 'Tab') { event.preventDefault(); switchTab(tabs[(tabs.indexOf(activeTab) + (event.shiftKey ? tabs.length - 1 : 1)) % tabs.length]); return; }
   if (['s', 'o', 'n'].includes(key) || (key === 'm' && event.shiftKey)) { event.preventDefault(); if (key === 's') saveDocument(event.shiftKey); if (key === 'o') openDocument(); if (key === 'n') newDocument(); if (key === 'm') toggleSource(); }
 });
-window.addEventListener('tekaku-close-request', async () => { if (await confirmDiscard()) windowAction('close-confirmed'); });
-window.addEventListener('beforeunload', event => { if (dirty && !window.desktop) { event.preventDefault(); event.returnValue = ''; } });
+window.addEventListener('tekaku-close-request', async () => { if (await confirmAllTabs()) windowAction('close-confirmed'); });
+window.addEventListener('beforeunload', event => { if (tabs.some(tab => tab.dirty) && !window.desktop) { event.preventDefault(); event.returnValue = ''; } });
 features = installFeatures({ editor, exitSource, isSource: () => sourceMode, sourceField: () => $('#source-editor'), fileName: () => fileName, showError, toast });
-installWindowFiles({ confirmDiscard, loadDocument, showError, toast, windowAction });
+installWindowFiles({ loadDocument, showError, toast, windowAction });
 documentScroll = installDocumentScroll();
-updateState(); await window.desktop?.dirty(dirty);
+resetImageCache(filePath); updateState();
 if (window.desktop?.initialFile) {
-  try { const initial = await window.desktop.initialFile(false); if (initial && await confirmDiscard()) await loadDocument(await window.desktop.initialFile(true)); } catch (error) { showError('打开失败', error.message || error); }
+  try { const initial = await window.desktop.initialFile(false); if (initial) await loadDocument(await window.desktop.initialFile(true)); } catch (error) { showError('打开失败', error.message || error); }
 }
-window.addEventListener('blur', () => { if (dirty) persist(); });
-window.addEventListener('pagehide', () => { if (dirty) persist(); });
+window.addEventListener('blur', () => { if (tabs.some(tab => tab.dirty)) persist(); });
+window.addEventListener('pagehide', () => { if (tabs.some(tab => tab.dirty)) persist(); });
 if (!/Mac|iPhone|iPad/.test(navigator.platform)) {
   document.querySelectorAll('kbd, #source span').forEach(label => { label.textContent = label.textContent.replaceAll('⌘', 'Ctrl').replaceAll('⇧', 'Shift'); });
 }

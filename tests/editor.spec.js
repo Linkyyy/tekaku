@@ -2,10 +2,10 @@ import { test, expect } from '@playwright/test';
 const source = page => page.keyboard.press('Control+Shift+M');
 async function newDoc(page) { await page.keyboard.press('Control+n'); }
 
-test('fresh homepage is white and minimal, with an empty title placeholder', async ({ page }) => {
+test('fresh homepage is slate and minimal, with an empty title placeholder', async ({ page }) => {
   const errors = []; page.on('pageerror', error => errors.push(error.message));
   await page.goto('/');
-  await expect(page.locator('body')).toHaveAttribute('data-theme', 'white');
+  await expect(page.locator('body')).toHaveAttribute('data-theme', 'slate');
   await expect(page.locator('.sidebar')).toBeHidden();
   await expect(page.locator('.toolbar')).toBeHidden();
   await expect(page.locator('footer')).toBeHidden();
@@ -53,14 +53,13 @@ test('opens Markdown, updates checkboxes and exports the edited document', async
   expect(content).not.toContain('请输入标题');
 });
 
-test('custom discard dialog protects changes and new documents receive a blank title', async ({ page }) => {
+test('closing a dirty tab uses the themed save dialog and the last tab becomes a blank title', async ({page}) => {
   await page.goto('/'); await page.locator('.tiptap h1').click(); await page.keyboard.type('Keep this');
-  await newDoc(page); await expect(page.locator('#confirm-dialog')).toBeVisible();
-  await page.locator('#confirm-cancel').click();
-  await expect(page.locator('.tiptap h1')).toHaveText('Keep this');
-  await newDoc(page); await page.locator('#confirm-discard').click();
+  await page.keyboard.press('Control+w'); await expect(page.locator('#confirm-dialog')).toBeVisible();
+  await page.locator('#confirm-cancel').click(); await expect(page.locator('.tiptap h1')).toHaveText('Keep this');
+  await page.keyboard.press('Control+w'); await page.locator('#confirm-discard').click();
   await expect(page.locator('.tiptap h1')).toHaveText('');
-  await expect(page.locator('.tiptap h1')).toHaveAttribute('data-placeholder', '请输入标题');
+  await expect(page.locator('.tiptap h1')).toHaveAttribute('data-placeholder','请输入标题');
   await expect(page.locator('#save-state')).toHaveText('已保存');
 });
 

@@ -141,7 +141,7 @@ test('shortcut guide groups keycaps, follows the skin and scrolls within the win
   await page.setViewportSize({ width: 900, height: 600 }); await page.goto('/');
   await page.keyboard.press('Control+,'); await page.locator('[data-theme-choice=night]').click(); await page.locator('#close-settings').click();
   await page.locator('#expand').click(); await page.locator('#help').click();
-  await expect(page.locator('.shortcut-group h3')).toHaveText(['文件','编辑','查找与插入','视图']);
+  await expect(page.locator('.shortcut-group h3')).toHaveText(['标签与文件','编辑','查找与插入','视图']);
   await expect(page.locator('.shortcut-group').filter({hasText:'切换源码'}).locator('kbd').first()).toHaveText('Ctrl');
   const dialog = await page.locator('#help-dialog').boundingBox(); expect(dialog.height).toBeLessThanOrEqual(516);
   expect(await page.locator('#help-body').evaluate(el => el.scrollHeight > el.clientHeight)).toBe(true);

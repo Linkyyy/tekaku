@@ -1,0 +1,2 @@
+Two Windows builds are byte-identical, including after cloud environment restart.
+SHA-256: 69a996aa4a88998e211e0b4ff8997ed112fce854c77b063ff5c767bf4d730061

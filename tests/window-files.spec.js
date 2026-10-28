@@ -9,16 +9,19 @@ test('all window borders start native resize and fullscreen hides the handles',a
  }
  await page.keyboard.press('F11');await expect(page.locator('[data-resize=left]')).toBeHidden();
 });
-test('dropping Markdown opens it after confirmation and clears a previous native save target',async({page})=>{
+test('dropping Markdown adds a tab and preserves dirty edits and the previous native save path',async({page})=>{
  await page.addInitScript(()=>{window.imported=[];window.states={};window.desktop={readState:async()=>({}),writeState:async(k,v)=>{window.states[k]=v;},dirty:async()=>{},initialFile:async()=>({name:'old.md',path:'C:\\old.md',content:'# Old'}),importFile:async data=>{window.imported.push(data);return {...data,path:''};}};});
  await page.goto('/');await expect(page.locator('.tiptap h1')).toHaveText('Old');await page.locator('.tiptap h1').click();await page.keyboard.type(' changed');
- await drop(page,[{name:'新文件.MD',content:'# 新文件\n\n```js\nconst x = 1;\n```'}]);await expect(page.locator('#confirm-dialog')).toBeVisible();await page.locator('#confirm-cancel').click();
- await expect(page.locator('.tiptap h1')).toContainText('Old');expect(await page.evaluate(()=>window.imported.length)).toBe(0);
- await drop(page,[{name:'新文件.MD',content:'# 新文件\n\n```js\nconst x = 1;\n```'}]);await page.locator('#confirm-discard').click();await expect(page.locator('#filename')).toHaveText('新文件.MD');await expect(page.locator('.tiptap pre code')).toHaveText('const x = 1;');
- expect(await page.evaluate(()=>JSON.parse(window.states['tekaku-draft']).path)).toBeNull();expect(await page.evaluate(()=>window.imported.length)).toBe(1);
+ await drop(page,[{name:'新文件.MD',content:'# 新文件\n\n```js\nconst x = 1;\n```'}]);
+ await expect(page.locator('#filename')).toHaveText('新文件.MD');await expect(page.locator('.tiptap pre code')).toHaveText('const x = 1;');
+ await expect(page.locator('#confirm-dialog')).toBeHidden();await expect(page.locator('.tab-select')).toHaveCount(2);
+ expect(await page.evaluate(()=>JSON.parse(window.states['tekaku-draft']).path)).toBeNull();
+ await page.locator('.tab-select').first().click();await expect(page.locator('.tiptap h1')).toContainText('changed');
+ expect(await page.evaluate(()=>JSON.parse(window.states['tekaku-draft']).path)).toBe('C:\\old.md');
 });
-test('multiple Markdown files and invalid UTF-8 do not replace the current document',async({page})=>{
- await page.goto('/');await drop(page,[{name:'first.md',content:'# First'},{name:'second.md',content:'# Second'}]);await expect(page.locator('#filename')).toHaveText('未命名.md');
+test('multiple dropped Markdown files open tabs while invalid UTF-8 preserves them',async({page})=>{
+ await page.goto('/');await drop(page,[{name:'first.md',content:'# First'},{name:'second.md',content:'# Second'}]);
+ await expect(page.locator('.tab-select')).toHaveCount(2);await expect(page.locator('#filename')).toHaveText('second.md');
  await page.evaluate(()=>{const data=new DataTransfer();data.items.add(new File([new Uint8Array([0xff,0xfe,0xff])],'bad.md',{type:'text/markdown'}));document.querySelector('#app').dispatchEvent(new DragEvent('drop',{bubbles:true,cancelable:true,dataTransfer:data}));});
- await expect(page.locator('#error-dialog')).toBeVisible();await expect(page.locator('#filename')).toHaveText('未命名.md');
+ await expect(page.locator('#error-dialog')).toBeVisible();await expect(page.locator('#filename')).toHaveText('second.md');await expect(page.locator('.tab-select')).toHaveCount(2);
 });

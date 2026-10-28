@@ -44,12 +44,16 @@ const RichCodeBlock = CodeBlockLowlight.extend({
     return { ...this.parent?.(), Tab: () => indent(false), 'Shift-Tab': () => indent(true), Home: () => boundary(false, false), End: () => boundary(true, false), 'Shift-Home': () => boundary(false, true), 'Shift-End': () => boundary(true, true) };
   },
 }).configure({ lowlight, defaultLanguage: 'plaintext' });
-const imageCache = new Map();
-export function resetImageCache() { imageCache.clear(); }
+const imageCache = new Map(), imageViews = new Set();
+let imageDocumentPath = null;
+export function resetImageCache(path = imageDocumentPath) {
+  imageDocumentPath = path; imageCache.clear();
+  for (const refresh of imageViews) refresh();
+}
 export async function imageSource(src) {
   if (/^(data:image\/|https?:\/\/)/i.test(src)) return src;
   if (!window.desktop?.resolveImages) return '';
-  if (!imageCache.has(src)) imageCache.set(src, window.desktop.resolveImages([src]).then(result => result[src] || '').catch(() => ''));
+  if (!imageCache.has(src)) imageCache.set(src, window.desktop.resolveImages([src], imageDocumentPath).then(result => result[src] || '').catch(() => ''));
   return imageCache.get(src);
 }
 const RichImage = Image.extend({
@@ -75,8 +79,10 @@ const RichImage = Image.extend({
           img.src = src;
         });
       };
+      let currentNode = node;
+      const refresh = () => update(currentNode); imageViews.add(refresh);
       update(node);
-      return { dom, update: current => { if (current.type.name !== 'image') return false; update(current); return true; }, destroy: () => { version++; } };
+      return { dom, update: current => { if (current.type.name !== 'image') return false; currentNode = current; update(current); return true; }, destroy: () => { version++; imageViews.delete(refresh); } };
     };
   },
 }).configure({ allowBase64: true });

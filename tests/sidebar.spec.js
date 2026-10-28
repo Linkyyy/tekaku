@@ -12,7 +12,7 @@ test('menus live in the collapsible sidebar and sidebar file actions work', asyn
   });
   await page.goto('/');
   await expect(page.locator('.sidebar')).toBeHidden();
-  await expect(page.locator('#titlebar button')).toHaveCount(3); // native window controls; sidebar toggle floats at bottom-left
+  await expect(page.locator('.window-controls button')).toHaveCount(3); // native window controls; sidebar toggle floats at bottom-left
   await expect(page.locator('#focus, #more, #more-menu')).toHaveCount(0);
   await expect(page.getByRole('button', { name: '专注模式', exact: true })).toHaveCount(0);
   await page.locator('#expand').click(); await expect(page.locator('#expand')).toHaveAttribute('aria-expanded', 'true');
@@ -26,7 +26,7 @@ test('menus live in the collapsible sidebar and sidebar file actions work', asyn
   await page.locator('#source-editor').fill('# 从侧栏修改');
   await page.locator('.sidebar #save').click();
   await page.locator('.sidebar #save-as').click();
-  expect(await page.evaluate(() => window.saved)).toEqual([{ content: '# 从侧栏修改', saveAs: false }, { content: '# 从侧栏修改', saveAs: true }]);
+  expect(await page.evaluate(() => window.saved)).toEqual([{ content: '# 从侧栏修改', saveAs: false, path: null, name: '侧栏打开.md' }, { content: '# 从侧栏修改', saveAs: true, path: null, name: '侧栏打开.md' }]);
   await page.locator('.sidebar #settings').click(); await expect(page.locator('#settings-dialog')).toBeVisible();
   await page.locator('#close-settings').click();
   await page.locator('.sidebar #help').click(); await expect(page.locator('#help-dialog')).toBeVisible();
@@ -50,7 +50,7 @@ test('frame and titlebar match the selected skin and notify the native composito
   await page.locator('[data-theme-choice=night]').click();
   await expect.poll(() => page.evaluate(() => window.actions)).toContain('theme-night');
   expect(await page.locator('#app').evaluate(el => getComputedStyle(el, '::before').borderTopColor)).not.toBe(originalBorder);
-  await page.locator('[data-theme-choice=white]').click();
-  await expect.poll(() => page.evaluate(() => window.actions)).toContain('theme-white');
+  await page.locator('[data-theme-choice=slate]').click();
+  await expect.poll(() => page.evaluate(() => window.actions)).toContain('theme-slate');
   expect(await page.locator('#app').evaluate(el => getComputedStyle(el, '::before').borderTopColor)).toBe(originalBorder);
 });

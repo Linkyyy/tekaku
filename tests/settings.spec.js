@@ -22,7 +22,7 @@ test('themes, editor typography and layout settings persist after reopening', as
   await expect(page.locator('#setting-font-size')).toHaveValue('20');
   await expect(page.locator('#startup-fullscreen')).not.toBeChecked();
   await page.locator('#reset-settings').click();
-  await expect(page.locator('body')).toHaveAttribute('data-theme', 'white');
+  await expect(page.locator('body')).toHaveAttribute('data-theme', 'slate');
   await expect(page.locator('#startup-fullscreen')).toBeChecked();
   await expect(page.locator('#show-toolbar')).not.toBeChecked();
 });

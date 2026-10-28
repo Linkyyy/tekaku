@@ -14,13 +14,14 @@ test('native document operations work without localStorage', async ({ page }) =>
     };
   });
   await page.goto('/'); await expect(page.locator('.tiptap h1')).toHaveText('本地恢复');
-  await page.keyboard.press('Control+o'); await page.locator('#confirm-discard').click();
+  await page.keyboard.press('Control+o');
+  await expect(page.locator('.tab-select')).toHaveCount(2);
   await expect(page.locator('.tiptap h1')).toHaveText('Windows 原生打开');
   await page.keyboard.press('Control+Shift+M');
   await page.locator('#source-editor').fill('# Windows 已编辑\n\n中文保存'); await page.keyboard.press('Control+s');
   await expect(page.locator('#save-state')).toHaveText('已保存');
   const saves = await page.evaluate(() => window.nativeCalls.filter(call => call[0] === 'save'));
-  expect(saves).toEqual([['save', { content: '# Windows 已编辑\n\n中文保存', saveAs: false }]]);
+  expect(saves).toEqual([['save', { content: '# Windows 已编辑\n\n中文保存', saveAs: false, path: null, name: 'Windows.md' }]]);
 });
 
 test('draft writes coalesce and surface disk errors', async ({ page }) => {

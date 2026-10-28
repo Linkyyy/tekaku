@@ -1,4 +1,4 @@
-export function installWindowFiles({ confirmDiscard, loadDocument, showError, toast, windowAction }) {
+export function installWindowFiles({ loadDocument, showError, toast, windowAction }) {
   const app = document.querySelector('#app');
   const hint = document.createElement('div');
   hint.id = 'file-drop-hint'; hint.hidden = true; hint.textContent = '松开以打开 Markdown 文件';
@@ -29,20 +29,20 @@ export function installWindowFiles({ confirmDiscard, loadDocument, showError, to
     if(!documents.length&&files.every(image)&&event.target.closest('#editor'))return;
     event.preventDefault();event.stopImmediatePropagation();
     if(!documents.length){toast('请拖入 .md、.markdown 或 .txt 文件');return;}
-    if(documents.length!==1){toast('请一次打开一个 Markdown 文件');return;}
     if(opening){toast('请先完成当前文件操作');return;}
     opening=true;
     (async()=>{
-      const file=documents[0];
+      for (const file of documents) {
       if(file.size>8*1024*1024)throw new Error('文档不能超过 8 MiB');
       const content=new TextDecoder('utf-8',{fatal:true}).decode(await file.arrayBuffer());
-      if(!await confirmDiscard())return;
       // HTML file drops do not reveal an absolute file path. Explicitly clear
       // the native save target so Ctrl+S cannot overwrite the previous file.
       let data={name:file.name,content};
       if(window.desktop?.importFile)data=await window.desktop.importFile(data);
       else if(window.desktop?.new)await window.desktop.new();
-      await loadDocument(data);toast(window.desktop?'已导入，保存时请选择文件位置':'Markdown 已打开');
+      await loadDocument(data);
+      }
+      toast(window.desktop?'已在标签中导入，保存时请选择文件位置':'Markdown 已在标签中打开');
     })().catch(error=>showError('打开失败',error.message||error)).finally(()=>{opening=false;});
   },true);
 }

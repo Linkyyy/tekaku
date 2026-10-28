@@ -2,11 +2,26 @@
 
 一个简洁、离线优先的 Markdown 编辑器，提供 Windows 桌面版和 Android 手机版。Typora 风格的安静界面，Notion 风格的内容块输入，在同一区域编辑与呈现。
 
-[Windows 安全核查中](docs/SECURITY-ALERT-0.10.md) · [下载 Android 0.1.0 APK](https://github.com/Linkyyy/tekaku/raw/refs/heads/downloads/android-v0.1.0/Tekaku-0.1.0-android.apk) · [官网源码](https://github.com/Linkyyy/tekaku/tree/gh-pages)
+[下载 Windows 0.11.0](https://github.com/Linkyyy/tekaku/raw/refs/heads/downloads/windows-v0.11.0/Tekaku-0.11.0-windows-x64.zip) · [下载 Android 0.1.0 APK](https://github.com/Linkyyy/tekaku/raw/refs/heads/downloads/android-v0.1.0/Tekaku-0.1.0-android.apk) · [官网源码](https://github.com/Linkyyy/tekaku/tree/gh-pages)
 
-> **Windows 下载暂缓：** 已收到“无法下载：检测到病毒”的报告，尚未取得威胁名称或确认涉事版本。当前官网 Windows 0.10.0 入口预防性暂停，不建议绕过拦截或添加白名单。暂无已验证修复版。[核查记录](docs/SECURITY-ALERT-0.10.md)。
+> **安全核查未结束：** 下载入口已恢复，但此前“检测到病毒”的报告仍缺少威胁名称及涉事版本。0.11.0 是功能更新，不能据此认定安全拦截已解决；EXE 仍未签名。若被拦截，请保留防护，不要加白名单。[核查记录](docs/SECURITY-ALERT-0.10.md)。
 
 ![编辑器](docs/editor.png)
+
+## 0.11 桌面更新
+
+- 顶栏与文件标签合成一行；去掉多余顶部高光和原生内边缘，只绘制一层客户端边框，窗口阴影保留。
+- 工作区固定在窗口视口内，全屏和最大化保留内容区的侧栏、大纲、源码浮动按钮；侧栏可正常展开与收起。
+- 新增灰蓝皮肤并设为新用户及重置设置后的默认皮肤；保留原来的纯白、纸笺、青苔和深夜。
+- 支持多文件 Tab：Ctrl+O 文件选择器可多选，拖入多个 Markdown 也会分别打开标签。已打开的原生路径再次打开时切换到已有标签。
+- 标签分别保留内容、修改状态、富文本撤销记录、源码/预览状态与滚动位置。关闭修改过的标签时询问保存；退出程序会逐个检查未保存标签。
+- Ctrl+N 新建标签，Ctrl+W 关闭当前标签，Ctrl+Tab / Ctrl+Shift+Tab 切换标签；标签栏支持滚动与键盘方向键。
+- 保存和相对图片解析显式使用各自标签的文件路径，避免打开其他文件后误存到另一个文档。
+- 官网标识改为与程序相同的蓝色图标，网站配色与默认预览改为灰蓝，恢复 Windows 下载入口并保留安全核查提示。
+
+Android 仍为 0.1.0，本次不修改 APK。
+
+[本版检查](docs/RELEASE-CHECK-0.11.md)
 
 ## 0.10 桌面更新
 
@@ -88,7 +103,7 @@
 - 移除系统标题栏，加入融入皮肤的自定义窗口控制；可拖动标题区、最小化、最大化/还原、关闭。
 - 默认全屏，F11 切换、Esc 退出；默认收起侧栏，隐藏格式工具栏和状态栏。
 - 新建文档自动提供空标题和正文，显示“请输入标题”；提示文字不写入 Markdown，不改动已导入的文档。
-- 设置（齿轮或 Ctrl+,）支持纯白、纸笺、青苔、深夜四种皮肤；默认纯白。
+- 设置（齿轮或 Ctrl+,）支持灰蓝、纯白、纸笺、青苔、深夜五种皮肤；默认灰蓝。
 - 可调整字体、字号、行距、正文宽度、工具栏/状态栏显示、启动全屏及侧栏状态，自动保存在本机。
 - 应用内未保存确认和错误提示使用统一的主题弹窗；取消保存会保留当前文档。系统文件选择器仍使用 Windows 原生界面。
 
