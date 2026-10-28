@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f8f7f3">
+  <meta name="theme-color" content="#edf2f7">
   <meta name="description" content="手书 Tekaku，简洁、离线优先的 Windows 与 Android Markdown 编辑器。边写边呈现，支持图片、表格、代码高亮与多种皮肤。便携下载包约 1.9 MB。">
   <meta property="og:type" content="website">
   <meta property="og:title" content="手书 Tekaku · 给想法一张纸">
@@ -11,7 +11,7 @@
   <meta property="og:image" content="https://raw.githubusercontent.com/Linkyyy/tekaku/gh-pages/assets/social.png">
   <meta name="twitter:card" content="summary_large_image">
   <title>手书 Tekaku — 轻量的 Windows 与 Android Markdown 编辑器</title>
-  <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="./assets/favicon.svg?v=0.11.0" type="image/svg+xml">
   <link rel="stylesheet" href="./style.css">
   <script src="./app.js" defer></script>
 </head>
@@ -39,7 +39,7 @@
   <header class="site-header">
     <div class="container nav-wrap">
       <a class="brand" href="#" aria-label="手书 Tekaku 首页">
-        <span class="brand-seal" aria-hidden="true">手</span>
+        <img class="brand-seal" src="./assets/logo.svg?v=0.11.0" alt="" width="35" height="38">
         <span class="brand-name">手书<span class="brand-english">Tekaku</span></span>
       </a>
       <nav class="desktop-nav" aria-label="主导航">
@@ -54,26 +54,26 @@
 
   <main id="main">
     <section class="hero container" aria-labelledby="hero-title">
-      <a class="release-pill" href="#windows-security-notice"><span class="release-dot" aria-hidden="true"></span><span>Windows 安全核查中</span><span class="pill-divider"></span><span>固定标题，顺畅切换</span><span aria-hidden="true">↗</span></a>
+      <a class="release-pill" href="#release"><span class="release-dot" aria-hidden="true"></span><span>Windows v0.11.0</span><span class="pill-divider"></span><span>多文件 Tab · 灰蓝新主题</span><span aria-hidden="true">↗</span></a>
       <h1 id="hero-title">给想法，<span class="hero-accent">一张纸。<svg viewBox="0 0 360 17" aria-hidden="true"><path d="M4 11C88 2 206 1 354 8M82 15c97-7 176-9 250-4"/></svg></span></h1>
       <p class="hero-description">一个轻巧、安静的 Markdown 编辑器。<br>边写边呈现，让注意力回到文字本身。</p>
       <div class="hero-actions">
-        <button class="button button-dark" type="button" data-download disabled aria-describedby="windows-security-notice">Windows 下载暂缓 · 安全核查中</button>
+        <a class="button button-dark" data-download href="https://github.com/Linkyyy/tekaku/raw/refs/heads/downloads/windows-v0.11.0/Tekaku-0.11.0-windows-x64.zip" aria-describedby="windows-security-notice"><svg aria-hidden="true" class="icon"><use href="#i-windows"/></svg>下载 Windows 便携版<span aria-hidden="true">↓</span></a>
         <a class="button button-light" data-android-download href="https://github.com/Linkyyy/tekaku/raw/refs/heads/downloads/android-v0.1.0/Tekaku-0.1.0-android.apk">下载 Android APK <span aria-hidden="true">↓</span></a>
       </div>
-      <aside id="windows-security-notice" class="security-notice" role="status"><strong>Windows 下载已暂停</strong><p>收到“无法下载：检测到病毒”的报告，正在核查。请保留系统拦截，不要关闭防护或添加白名单。</p><a href="https://github.com/Linkyyy/tekaku/blob/main/docs/SECURITY-ALERT-0.10.md" target="_blank" rel="noopener noreferrer">查看核查记录 ↗</a></aside>
+      <aside id="windows-security-notice" class="security-notice" role="status"><strong>下载已恢复，安全拦截报告仍在核查</strong><p>此前收到“检测到病毒”的报告，尚未查明具体威胁名称及涉事版本。v0.11.0 是功能更新，并非已验证的安全修复；若仍被拦截，请保留防护并提供检测记录，不要添加白名单。</p><a href="https://github.com/Linkyyy/tekaku/blob/main/docs/SECURITY-ALERT-0.10.md" target="_blank" rel="noopener noreferrer">查看核查记录 ↗</a></aside>
       <p class="download-meta">Windows 10 / 11 x64 · Android 8.0+ · 文档留在本机</p>
 
       <figure class="hero-preview" id="editor-preview">
         <div class="preview-topline"><span><span class="small-mark" aria-hidden="true"><svg aria-hidden="true" class="icon"><use href="#i-asterisk"/></svg></span> 少一点界面，多一点写作。</span><span class="mono">YOUR WORDS, YOUR SPACE.</span></div>
-        <div class="screenshot-frame"><img src="./assets/editor-white.webp" alt="手书真实编辑器界面：同一页面内编辑标题、待办清单、引用和 Markdown 内容" width="1280" height="840" fetchpriority="high"></div>
-        <figcaption><span class="caption-dot" aria-hidden="true"></span>真实软件界面<span class="caption-divider" aria-hidden="true">/</span>右侧大纲，右键插入内容<span class="preview-caption-right">手书 · Tekaku</span></figcaption>
+        <div class="screenshot-frame"><img src="./assets/editor-slate.webp" alt="手书真实编辑器界面：同一页面内编辑标题、待办清单、引用和 Markdown 内容" width="1280" height="840" fetchpriority="high"></div>
+        <figcaption><span class="caption-dot" aria-hidden="true"></span>真实软件界面<span class="caption-divider" aria-hidden="true">/</span>多文件标签，右侧大纲，右键插入内容<span class="preview-caption-right">手书 · Tekaku</span></figcaption>
       </figure>
     </section>
 
     <div class="principles container" aria-label="产品特点">
       <div><span class="principle-number">01</span><p><strong>轻装上阵</strong><span>Windows 约 1.9 MB，Android 约 235 KB。</span></p></div>
-      <div><span class="principle-number">02</span><p><strong>本地为先</strong><span>无需账号，文档留在自己的电脑。</span></p></div>
+      <div><span class="principle-number">02</span><p><strong>本地为先</strong><span>多文件标签切换，文档留在自己的电脑。</span></p></div>
       <div><span class="principle-number">03</span><p><strong>自由带走</strong><span>保存为 .md，让内容属于你。</span></p></div>
     </div>
 
@@ -116,15 +116,16 @@
       <div class="container appearance-inner">
         <div class="appearance-heading"><p class="eyebrow"><span></span> MAKE IT YOURS</p><h2 id="appearance-title">你的文字，<br>你的舒适区。</h2><p>纯白的清爽，纸笺的温润，<br>或是适合夜晚的深色。<br>把编辑器调成你喜欢的样子。</p>
           <div class="theme-options" role="group" aria-label="切换软件皮肤预览">
-            <button class="theme-option" type="button" data-theme="white" aria-pressed="true"><span class="theme-swatch swatch-white"><svg aria-hidden="true" class="icon"><use href="#i-check"/></svg></span><span>纯白</span></button>
+            <button class="theme-option" type="button" data-theme="slate" aria-pressed="true"><span class="theme-swatch swatch-slate"><svg aria-hidden="true" class="icon"><use href="#i-check"/></svg></span><span>灰蓝</span></button>
+            <button class="theme-option" type="button" data-theme="white" aria-pressed="false"><span class="theme-swatch swatch-white"><svg aria-hidden="true" class="icon"><use href="#i-check"/></svg></span><span>纯白</span></button>
             <button class="theme-option" type="button" data-theme="paper" aria-pressed="false"><span class="theme-swatch swatch-paper"><svg aria-hidden="true" class="icon"><use href="#i-check"/></svg></span><span>纸笺</span></button>
             <button class="theme-option" type="button" data-theme="sage" aria-pressed="false"><span class="theme-swatch swatch-sage"><svg aria-hidden="true" class="icon"><use href="#i-check"/></svg></span><span>青苔</span></button>
             <button class="theme-option" type="button" data-theme="night" aria-pressed="false"><span class="theme-swatch swatch-night"><svg aria-hidden="true" class="icon"><use href="#i-check"/></svg></span><span>深夜</span></button>
           </div>
-          <p class="theme-caption" id="theme-caption" role="status">纯白 · 干净明亮，留住文字的本色。</p>
+          <p class="theme-caption" id="theme-caption" role="status">灰蓝 · 默认主题，柔和清晰的写作空间。</p>
           <div class="customization"><span>字体</span><i aria-hidden="true"></i><span>字号</span><i aria-hidden="true"></i><span>行距</span><i aria-hidden="true"></i><span>正文宽度</span></div>
         </div>
-        <figure class="theme-preview" data-preview-theme="white"><div class="screenshot-frame"><img id="theme-image" src="./assets/editor-white.webp" alt="纯白皮肤的手书编辑器真实截图" width="1280" height="840" loading="lazy" decoding="async"></div><figcaption>点击色块，预览真实软件皮肤。</figcaption></figure>
+        <figure class="theme-preview" data-preview-theme="slate"><div class="screenshot-frame"><img id="theme-image" src="./assets/editor-slate.webp" alt="灰蓝皮肤的手书编辑器真实截图" width="1280" height="840" loading="lazy" decoding="async"></div><figcaption>点击色块，预览真实软件皮肤。</figcaption></figure>
       </div>
     </section>
 
@@ -141,8 +142,8 @@
     </section>
 
     <section class="getting-started section-space container" aria-labelledby="start-title">
-      <div class="section-heading"><div><p class="eyebrow"><span></span> WINDOWS QUICK START</p><h2 id="start-title">Windows 使用</h2></div><p class="section-description">不必建立工作区，不必注册账号。<br>一份文档，就是一个开始。</p></div>
-      <ol class="steps"><li><span class="step-number">01</span><h3>下载并解压</h3><p>下载 Windows 便携包，<br>保留 EXE 与 DLL，双击 <code>Tekaku.exe</code>。</p></li><li><span class="step-number">02</span><h3>打开，或新建</h3><p><kbd>Ctrl</kbd> + <kbd>O</kbd> 打开 Markdown，<br>或从一页空白开始写作。</p></li><li><span class="step-number">03</span><h3>把想法留住</h3><p><kbd>Ctrl</kbd> + <kbd>S</kbd> 保存到本机。<br>下一次写作，再从这里继续。</p></li></ol>
+      <div class="section-heading"><div><p class="eyebrow"><span></span> WINDOWS QUICK START</p><h2 id="start-title">Windows 使用</h2></div><p class="section-description">不必建立工作区，不必注册账号。<br>多份文档，在标签中轻松切换。</p></div>
+      <ol class="steps"><li><span class="step-number">01</span><h3>下载并解压</h3><p>下载 Windows 便携包，<br>保留 EXE 与 DLL，双击 <code>Tekaku.exe</code>。</p></li><li><span class="step-number">02</span><h3>打开，或新建</h3><p><kbd>Ctrl</kbd> + <kbd>O</kbd> 打开 Markdown，<br>可多选文件，或拖入多个 Markdown。</p></li><li><span class="step-number">03</span><h3>把想法留住</h3><p><kbd>Ctrl</kbd> + <kbd>S</kbd> 保存到本机。<br>下一次写作，再从这里继续。</p></li></ol>
     </section>
 
     <section class="faq-section container" id="faq" aria-labelledby="faq-title">
@@ -153,21 +154,21 @@
         <details><summary>文件和图片保存在哪里？<svg aria-hidden="true" class="icon"><use href="#i-plus"/></svg></summary><div class="faq-answer"><p>Windows 的 Markdown 文件保存在你选择的位置，新插入图片在保存时写入同目录的「文档名.assets」文件夹。移动或分享文档时，请一起带上这个文件夹。Windows 草稿和设置保存在 %APPDATA%\Tekaku。Android 图片内嵌于 Markdown，草稿位于应用私有目录。草稿不能代替保存原文件。</p></div></details>
         <details><summary>可以完全离线使用吗？<svg aria-hidden="true" class="icon"><use href="#i-plus"/></svg></summary><div class="faq-answer"><p>安装好系统 WebView2 后，编辑、保存、本地图片和 HTML 导出均可离线使用，无需登录。手书不会上传文档。插入网络图片或主动打开网页链接时，会访问对应的网络地址。</p></div></details>
         <details><summary>支持所有 Markdown 扩展吗？<svg aria-hidden="true" class="icon"><use href="#i-plus"/></svg></summary><div class="faq-answer"><p>支持标题、列表、待办、引用、链接、图片、GFM 表格、文字高亮和代码块等常用内容。暂未提供公式排版、Mermaid 渲染、脚注及 YAML front matter 专用编辑。导入导出会规范化 Markdown，复杂文档建议先另存为。Windows 文档/图片上限分别为 8/5 MiB；Android 分别为 2/1 MiB。</p></div></details>
-        <details open><summary>提示「检测到病毒」怎么办？<svg aria-hidden="true" class="icon"><use href="#i-plus"/></svg></summary><div class="faq-answer"><p>请保留拦截，不要关闭防护或加白名单。我们已暂停当前 Windows 包的官网及 GitHub 推荐下载入口，正在核查；尚未取得具体威胁名称，不能判断为误报。此前单个引擎 ClamAV 未检出，不能排除这次检测。请从 Windows 安全中心的“保护历史记录”提供威胁名称和受影响文件。<a href="https://github.com/Linkyyy/tekaku/blob/main/docs/SECURITY-ALERT-0.10.md" target="_blank" rel="noopener noreferrer">核查进展</a>。</p><p>“下载不常见”或“未知发布者”通常涉及下载信誉和签名，与明确的“检测到病毒”提示不同。当前 EXE 仍未签名，暂无已验证可解除本次拦截的修复版。</p></div></details>
+        <details open><summary>提示「检测到病毒」怎么办？<svg aria-hidden="true" class="icon"><use href="#i-plus"/></svg></summary><div class="faq-answer"><p>请保留拦截，不要关闭防护或加白名单。下载入口已恢复，但此前报告仍在核查；尚未取得具体威胁名称，不能判断为误报。新版是界面与多 Tab 功能更新，不能据此认定拦截已解决。历史版本单个引擎 ClamAV 未检出，不能排除这次检测。请从 Windows 安全中心的“保护历史记录”提供威胁名称和受影响文件。<a href="https://github.com/Linkyyy/tekaku/blob/main/docs/SECURITY-ALERT-0.10.md" target="_blank" rel="noopener noreferrer">核查进展</a>。</p><p>“下载不常见”或“未知发布者”通常涉及下载信誉和签名，与明确的“检测到病毒”提示不同。当前 EXE 仍未签名，暂无已验证可解除本次拦截的修复版。</p></div></details>
       </div>
     </section>
 
     <section class="download-section container" id="download" aria-labelledby="download-title">
       <div class="download-panel">
-        <div class="download-copy"><p class="eyebrow"><span></span> LESS FRICTION, MORE WORDS</p><h2 id="download-title">Windows 下载，<br>等待安全核查。</h2><p>当前 Windows 包暂停推荐下载，核查完成前请保留安全软件的拦截。</p><button class="button button-paper" type="button" data-download disabled aria-describedby="windows-security-notice">Windows 下载暂缓 · 安全核查中</button><span class="download-panel-meta">v0.10.0 · Windows 10 / 11 x64 · ZIP 约 1.9 MB</span></div>
-        <div class="download-art" aria-hidden="true"><div class="art-page page-back"></div><div class="art-page page-front"><span class="art-seal">手</span><span class="art-rule art-rule-title"></span><span class="art-rule"></span><span class="art-rule"></span><span class="art-rule art-rule-short"></span><span class="art-asterisk"><svg aria-hidden="true" class="icon"><use href="#i-asterisk"/></svg></span><span class="art-page-footer">TEKAKU<span>01</span></span></div><span class="art-caption">JUST YOU & YOUR WORDS.</span></div>
+        <div class="download-copy"><p class="eyebrow"><span></span> LESS FRICTION, MORE WORDS</p><h2 id="download-title">多份文档，<br>从容切换。</h2><p>Windows v0.11.0 已开放下载。首次使用前请阅读上方安全核查提示。</p><a class="button button-paper" data-download href="https://github.com/Linkyyy/tekaku/raw/refs/heads/downloads/windows-v0.11.0/Tekaku-0.11.0-windows-x64.zip" aria-describedby="windows-security-notice">下载 Windows 便携版<span aria-hidden="true">↓</span></a><span class="download-panel-meta">v0.11.0 · Windows 10 / 11 x64 · ZIP 约 1.9 MB</span></div>
+        <div class="download-art" aria-hidden="true"><div class="art-page page-back"></div><div class="art-page page-front"><img class="art-seal" src="./assets/logo.svg?v=0.11.0" alt="" width="30" height="35"><span class="art-rule art-rule-title"></span><span class="art-rule"></span><span class="art-rule"></span><span class="art-rule art-rule-short"></span><span class="art-asterisk"><svg aria-hidden="true" class="icon"><use href="#i-asterisk"/></svg></span><span class="art-page-footer">TEKAKU<span>01</span></span></div><span class="art-caption">JUST YOU & YOUR WORDS.</span></div>
       </div>
-      <div class="download-details"><p>Windows 下载暂缓 · 下方哈希仅供核对，不代表安全保证</p><details class="checksum-details"><summary>查看下载包 SHA-256 <span aria-hidden="true">＋</span></summary><div class="checksum-content"><code id="checksum">66320d641b0d9b42e4488136563465f35ee56f115d237f09b6c2ba4e52073008</code><button id="copy-checksum" type="button">复制</button><span id="copy-status" class="sr-only" role="status"></span></div></details></div>
+      <div class="download-details"><p>完整解压后运行 · 校验值仅验证文件一致性，不代表安全保证</p><details class="checksum-details"><summary>查看下载包 SHA-256 <span aria-hidden="true">＋</span></summary><div class="checksum-content"><code id="checksum">61c7e4d556a598aa967e07aa778099cd0cbd8e17e560c8f4aa3a9e0271013c47</code><button id="copy-checksum" type="button">复制</button><span id="copy-status" class="sr-only" role="status"></span></div></details></div>
     </section>
 
-    <section class="release-section container" id="release" aria-labelledby="release-title"><div><span class="release-dot" aria-hidden="true"></span><h2 id="release-title">最近更新</h2><span class="version-label">v0.10.0</span></div><p>已收到 Windows 下载被提示“检测到病毒”的报告，当前入口暂停，正在收集具体检测名称并核查。</p><a href="https://github.com/Linkyyy/tekaku/tree/downloads/windows-v0.10.0" target="_blank" rel="noopener noreferrer">查看版本说明 <span aria-hidden="true">↗</span></a></section>
+    <section class="release-section container" id="release" aria-labelledby="release-title"><div><span class="release-dot" aria-hidden="true"></span><h2 id="release-title">最近更新</h2><span class="version-label">v0.11.0</span></div><p>新增多文件标签、灰蓝默认主题，合并顶部边框；全屏下保留浮动按钮与侧栏。安全拦截报告仍在核查。</p><a href="https://github.com/Linkyyy/tekaku/tree/downloads/windows-v0.11.0" target="_blank" rel="noopener noreferrer">查看版本说明 <span aria-hidden="true">↗</span></a></section>
   </main>
 
-  <footer class="site-footer container"><a class="brand" href="#" aria-label="返回手书首页"><span class="brand-seal" aria-hidden="true">手</span><span class="brand-name">手书<span class="brand-english">Tekaku</span></span></a><p>给文字一点空间。</p><div><a href="https://github.com/Linkyyy/tekaku/tree/gh-pages" target="_blank" rel="noopener noreferrer">官网源码 ↗</a><a href="https://github.com/Linkyyy/tekaku/issues" target="_blank" rel="noopener noreferrer">问题反馈 ↗</a><a href="#download">下载 ↓</a></div></footer>
+  <footer class="site-footer container"><a class="brand" href="#" aria-label="返回手书首页"><img class="brand-seal" src="./assets/logo.svg?v=0.11.0" alt="" width="35" height="38"><span class="brand-name">手书<span class="brand-english">Tekaku</span></span></a><p>给文字一点空间。</p><div><a href="https://github.com/Linkyyy/tekaku/tree/gh-pages" target="_blank" rel="noopener noreferrer">官网源码 ↗</a><a href="https://github.com/Linkyyy/tekaku/issues" target="_blank" rel="noopener noreferrer">问题反馈 ↗</a><a href="#download">下载 ↓</a></div></footer>
 </body>
 </html>

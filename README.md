@@ -2,9 +2,9 @@
 
 手书 Windows 与 Android 编辑器的中文产品官网。
 
-**Windows 下载已暂停：** 收到“检测到病毒”的下载拦截报告，尚未确认具体威胁名称与涉事版本。当前 Windows 0.10.0 推荐入口已停用；保留原始文件供核查，不应绕过安全软件拦截。见 [核查记录](https://github.com/Linkyyy/tekaku/blob/main/docs/SECURITY-ALERT-0.10.md)。
+**Windows 下载已恢复为 0.11.0，安全核查仍在进行。** 此前“检测到病毒”的报告尚未确认具体威胁名称与涉事版本；新版是功能更新，不是已验证的安全修复。保留防护，不应绕过拦截。见 [核查记录](https://github.com/Linkyyy/tekaku/blob/main/docs/SECURITY-ALERT-0.10.md)。
 
-纯静态 HTML / CSS / JavaScript，**没有构建步骤、运行依赖、外部字体、追踪脚本或账号功能**。图片均随站点提供；四种编辑器皮肤预览来自实际软件界面的浏览器渲染截图。界面功能示意已明确标注。
+纯静态 HTML / CSS / JavaScript，**没有构建步骤、运行依赖、外部字体、追踪脚本或账号功能**。图片均随站点提供；五种桌面编辑器皮肤预览来自实际软件界面的浏览器渲染截图。界面功能示意已明确标注。
 
 ## 预览
 
@@ -44,17 +44,17 @@ python3 -m http.server 8080
 
 ## 下载与维护
 
-- Windows 0.10.0：安全核查中，下载入口暂缓。
-- [版本说明](https://github.com/Linkyyy/tekaku/tree/downloads/windows-v0.10.0)
-- 下载 ZIP 的 SHA-256：`66320d641b0d9b42e4488136563465f35ee56f115d237f09b6c2ba4e52073008`
+- [Windows 0.11.0 便携包](https://github.com/Linkyyy/tekaku/raw/refs/heads/downloads/windows-v0.11.0/Tekaku-0.11.0-windows-x64.zip)（安全报告仍在核查）
+- [版本说明](https://github.com/Linkyyy/tekaku/tree/downloads/windows-v0.11.0)
+- 下载 ZIP 的 SHA-256：`61c7e4d556a598aa967e07aa778099cd0cbd8e17e560c8f4aa3a9e0271013c47`
 
-新版本发布时，更新 `index.html` 中的版本号、下载链接、体积、最近更新内容和 SHA-256，以及本说明。替换皮肤截图时保留 `assets/editor-{white,paper,sage,night}.webp` 文件名。分享预览图使用 gh-pages 分支上的公开图片地址，不依赖 GitHub Pages 域名；确定正式域名后也可换成站点自身的绝对地址。
+新版本发布时，更新 `index.html` 中的版本号、下载链接、体积、最近更新内容和 SHA-256，以及本说明。替换皮肤截图时保留 `assets/editor-{slate,white,paper,sage,night}.webp` 文件名。分享预览图使用 gh-pages 分支上的公开图片地址，不依赖 GitHub Pages 域名；确定正式域名后也可换成站点自身的绝对地址。
 
 桌面端使用系统 WebView2，支持 Windows 10 / 11 x64。1.9 MB 是 ZIP 体积，非内存占用；官网 FAQ 已注明依赖、图片附件移动方式、未签名和 Markdown 支持范围。
 
 ## 当前安全核查（未解决）
 
-新截图明确显示“检测到病毒”，不能按此前“下载不常见”的信誉提示处理。当前入口暂停，尚待具体威胁名称。EXE 仍未签名，不能承诺提示消失。扫描和校验记录见 [安全检查说明](https://github.com/Linkyyy/tekaku/blob/downloads/windows-v0.10.0/SECURITY-CHECK.md)。[应用源码](https://github.com/Linkyyy/tekaku/tree/main)可复核。下载包应完整解压，保留 EXE 和 WebView2Loader.dll 在同一目录。
+新截图明确显示“检测到病毒”，不能按此前“下载不常见”的信誉提示处理。入口已恢复为 0.11.0，尚待具体威胁名称，不能认定误报或声称已解除拦截。EXE 仍未签名，不能承诺提示消失。扫描和校验记录见 [安全检查说明](https://github.com/Linkyyy/tekaku/blob/downloads/windows-v0.11.0/SECURITY-CHECK.md)。[应用源码](https://github.com/Linkyyy/tekaku/tree/main)可复核。下载包应完整解压，保留 EXE 和 WebView2Loader.dll 在同一目录。
 
 ## Android 手机版
 
@@ -63,3 +63,7 @@ python3 -m http.server 8080
 Vercel 一键创建的独立仓库 `Linkyyy/tekaku-website` 以 main 为网站源；上游官网源为本仓库 gh-pages。发布时两者同步，网站无需 npm 构建。
 
 Windows 0.10.0：仅内容保留可见滚动条、滚动条位于大纲右侧、内容区悬浮按钮、可见宽度动画、蓝色图标与 Windows 原生边框缩放。Android APK 保持 0.1.0 不变。
+
+## 0.11 官网同步
+
+主站、导航、下载插画和 favicon 使用与程序一致的蓝色 SVG 标识；favicon 带版本参数刷新旧缓存。默认网站配色和真实软件预览为灰蓝，另外提供四种桌面皮肤切换。Windows 新增多 Tab；Android APK 保持不变。
