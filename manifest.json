@@ -1,0 +1,79 @@
+{
+  "product": "手书 Tekaku",
+  "date": "2026-10-30",
+  "audience": "学生与程序员兼顾",
+  "desktop_version": "0.11.1",
+  "android_version": "0.1.0",
+  "images": [
+    {
+      "file": "images/01-品牌主视觉.png",
+      "title": "给想法，一张纸。",
+      "use": "品牌首图 / 通用封面",
+      "width": 1086,
+      "height": 1448,
+      "bytes": 1754496,
+      "sha256": "d8b079c4ad679528fef37f212c7e7f370bf9e7b28828eeb2a038d5dba27b55ed",
+      "creation": "AI-assisted promotional design based on provided product screenshots"
+    },
+    {
+      "file": "images/02-输入即呈现.png",
+      "title": "写下，即呈现。",
+      "use": "学生笔记 / 输入体验",
+      "width": 1086,
+      "height": 1448,
+      "bytes": 1822033,
+      "sha256": "aad4b113ccaf94892cc9c3159106e1bb5e0137f4b78d19a5d02d3dbcf263290f",
+      "creation": "AI-assisted promotional design based on provided product screenshots"
+    },
+    {
+      "file": "images/03-多文件Tab.png",
+      "title": "多份文档，一个窗口。",
+      "use": "学习与项目文档切换",
+      "width": 1086,
+      "height": 1448,
+      "bytes": 1812147,
+      "sha256": "d1cfa769139a67ecb9747fed7e904e2b8f8c4de4da31fad94c39e98c0fc89770",
+      "creation": "AI-assisted promotional design based on provided product screenshots"
+    },
+    {
+      "file": "images/04-代码与笔记.png",
+      "title": "笔记里，也放得下代码。",
+      "use": "程序员文档 / 内容块",
+      "width": 1086,
+      "height": 1448,
+      "bytes": 1791851,
+      "sha256": "60b134b05c12392e181ba435186f3bed1139c43b1d1965ae013e424b2ab670fb",
+      "creation": "AI-assisted promotional design based on provided product screenshots"
+    },
+    {
+      "file": "images/05-Android手机版.png",
+      "title": "灵感来了，手机也能写。",
+      "use": "Android 单独介绍",
+      "width": 1086,
+      "height": 1448,
+      "bytes": 1992078,
+      "sha256": "f0f6773ac286eda2c18b36075d0ab78887792bf17a45a84f3bc6af94c9ffaa4f",
+      "creation": "AI-assisted promotional design based on provided product screenshots"
+    },
+    {
+      "file": "images/06-轻量下载包.png",
+      "title": "轻一点，写多一点。",
+      "use": "Windows ZIP 体积说明",
+      "width": 1086,
+      "height": 1448,
+      "bytes": 1971166,
+      "sha256": "34c128935db8d43ea5d5990d264d6ff4c193b07937edbd6182fbd044154906a5",
+      "creation": "AI-assisted promotional design based on provided product screenshots"
+    },
+    {
+      "file": "images/07-横版视频封面.png",
+      "title": "一款安静的 Markdown 编辑器",
+      "use": "横版视频 / 文章头图",
+      "width": 1672,
+      "height": 941,
+      "bytes": 1894682,
+      "sha256": "9cb7cd15d802cb20a677f3b74d0219a5cb52cffa2a3dfb835e47bc33708c9c3a",
+      "creation": "AI-assisted promotional design based on provided product screenshots"
+    }
+  ]
+}
