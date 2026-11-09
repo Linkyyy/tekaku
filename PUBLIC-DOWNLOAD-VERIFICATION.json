@@ -1,0 +1,19 @@
+{
+  "Tekaku-0.12.0-windows-x64.zip": {
+    "bytes": 1918132,
+    "sha256": "1e5e7b9392a2e5476ca63580e261598be7dc81d2b88587966ea2eddf1e6bbdf4",
+    "matchesPublishedBuild": true
+  },
+  "Tekaku-0.2.0-android.apk": {
+    "bytes": 238237,
+    "sha256": "f4d884c90a5cce7e18994a8679a0d1149c6b231948174d39602f25c2d6e4d52c",
+    "matchesPublishedBuild": true
+  },
+  "windowsZipIntegrity": "passed, embedded EXE and DLL hashes match",
+  "androidSignerSha256": "6515f68158791ac3ff8bbe181174e817facf4eb41a22d96b8832fc8985489ba3",
+  "githubWebsiteHtmlMatchesCommit": "17cdbb155d5a24267041ecffe529f52303a8c995",
+  "verifiedAtUtc": "2026-11-09T15:09:04.491992+00:00",
+  "sourceCommit": "1a0fb1bf0203cce77f0795848a7cb7b69d20d026",
+  "vercelWebsiteSourceCommit": "69cd0cc8f6ed76e8eedf1b687bc77ebe96ca9340",
+  "liveVercelDeployment": "not verified in this environment"
+}

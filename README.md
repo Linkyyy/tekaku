@@ -16,3 +16,5 @@ APK SHA-256：`f4d884c90a5cce7e18994a8679a0d1149c6b231948174d39602f25c2d6e4d52c`
 [使用与构建](ANDROID.md) · [版本检查及边界](RELEASE-CHECK.md) · [APK 签名](apk-signature.txt) · [更新说明](RELEASE-NOTES-0.12.md)
 
 [对应源码快照](https://github.com/Linkyyy/tekaku/tree/1a0fb1bf0203cce77f0795848a7cb7b69d20d026)
+
+[公开下载复核](PUBLIC-DOWNLOAD-VERIFICATION.json)（文件哈希、ZIP 完整性、APK 签名与官网发布源码；Vercel 线上状态未确认）。
