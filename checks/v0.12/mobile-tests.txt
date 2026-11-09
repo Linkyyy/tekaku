@@ -1,0 +1,24 @@
+
+Running 12 tests using 1 worker
+
+(node:170674) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 mobile/tests/editor.spec.js:28:1 › fresh app is minimal, touch sized and has no viewport overflow (1.7s)
+  ✓   2 mobile/tests/editor.spec.js:33:1 › opened file reads first; only explicit editing enables code, tasks and save (1.4s)
+  ✓   3 mobile/tests/editor.spec.js:38:1 › multiple files live in the drawer; new document is a new editable tab (1.7s)
+  ✓   4 mobile/tests/editor.spec.js:41:1 › tab switching preserves dirty text and native save targets each document token (2.7s)
+  ✓   5 mobile/tests/editor.spec.js:46:1 › closing a dirty tab supports cancel and canceled save without losing any tab (2.9s)
+  ✓   6 mobile/tests/editor.spec.js:51:1 › all drafts and theme restore in reading mode after reload (3.1s)
+  ✓   7 mobile/tests/editor.spec.js:55:1 › reopening an existing native document focuses its tab without overwriting edits (2.6s)
+  ✓   8 mobile/tests/editor.spec.js:59:1 › incoming files add tabs without discarding drafts; back closes the drawer first (2.7s)
+  ✓   9 mobile/tests/editor.spec.js:63:1 › Save As renames only the selected tab and keeps its document token (2.4s)
+  ✓  10 mobile/tests/editor.spec.js:66:1 › read-only source and editing shortcuts cannot alter an opened file (1.2s)
+  ✓  11 mobile/tests/editor.spec.js:69:1 › only one empty paragraph carries the hint and reading hides it (1.0s)
+  ✓  12 mobile/tests/editor.spec.js:72:1 › hardware back reviews dirty tabs, cancel preserves all, discard does not recover abandoned changes (3.0s)
+
+  12 passed (28.3s)
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.2
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.2
+npm notice To update run: npm install -g npm@12.2.2
+npm notice
