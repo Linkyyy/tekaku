@@ -1,3 +1,4 @@
+import {edit} from './editing-helper.js';
 import { test, expect } from '@playwright/test';
 
 test('menus live in the collapsible sidebar and sidebar file actions work', async ({ page }) => {
@@ -20,7 +21,7 @@ test('menus live in the collapsible sidebar and sidebar file actions work', asyn
   await expect(page.locator('.sidebar #menu-source, .sidebar #toggle-fullscreen, .sidebar #code-insert')).toHaveCount(0);
   await page.locator('.sidebar #open').click();
   await expect(page.locator('.tiptap h1')).toHaveText('从侧栏打开');
-  await page.locator('.corner-tools #source').click();
+  await edit(page); await page.locator('.corner-tools #source').click();
   await expect(page.locator('#source-editor')).toBeVisible();
   await expect(page.locator('#source')).toHaveAttribute('aria-pressed', 'true');
   await page.locator('#source-editor').fill('# 从侧栏修改');

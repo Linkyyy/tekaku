@@ -6,6 +6,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.ContentResolver;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -37,6 +38,12 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -48,10 +55,18 @@ public final class MainActivity extends Activity {
   private static final String ORIGIN = "https://appassets.androidplatform.net/";
   private final ExecutorService io = Executors.newSingleThreadExecutor();
   private WebView web;
-  private volatile Uri currentUri, pendingUri;
-  private volatile String pendingText;
-  private volatile String currentName = "未命名.md", docId = UUID.randomUUID().toString();
-  private String pickerId, pickerContent, pickerName;
+  private static final int MAX_DRAFT = 16 * 1024 * 1024;
+  private static final class DocumentRef {
+    final String id, name; final Uri uri;
+    DocumentRef(String id, String name, Uri uri){this.id=id;this.name=name;this.uri=uri;}
+  }
+  private static final class Incoming {
+    final Uri uri; final String text;
+    Incoming(Uri uri,String text){this.uri=uri;this.text=text;}
+  }
+  private final Map<String,DocumentRef> documents = new ConcurrentHashMap<>();
+  private final ConcurrentLinkedQueue<Incoming> incoming = new ConcurrentLinkedQueue<>();
+  private String pickerId, pickerContent, pickerName, pickerDocId;
   private boolean pageReady;
 
   @Override public void onCreate(Bundle state) {
@@ -95,18 +110,25 @@ public final class MainActivity extends Activity {
   private static WebResourceResponse denied() {
     return new WebResourceResponse("text/plain","UTF-8",404,"Not found",Collections.emptyMap(),new java.io.ByteArrayInputStream(new byte[0]));
   }
-  @Override public void onNewIntent(Intent intent) {super.onNewIntent(intent);setIntent(intent);acceptIntent(intent);if((pendingUri!=null||pendingText!=null)&&pageReady)web.evaluateJavascript("window.__tekakuIncoming && window.__tekakuIncoming()",null);}
+  @Override public void onNewIntent(Intent intent) {super.onNewIntent(intent);setIntent(intent);acceptIntent(intent);if(!incoming.isEmpty()&&pageReady)web.evaluateJavascript("window.__tekakuIncoming && window.__tekakuIncoming()",null);}
   private void acceptIntent(Intent intent) {
     if(intent==null)return;
     try {
-      Uri uri=null;
-      if(Intent.ACTION_VIEW.equals(intent.getAction()))uri=intent.getData();
-      else if(Intent.ACTION_SEND.equals(intent.getAction())){
-        uri=intent.getParcelableExtra(Intent.EXTRA_STREAM);
-        if(uri==null){CharSequence text=intent.getCharSequenceExtra(Intent.EXTRA_TEXT);if(text!=null&&text.length()<=MAX_DOCUMENT){pendingText=text.toString();pendingUri=null;}}
+      if(Intent.ACTION_VIEW.equals(intent.getAction()))queueIncoming(intent.getData(),intent);
+      else if(Intent.ACTION_SEND_MULTIPLE.equals(intent.getAction())) {
+        ArrayList<Uri> uris=intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+        if(uris!=null)for(Uri uri:uris)queueIncoming(uri,intent);
+      } else if(Intent.ACTION_SEND.equals(intent.getAction())) {
+        Uri uri=intent.getParcelableExtra(Intent.EXTRA_STREAM);
+        if(uri!=null)queueIncoming(uri,intent);
+        else {CharSequence value=intent.getCharSequenceExtra(Intent.EXTRA_TEXT);if(value!=null&&value.length()<=MAX_DOCUMENT)incoming.add(new Incoming(null,value.toString()));}
       }
-      if(uri!=null&&"content".equals(uri.getScheme())){pendingUri=uri;pendingText=null;}
-    } catch(Exception ignored) {}
+    }catch(Exception ignored){}
+  }
+  private void queueIncoming(Uri uri,Intent source) {
+    if(uri==null||!"content".equals(uri.getScheme())||incoming.size()>=64)return;
+    try {getContentResolver().takePersistableUriPermission(uri,source.getFlags()&(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION));}catch(Exception ignored){}
+    incoming.add(new Incoming(uri,null));
   }
   @Override public void onBackPressed() {
     if(!pageReady){finish();return;}
@@ -117,7 +139,7 @@ public final class MainActivity extends Activity {
 
   private final class Bridge {
     @JavascriptInterface public void request(String raw) {
-      if(raw==null||raw.length()>12*1024*1024)return;
+      if(raw==null||raw.length()>MAX_DRAFT*2)return;
       try {
         JSONObject request=new JSONObject(raw);String id=request.getString("id"),action=request.getString("action");JSONObject data=request.optJSONObject("data");
         runOnUiThread(()->handle(id,action,data==null?new JSONObject():data));
@@ -137,35 +159,67 @@ public final class MainActivity extends Activity {
     try {
       switch(action) {
         case "ready": work(id,()->{
-          JSONObject draft=null;boolean draftError=false;
-          try{draft=readPrivate("draft.json");}catch(Exception invalid){draftError=true;}
-          if(draft!=null){
-            String uri=draft.optString("uri","");
-            if(!uri.isEmpty()){
-              Uri candidate=Uri.parse(uri);
-              if("content".equals(candidate.getScheme())&&getContentResolver().getPersistedUriPermissions().stream().anyMatch(permission->permission.getUri().equals(candidate)&&permission.isReadPermission()))currentUri=candidate;
+          JSONObject draft=null;boolean draftError=false;documents.clear();
+          try {
+            JSONObject saved=readPrivate("draft.json");
+            if(saved!=null){
+              JSONArray source=saved.optJSONArray("tabs");if(source==null)source=new JSONArray().put(saved);
+              JSONArray restored=new JSONArray();
+              for(int i=0;i<source.length()&&i<64;i++){
+                JSONObject tab=source.optJSONObject(i);if(tab==null)continue;
+                String content=tab.optString("content","");if(content.getBytes(StandardCharsets.UTF_8).length>MAX_DOCUMENT){draftError=true;continue;}
+                Uri uri=null;String rawUri=tab.optString("uri","");
+                if(!rawUri.isEmpty()){
+                  Uri candidate=Uri.parse(rawUri);
+                  if("content".equals(candidate.getScheme())&&checkUriPermission(candidate,android.os.Process.myPid(),android.os.Process.myUid(),Intent.FLAG_GRANT_READ_URI_PERMISSION)==PackageManager.PERMISSION_GRANTED)uri=candidate;
+                }
+                String token=tab.optString("docId","");try{token=UUID.fromString(token).toString();}catch(Exception invalid){token=UUID.randomUUID().toString();}
+                if(documents.containsKey(token))token=UUID.randomUUID().toString();
+                DocumentRef ref=new DocumentRef(token,tab.optString("name","未命名.md"),uri);documents.put(token,ref);
+                restored.put(document(ref,content).put("dirty",tab.optBoolean("dirty",true)).put("uri",uri==null?"":uri.toString()));
+              }
+              if(restored.length()>0){
+                int selected=Math.max(0,Math.min(saved.optInt("activeIndex",0),restored.length()-1));
+                draft=new JSONObject(restored.getJSONObject(selected).toString()).put("tabs",restored).put("activeIndex",selected).put("theme",saved.optString("theme","white"));
+              }
             }
-            currentName=draft.optString("name","未命名.md");docId=UUID.randomUUID().toString();draft.put("docId",docId);draft.put("bound",currentUri!=null);
-          }
-          return new JSONObject().put("draft",draft==null?JSONObject.NULL:draft).put("incoming",pendingUri!=null||pendingText!=null).put("docId",docId).put("draftError",draftError);
+          }catch(Exception invalid){draftError=true;documents.clear();}
+          if(draft==null){DocumentRef ref=register(null,"未命名.md");return new JSONObject().put("draft",JSONObject.NULL).put("incoming",!incoming.isEmpty()).put("docId",ref.id).put("draftError",draftError);}
+          return new JSONObject().put("draft",draft).put("incoming",!incoming.isEmpty()).put("docId",draft.getString("docId")).put("draftError",draftError);
         });break;
-        case "draft": work(id,()->{if(data.optString("docId").equals(docId)){data.put("uri",currentUri==null?"":currentUri.toString());if(currentUri!=null)data.put("name",currentName);writePrivate("draft.json",data,6*1024*1024);}return true;});break;
-        case "new": work(id,()->{currentUri=null;currentName="未命名.md";docId=UUID.randomUUID().toString();return document(currentName,"",false);});break;
-        case "open": choose(id,OPEN,null);break;
-        case "image": choose(id,IMAGE,null);break;
-        case "save":
-          requireCurrent(data);
+        case "draft": work(id,()->{
+          JSONArray source=data.optJSONArray("tabs");if(source==null)source=new JSONArray().put(data);
+          if(source.length()>64)throw new Exception("打开的文档过多，请保存并关闭部分标签");
+          JSONArray saved=new JSONArray();
+          for(int i=0;i<source.length();i++){
+            JSONObject entry=source.getJSONObject(i);DocumentRef ref=requireDocument(entry);String content=entry.optString("content","");requireContent(content);
+            saved.put(document(ref,content).put("dirty",entry.optBoolean("dirty")).put("uri",ref.uri==null?"":ref.uri.toString()));
+          }
+          if(saved.length()==0)throw new Exception("没有可保存的文档草稿");
+          int selected=Math.max(0,Math.min(data.optInt("activeIndex",0),saved.length()-1));
+          JSONObject result=new JSONObject(saved.getJSONObject(selected).toString()).put("tabs",saved).put("activeIndex",selected).put("theme",data.optString("theme","white"));
+          writePrivate("draft.json",result,MAX_DRAFT);return true;
+        });break;
+        case "new": work(id,()->document(register(null,"未命名.md"),""));break;
+        case "close": work(id,()->{String token=data.getString("docId");if(token.equals(pickerDocId))throw new Exception("请先完成当前文件选择");documents.remove(token);return true;});break;
+        case "open": choose(id,OPEN,null,null);break;
+        case "image": choose(id,IMAGE,null,null);break;
+        case "save": case "saveAs":
+          final DocumentRef ref=requireDocument(data);final String content=data.getString("content");requireContent(content);
+          final boolean saveAs="saveAs".equals(action);
           io.execute(()->{
-            try{
-              requireCurrent(data);Uri target=currentUri;
-              if(target!=null&&canWrite(target))reply(id,save(target,data.getString("content"),true),null);
-              else runOnUiThread(()->{try{if(pickerId!=null)throw new Exception("请先完成当前文件选择");pickerContent=data.getString("content");choose(id,CREATE,safeName(data.optString("name",currentName)));}catch(Exception failure){reply(id,null,failure.getMessage());}});
+            try {
+              DocumentRef target=requireDocument(data);
+              if(!saveAs&&target.uri!=null&&canWrite(target.uri))reply(id,save(target,target.uri,content,true),null);
+              else runOnUiThread(()->{
+                try{if(pickerId!=null)throw new Exception("请先完成当前文件选择");pickerContent=content;choose(id,CREATE,safeName(data.optString("name",ref.name)),ref.id);}
+                catch(Exception failure){reply(id,null,failure.getMessage());}
+              });
             }catch(Exception failure){reply(id,null,failure.getMessage());}
           });break;
-        case "saveAs": requireCurrent(data);if(pickerId!=null)throw new Exception("请先完成当前文件选择");pickerContent=data.getString("content");choose(id,CREATE,safeName(data.optString("name",currentName)));break;
-        case "incoming": work(id,()->{Uri uri=pendingUri;String text=pendingText;pendingUri=null;pendingText=null;if(uri!=null)return open(uri);if(text==null)return null;if(text.getBytes(StandardCharsets.UTF_8).length>MAX_DOCUMENT)throw new Exception("分享内容超过 2 MiB");currentUri=null;currentName="分享笔记.md";docId=UUID.randomUUID().toString();return document(currentName,text,false);});break;
-        case "discardIncoming": pendingUri=null;pendingText=null;reply(id,true,null);break;
-        case "backup": work(id,()->{JSONObject saved=readPrivate("backup.json");if(saved==null)return null;currentUri=null;currentName=saved.optString("name","恢复副本.md");docId=UUID.randomUUID().toString();return document(currentName,saved.getString("content"),false);});break;
+        case "incoming": work(id,()->{Incoming item=incoming.poll();if(item==null)return null;if(item.uri!=null)return open(item.uri);requireContent(item.text);return document(register(null,"分享笔记.md"),item.text);});break;
+        case "discardIncoming": incoming.clear();reply(id,true,null);break;
+        case "backup": work(id,()->{JSONObject saved=readPrivate("backup.json");if(saved==null)return null;return document(register(null,saved.optString("name","恢复副本.md")),saved.getString("content")).put("dirty",true);});break;
         case "copy": ((ClipboardManager)getSystemService(CLIPBOARD_SERVICE)).setPrimaryClip(ClipData.newPlainText("代码",data.getString("text")));reply(id,true,null);break;
         case "openLink": openLink(data.getString("url"));reply(id,true,null);break;
         case "theme": applyTheme(data.optString("value"));reply(id,true,null);break;
@@ -175,36 +229,48 @@ public final class MainActivity extends Activity {
     } catch(Exception error){reply(id,null,error.getMessage()==null?"文件操作失败":error.getMessage());}
   }
 
-  private void requireCurrent(JSONObject data)throws Exception{if(!docId.equals(data.optString("docId")))throw new Exception("文档已切换，请重新保存当前文档");if(data.getString("content").getBytes(StandardCharsets.UTF_8).length>MAX_DOCUMENT)throw new Exception("单篇文档不能超过 2 MiB");}
-  private void choose(String id,int operation,String name) {
+  private DocumentRef requireDocument(JSONObject data)throws Exception {
+    DocumentRef ref=documents.get(data.optString("docId",""));if(ref==null)throw new Exception("文档标识已失效，请重新打开该文件");return ref;
+  }
+  private void requireContent(String content)throws Exception{if(content==null||content.getBytes(StandardCharsets.UTF_8).length>MAX_DOCUMENT)throw new Exception("单篇文档不能超过 2 MiB");}
+  private DocumentRef register(Uri uri,String name)throws Exception {
+    if(uri!=null)for(DocumentRef ref:documents.values())if(uri.equals(ref.uri))return ref;
+    if(documents.size()>=64)throw new Exception("打开的文档过多，请保存并关闭部分标签");
+    DocumentRef ref=new DocumentRef(UUID.randomUUID().toString(),name,uri);documents.put(ref.id,ref);return ref;
+  }
+  private void choose(String id,int operation,String name,String targetDocId) {
     if(pickerId!=null){reply(id,null,"请先完成当前文件选择");return;}
-    pickerId=id;pickerName=name;
+    pickerId=id;pickerName=name;pickerDocId=targetDocId;
     Intent intent=new Intent(operation==CREATE?Intent.ACTION_CREATE_DOCUMENT:Intent.ACTION_OPEN_DOCUMENT);
-    intent.addCategory(Intent.CATEGORY_OPENABLE);
-    intent.setType(operation==IMAGE?"image/*":operation==CREATE?"text/markdown":"*/*");
-    if(operation==OPEN)intent.putExtra(Intent.EXTRA_MIME_TYPES,new String[]{"text/markdown","text/x-markdown","text/plain","application/octet-stream"});
+    intent.addCategory(Intent.CATEGORY_OPENABLE);intent.setType(operation==IMAGE?"image/*":operation==CREATE?"text/markdown":"*/*");
+    if(operation==OPEN){intent.putExtra(Intent.EXTRA_MIME_TYPES,new String[]{"text/markdown","text/x-markdown","text/plain","application/octet-stream"});intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE,true);}
     if(operation==CREATE)intent.putExtra(Intent.EXTRA_TITLE,name);
     intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
-    try{startActivityForResult(intent,operation);}catch(Exception error){pickerId=null;reply(id,null,"此设备没有可用的文件选择器");}
+    try{startActivityForResult(intent,operation);}catch(Exception error){pickerId=null;pickerDocId=null;pickerContent=null;reply(id,null,"此设备没有可用的文件选择器");}
   }
   @Override protected void onActivityResult(int operation,int resultCode,Intent result) {
-    super.onActivityResult(operation,resultCode,result);
-    if(pickerId==null)return;
-    String id=pickerId,content=pickerContent;pickerId=null;pickerContent=null;
-    if(resultCode!=RESULT_OK||result==null||result.getData()==null){reply(id,null,null);return;}
-    Uri uri=result.getData();
-    try{int flags=result.getFlags()&(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION);getContentResolver().takePersistableUriPermission(uri,flags);}catch(Exception ignored){}
-    work(id,()->operation==IMAGE?image(uri):operation==CREATE?save(uri,content,false):open(uri));
+    super.onActivityResult(operation,resultCode,result);if(pickerId==null)return;
+    String id=pickerId,content=pickerContent,targetDocId=pickerDocId;pickerId=null;pickerContent=null;pickerDocId=null;
+    if(resultCode!=RESULT_OK||result==null){reply(id,null,null);return;}
+    ArrayList<Uri> uris=new ArrayList<>();
+    if(result.getClipData()!=null)for(int i=0;i<result.getClipData().getItemCount();i++)uris.add(result.getClipData().getItemAt(i).getUri());
+    else if(result.getData()!=null)uris.add(result.getData());
+    if(uris.isEmpty()){reply(id,null,null);return;}
+    for(Uri uri:uris)try{getContentResolver().takePersistableUriPermission(uri,result.getFlags()&(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION));}catch(Exception ignored){}
+    work(id,()->{
+      if(operation==IMAGE)return image(uris.get(0));
+      if(operation==CREATE){DocumentRef ref=documents.get(targetDocId);if(ref==null)throw new Exception("文档已关闭，请重新保存");return save(ref,uris.get(0),content,false);}
+      Set<String> previous=new HashSet<>(documents.keySet());
+      try{JSONArray resultDocs=new JSONArray();for(Uri uri:uris)resultDocs.put(open(uri));return resultDocs;}
+      catch(Exception failure){for(String token:new HashSet<>(documents.keySet()))if(!previous.contains(token))documents.remove(token);throw failure;}
+    });
   }
-
   private JSONObject open(Uri uri)throws Exception {
     if(!"content".equals(uri.getScheme()))throw new Exception("请通过系统文件选择器打开 Markdown");
-    String name=displayName(uri);
-    if(!name.toLowerCase(Locale.ROOT).matches(".*\\.(md|markdown|txt)$"))throw new Exception("请选择 .md、.markdown 或 .txt 文件");
-    String content=decode(read(uri,MAX_DOCUMENT));
-    currentUri=uri;currentName=name;docId=UUID.randomUUID().toString();return document(name,content,true);
+    String name=displayName(uri);if(!name.toLowerCase(Locale.ROOT).matches(".*\\.(md|markdown|txt)$"))throw new Exception("请选择 .md、.markdown 或 .txt 文件");
+    String content=decode(read(uri,MAX_DOCUMENT));return document(register(uri,name),content);
   }
-  private JSONObject document(String name,String content,boolean bound)throws Exception{return new JSONObject().put("name",name).put("content",content).put("bound",bound).put("docId",docId);}
+  private JSONObject document(DocumentRef ref,String content)throws Exception{return new JSONObject().put("name",ref.name).put("content",content).put("bound",ref.uri!=null).put("docId",ref.id);}
   private byte[] read(Uri uri,int limit)throws Exception {
     try(InputStream input=getContentResolver().openInputStream(uri)){if(input==null)throw new Exception("无法读取文件");return limited(input,limit);}
   }
@@ -223,9 +289,10 @@ public final class MainActivity extends Activity {
     if(bounds.outWidth<=0||bounds.outHeight<=0||(long)bounds.outWidth*bounds.outHeight>16000000)throw new Exception("图片格式无效或尺寸过大");
     return new JSONObject().put("src","data:"+mime+";base64,"+Base64.encodeToString(bytes,Base64.NO_WRAP)).put("alt",displayName(uri));
   }
-  private JSONObject save(Uri uri,String content,boolean replacing)throws Exception {
+  private JSONObject save(DocumentRef ref,Uri uri,String content,boolean replacing)throws Exception {
     byte[] bytes=content.getBytes(StandardCharsets.UTF_8);if(bytes.length>MAX_DOCUMENT)throw new Exception("单篇文档不能超过 2 MiB");
-    if(replacing){String previous=decode(read(uri,MAX_DOCUMENT));writePrivate("backup.json",new JSONObject().put("name",currentName).put("content",previous),6*1024*1024);}
+    for(DocumentRef other:documents.values())if(!other.id.equals(ref.id)&&uri.equals(other.uri))throw new Exception("此文件已在另一个标签打开，请另选保存位置");
+    if(replacing){String previous=decode(read(uri,MAX_DOCUMENT));writePrivate("backup.json",new JSONObject().put("name",ref.name).put("content",previous),6*1024*1024);}
     try {
       ParcelFileDescriptor descriptor=getContentResolver().openFileDescriptor(uri,"rw");if(descriptor==null)throw new Exception("文件提供程序不允许写入");
       try(FileOutputStream output=new ParcelFileDescriptor.AutoCloseOutputStream(descriptor)){
@@ -234,9 +301,10 @@ public final class MainActivity extends Activity {
         channel.truncate(bytes.length);channel.force(true);
       }
     } catch(Exception error){throw new Exception(replacing?"保存失败，已保留写入前副本。可在更多菜单恢复；也可另存为到本机文件夹。":"保存失败，请尝试另存为到本机文件夹。");}
-    currentUri=uri;currentName=displayName(uri);return document(currentName,content,true);
+    DocumentRef updated=new DocumentRef(ref.id,displayName(uri),uri);documents.put(ref.id,updated);return document(updated,content);
   }
   private boolean canWrite(Uri uri) {
+    if(checkUriPermission(uri,android.os.Process.myPid(),android.os.Process.myUid(),Intent.FLAG_GRANT_WRITE_URI_PERMISSION)!=PackageManager.PERMISSION_GRANTED)return false;
     try(Cursor cursor=getContentResolver().query(uri,new String[]{DocumentsContract.Document.COLUMN_FLAGS},null,null,null)){
       return cursor!=null&&cursor.moveToFirst()&&(cursor.getInt(0)&DocumentsContract.Document.FLAG_SUPPORTS_WRITE)!=0;
     } catch(Exception ignored){return false;}
@@ -249,7 +317,7 @@ public final class MainActivity extends Activity {
   private static String safeName(String name)throws Exception{if(name.isEmpty()||name.length()>120||java.util.regex.Pattern.compile("[\\x00-\\x1f/\\\\]").matcher(name).find())throw new Exception("请输入有效的文件名");return name.toLowerCase(Locale.ROOT).matches(".*\\.(md|markdown|txt)$")?name:name+".md";}
   private JSONObject readPrivate(String name)throws Exception {
     AtomicFile file=new AtomicFile(new File(getFilesDir(),name));
-    try(FileInputStream input=file.openRead()){return new JSONObject(decode(limited(input,6*1024*1024)));}catch(java.io.FileNotFoundException missing){return null;}
+    try(FileInputStream input=file.openRead()){return new JSONObject(decode(limited(input,"draft.json".equals(name)?MAX_DRAFT:6*1024*1024)));}catch(java.io.FileNotFoundException missing){return null;}
   }
   private void writePrivate(String name,JSONObject data,int limit)throws Exception {
     byte[] bytes=data.toString().getBytes(StandardCharsets.UTF_8);if(bytes.length>limit)throw new Exception("本机草稿过大，请保存到文件");

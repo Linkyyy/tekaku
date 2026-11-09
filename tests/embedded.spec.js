@@ -1,3 +1,4 @@
+import {edit} from './editing-helper.js';
 import { test, expect } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 
@@ -18,7 +19,7 @@ test('embedded desktop HTML boots under its CSP without origin storage or networ
   await page.setContent(html);
   await expect(page.locator('.tiptap h1')).toHaveText('来自 Windows');
   await expect(page.locator('#filename')).toHaveText('启动文档.md');
-  await page.keyboard.press('Control+Shift+M');
+  await edit(page); await page.keyboard.press('Control+Shift+M');
   await page.locator('#source-editor').fill('# 嵌入页面\n\n可以离线保存。');
   await page.keyboard.press('Control+s');
   await expect(page.locator('#save-state')).toHaveText('已保存');

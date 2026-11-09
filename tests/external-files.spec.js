@@ -1,3 +1,4 @@
+import {edit} from './editing-helper.js';
 import {test,expect} from '@playwright/test';
 async function install(page,initial=[]){
  await page.addInitScript(initial=>{
@@ -18,14 +19,14 @@ test('all startup arguments open tabs in the original page and legacy startup is
 
 test('forwarded shell opens add tabs and an already open path preserves its unsaved edits',async({page})=>{
  await install(page,[doc('first.md','# First')]);await page.goto('/');await expect(page.locator('.tiptap h1')).toHaveText('First');
- await page.locator('#source').click();await page.locator('#source-editor').fill('# Keep my changes');
+ await edit(page);await page.locator('#source').click();await page.locator('#source-editor').fill('# Keep my changes');
  await forward(page,[doc('second.md','# Second')]);await expect(page.locator('.tab-select')).toHaveCount(2);await expect(page.locator('.tiptap h1')).toHaveText('Second');
  await forward(page,[doc('first.md','# Old disk version')]);await expect(page.locator('#source-editor')).toHaveValue('# Keep my changes');
  await expect(page.locator('.tab-select')).toHaveCount(2);await expect(page.locator('#save-state')).toHaveText('未保存');expect(page.context().pages()).toHaveLength(1);
 });
 
 test('files received during a save confirmation wait without changing its active document',async({page})=>{
- await install(page,[doc('first.md','# First')]);await page.goto('/');await page.locator('.tiptap h1').click();await page.keyboard.type(' changed');
+ await install(page,[doc('first.md','# First')]);await page.goto('/');await expect(page.locator('.tiptap h1')).toHaveText('First');await edit(page);await page.locator('.tiptap h1').click();await page.keyboard.type(' changed');
  await page.keyboard.press('Control+w');await expect(page.locator('#confirm-message')).toContainText('first.md');const pulls=await page.evaluate(()=>window.pulls);
  await forward(page,[doc('second.md','# Second')]);await page.waitForTimeout(100);
  expect(await page.evaluate(()=>window.pulls)).toBe(pulls);await expect(page.locator('#filename')).toHaveText('first.md');await expect(page.locator('#confirm-message')).toContainText('first.md');

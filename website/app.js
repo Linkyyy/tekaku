@@ -37,6 +37,31 @@
     });
   }
 
+  const androidImage = document.querySelector('#android-image');
+  const androidCaption = document.querySelector('#android-caption');
+  const androidButtons = [...document.querySelectorAll('[data-android-preview]')];
+  const androidViews = {
+    reading: ['android-editor.webp', '手书 Android 阅读模式：顶部编辑按钮、待办、代码与表格', 'Android 阅读模式 · 点击顶部“编辑”开始修改'],
+    drawer: ['android-drawer.webp', '手书 Android 侧边文档抽屉：多文件标签、新建、打开与独立关闭', '文档抽屉 · 每份文档独立切换与保存'],
+  };
+  let androidRequest = 0;
+  for (const button of androidButtons) button.addEventListener('click', async () => {
+    const current = ++androidRequest;
+    const [file, alt, text] = androidViews[button.dataset.androidPreview];
+    const next = new Image();
+    next.src = `./assets/${file}`;
+    try {
+      await next.decode();
+      if (current !== androidRequest) return;
+      androidImage.src = next.src;
+      androidImage.alt = alt;
+      androidCaption.textContent = text;
+      for (const item of androidButtons) item.setAttribute('aria-pressed', String(item === button));
+    } catch {
+      if (current === androidRequest) androidCaption.textContent = '预览图片暂时未能加载，请稍后再试。';
+    }
+  });
+
   const copyButton = document.querySelector('#copy-checksum');
   const checksum = document.querySelector('#checksum');
   const copyStatus = document.querySelector('#copy-status');

@@ -29,3 +29,5 @@
 
 .icon { color:var(--accent); }
 .button-dark .icon { color:currentColor; }
+
+.android-preview-options{display:flex;justify-content:center;gap:6px;margin-top:23px}.android-preview-options button{border:1px solid #c3cdd9;border-radius:6px;background:transparent;color:#526782;padding:8px 12px;font:inherit;font-size:11px;cursor:pointer;min-height:36px}.android-preview-options button[aria-pressed="true"]{background:#526782;color:#fff;border-color:#526782}.android-preview-options button:focus-visible{outline:2px solid #526782;outline-offset:3px}.android-preview .android-preview-options+figcaption{margin-top:12px}

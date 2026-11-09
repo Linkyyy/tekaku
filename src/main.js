@@ -1,7 +1,7 @@
 import { Editor } from '@tiptap/core';
 import { EditorState } from '@tiptap/pm/state';
 import StarterKit from '@tiptap/starter-kit';
-import Placeholder from '@tiptap/extension-placeholder';
+import {documentPlaceholder, installReadOnlyGuard} from './reading-mode';
 import TaskList from '@tiptap/extension-task-list';
 import TaskItem from '@tiptap/extension-task-item';
 import { Markdown } from '@tiptap/markdown';
@@ -40,7 +40,7 @@ let nextTabId = 0;
 function makeTab(data = {}) {
   return { id: ++nextTabId, name: data.name || '未命名.md', path: data.path || null,
     content: typeof data.content === 'string' ? data.content : null, dirty: Boolean(data.dirty),
-    mode: false, state: null, previewScroll: 0, sourceScroll: 0, revision: 0 };
+    editing: typeof data.content !== 'string', mode: false, state: null, previewScroll: 0, sourceScroll: 0, revision: 0 };
 }
 const recovered = Array.isArray(stored?.tabs) ? stored.tabs.filter(tab => typeof tab?.name === 'string' && typeof tab?.content === 'string') : [];
 let tabs = recovered.length ? recovered.map(makeTab) : [makeTab(stored ? { ...stored, dirty: true } : {})];
@@ -86,7 +86,7 @@ document.querySelector('#app').innerHTML = `
 
 <main>
   <div class="toolbar"><div class="toolbar-group"><button data-action="paragraph" title="正文">${icon('paragraph')}</button><span class="toolbar-divider"></span><button data-action="bold" title="粗体 (Ctrl/Cmd+B)">${icon('bold')}</button><button data-action="italic" title="斜体">${icon('italic')}</button><button data-action="strike" title="删除线">${icon('strike')}</button><button data-action="code" title="行内代码">${icon('code')}</button><span class="toolbar-divider"></span><button data-action="heading" title="二级标题">${icon('heading')}</button><button data-action="bulletList" title="无序列表">${icon('bulletList')}</button><button data-action="taskList" title="待办清单">${icon('taskList')}</button><button data-action="blockquote" title="引用">${icon('quote')}</button><button data-action="undo" title="撤销">${icon('undo')}</button><button data-action="redo" title="重做">${icon('redo')}</button></div></div>
-  <div class="workbench"><div class="editor-surface"><div class="sidebar-toggle-dock floating-controls"><button id="expand" aria-label="切换侧栏" title="切换侧栏" aria-controls="sidebar">${icon('panel')}</button></div>  <div class="corner-tools floating-controls"><button id="toggle-outline" aria-label="切换大纲" title="显示或隐藏大纲" aria-expanded="true">${icon('outline')}</button><button id="source" aria-label="切换 Markdown 源码" title="切换源码（Ctrl+Shift+M）" aria-pressed="false">${icon('code', 'data-view-icon="source"')}${icon('preview', 'data-view-icon="preview" hidden')}</button></div><section id="document-view" class="page-scroll" role="tabpanel"><div class="paper"><div id="editor"></div></div><textarea id="source-editor" spellcheck="false" aria-label="Markdown 源码" hidden></textarea></section></div><div class="outline-rail"><aside id="outline-panel" class="outline-panel" aria-label="文档大纲"><div class="outline-heading"><h2>大纲</h2></div><nav id="outline" aria-label="标题导航"></nav></aside></div><div id="document-scrollbar" tabindex="0" aria-label="文档滚动条" aria-controls="editor"><div></div></div></div>
+  <div class="workbench"><div class="editor-surface"><div class="sidebar-toggle-dock floating-controls"><button id="expand" aria-label="切换侧栏" title="切换侧栏" aria-controls="sidebar">${icon('panel')}</button></div>  <div class="corner-tools floating-controls"><button id="toggle-editing" class="mode-toggle" aria-label="进入编辑模式" aria-pressed="false">${icon('edit')}<span>编辑</span></button><button id="toggle-outline" aria-label="切换大纲" title="显示或隐藏大纲" aria-expanded="true">${icon('outline')}</button><button id="source" aria-label="切换 Markdown 源码" title="切换源码（Ctrl+Shift+M）" aria-pressed="false">${icon('code', 'data-view-icon="source"')}${icon('preview', 'data-view-icon="preview" hidden')}</button></div><section id="document-view" class="page-scroll" role="tabpanel"><div class="paper"><div id="editor"></div></div><textarea id="source-editor" spellcheck="false" aria-label="Markdown 源码" hidden></textarea></section></div><div class="outline-rail"><aside id="outline-panel" class="outline-panel" aria-label="文档大纲"><div class="outline-heading"><h2>大纲</h2></div><nav id="outline" aria-label="标题导航"></nav></aside></div><div id="document-scrollbar" tabindex="0" aria-label="文档滚动条" aria-controls="editor"><div></div></div></div>
 
   <footer><div><span class="local-dot"></span><span id="status">所有内容仅保存在本地</span></div><div><span id="word-count"></span><span>UTF-8</span><span>Markdown</span></div></footer>
 </main>
@@ -112,7 +112,7 @@ ${shortcutGuide()}
     <label class="setting-row"><span>启动时收起侧栏</span><span class="switch"><input id="startup-sidebar" type="checkbox"><span></span></span></label>
   </section>
   <section class="settings-section"><h3>文件关联</h3><p id="association-status">Windows 桌面版可加入 Markdown 的打开方式。</p><div class="association-actions"><button id="register-association" class="primary-button">添加到打开方式</button><button id="remove-association">移除关联</button></div><p>仅设置当前用户的 .md / .markdown 打开方式；默认程序由你在 Windows 中选择。</p></section>
-  </div><div class="settings-footer"><button id="reset-settings">恢复默认设置</button><span>手书 0.10.0 · 自动保存</span></div>
+  </div><div class="settings-footer"><button id="reset-settings">恢复默认设置</button><span>手书 0.12.0 · 自动保存</span></div>
 </dialog>
 <dialog id="confirm-dialog" class="message-dialog" aria-labelledby="confirm-title"><h2 id="confirm-title">保存修改？</h2><p id="confirm-message"></p><div class="dialog-actions"><button id="confirm-cancel">取消</button><button id="confirm-discard">不保存</button><button id="confirm-save" class="primary-button">保存</button></div></dialog>
 <dialog id="error-dialog" class="message-dialog" aria-labelledby="error-title"><h2 id="error-title">操作失败</h2><p id="error-message"></p><div class="dialog-actions"><button id="error-close" class="primary-button">知道了</button></div></dialog>
@@ -167,7 +167,7 @@ function switchTab(tab) {
     resetImageCache(filePath);
     if (tab.state) editor.view.updateState(tab.state);
     else replaceDocument(tab.content ?? blankDocument, tab.content === null ? 'json' : 'markdown');
-    sourceMode = tab.mode; previewScroll = tab.previewScroll; sourceScroll = tab.sourceScroll;
+    sourceMode = tab.mode; syncReadMode(); previewScroll = tab.previewScroll; sourceScroll = tab.sourceScroll;
     sourceBefore = sourceMode ? tab.sourceBefore : '';
     $('#source-editor').value = sourceMode ? tab.content : '';
     $('#source-editor').hidden = !sourceMode; $('#editor').hidden = sourceMode;
@@ -211,6 +211,7 @@ function updateState(changed = false) {
   if (switchingTab) return;
   if (changed) { dirty = true; activeTab.revision++; schedulePersist(); }
   Object.assign(activeTab, {name:fileName, path:filePath, dirty}); renderTabs(); syncNativeDirty();
+  syncReadMode();
   documentScroll?.refresh();
   $('#filename').textContent = fileName;
   $('#sidebar-name').textContent = fileName.replace(/\.(md|markdown)$/i, '');
@@ -246,7 +247,8 @@ const commands = [
 ];
 const editor = new Editor({
   element: $('#editor'),
-  extensions: [StarterKit.configure({ codeBlock: false, link: { openOnClick: false }, undoRedo: { depth: 40 } }), Placeholder.configure({ showOnlyCurrent: false, placeholder: ({ node }) => node.type.name === 'heading' && node.attrs.level === 1 ? '请输入标题' : '写点什么，或输入 / 添加内容…' }), TaskList, TaskItem.configure({ nested: true }), ...extraExtensions, Markdown],
+  editable: activeTab.editing,
+  extensions: [StarterKit.configure({ codeBlock: false, link: { openOnClick: false }, undoRedo: { depth: 40 } }), documentPlaceholder('开始写点什么，或输入 / 添加内容…'), TaskList, TaskItem.configure({ nested: true }), ...extraExtensions, Markdown],
   content: activeTab.content ?? blankDocument, contentType: activeTab.content === null ? 'json' : 'markdown',
   editorProps: {
     attributes: { 'aria-label': '文档编辑器', spellcheck: 'false' },
@@ -272,6 +274,7 @@ function renderSlash() {
   $('#slash-items').querySelector('.chosen')?.scrollIntoView({ block: 'nearest' });
 }
 function updateSlash() {
+  if (!editor.isEditable) {closeSlash();return;}
   const { $from, empty } = editor.state.selection;
   if (!empty || $from.parent.textContent !== '/' || !$from.parent.isTextblock) { closeSlash(); return; }
   if (!activeSlash) slashIndex = 0;
@@ -281,6 +284,7 @@ function updateSlash() {
   $('#slash-menu').style.top = `${Math.max(8, Math.min(rect.bottom + 8, window.innerHeight - 420))}px`;
 }
 function runSlash(index) {
+  if (!editor.isEditable) return;
   const { $from } = editor.state.selection;
   const from = $from.start();
   closeSlash(); const chain = editor.chain().focus().deleteRange({ from, to: from + 1 });
@@ -289,6 +293,28 @@ function runSlash(index) {
 }
 $('#slash-items').addEventListener('mousedown', event => { const button = event.target.closest('[data-command]'); if (button) { event.preventDefault(); runSlash(Number(button.dataset.command)); } });
 let previewScroll = 0, sourceScroll = 0;
+function syncReadMode() {
+  const editing = activeTab.editing;
+  if (editor.isEditable !== editing) editor.setEditable(editing, false);
+  document.body.classList.toggle('is-reading', !editing);
+  $('#source-editor').readOnly = !editing;
+  const button = $('#toggle-editing');
+  button.setAttribute('aria-pressed', String(editing));
+  button.setAttribute('aria-label', editing ? '切换阅读模式' : '进入编辑模式');
+  button.title = editing ? '切换阅读模式' : '进入编辑模式';
+  const label = editing ? '阅读' : '编辑';
+  if (button.dataset.mode !== label) {button.innerHTML = icon(editing ? 'read' : 'edit') + `<span>${label}</span>`;button.dataset.mode = label;}
+  for (const checkbox of document.querySelectorAll('.tiptap input[type=checkbox]')) checkbox.disabled = !editing;
+}
+function toggleEditing() {
+  const scroll = $('.page-scroll').scrollTop;
+  if (activeTab.editing) {exitSource();activeTab.editing = false;closeSlash();}
+  else activeTab.editing = true;
+  updateState();features?.onLoad();
+  if (activeTab.editing) (sourceMode ? $('#source-editor') : editor.view.dom).focus({preventScroll:true});
+  $('.page-scroll').scrollTop = scroll;
+}
+$('#toggle-editing').onclick = toggleEditing;
 function syncViewMode() {
   document.body.classList.toggle('is-source', sourceMode);
   $('#source').classList.toggle('active', sourceMode);
@@ -309,7 +335,7 @@ function exitSource() {
 }
 function toggleSource() {
   closeSlash();
-  if (sourceMode) { exitSource(); editor.view.focus(); }
+  if (sourceMode) { exitSource(); if (activeTab.editing) editor.view.focus(); }
   else {
     previewScroll = $('.page-scroll').scrollTop;
     sourceBefore = editor.getMarkdown(); $('#source-editor').value = sourceBefore; sourceMode = true;
@@ -394,6 +420,7 @@ async function openDocument() {
   } catch (error) { showError('打开失败', error.message || error); }
 }
 async function saveDocument(saveAs = false) {
+  if (!saveAs && !activeTab.editing && !dirty && filePath) return true;
   const target = activeTab; snapshotTab(); const revision = target.revision, content = target.content;
   try {
     if (window.desktop) {
@@ -445,7 +472,7 @@ $('#document-tabs').addEventListener('keydown', event => {
   switchTab(tab); $(`#document-tab-${tab.id}`).focus();
 });
 $('#source').onclick = toggleSource;
-$('#source-editor').oninput = () => { updateState(true); features?.sourceChanged(); };
+$('#source-editor').oninput = () => { if (!activeTab.editing) return; updateState(true); features?.sourceChanged(); };
 function syncSidebar() {
   const collapsed = document.body.classList.contains('sidebar-hidden');
   $('#expand').setAttribute('aria-expanded', String(!collapsed));
@@ -586,7 +613,7 @@ $('#help').onclick = () => $('#help-dialog').showModal();
 $('#close-help').onclick = () => $('#help-dialog').close();
 document.addEventListener('click', event => { if (!event.target.closest('#slash-menu') && !event.target.closest('.tiptap')) closeSlash(); });
 document.querySelector('.toolbar-group').onmousedown = event => {
-  const button = event.target.closest('[data-action]'); if (!button) return; event.preventDefault(); exitSource();
+  const button = event.target.closest('[data-action]'); if (!activeTab.editing || !button) return; event.preventDefault(); exitSource();
   const chain = editor.chain().focus();
   const actions = { paragraph: () => chain.setParagraph(), heading: () => chain.toggleHeading({ level: 2 }), bold: () => chain.toggleBold(), italic: () => chain.toggleItalic(), strike: () => chain.toggleStrike(), code: () => chain.toggleCode(), bulletList: () => chain.toggleBulletList(), taskList: () => chain.toggleTaskList(), blockquote: () => chain.toggleBlockquote(), undo: () => chain.undo(), redo: () => chain.redo() };
   actions[button.dataset.action]().run(); updateState();
@@ -603,6 +630,7 @@ window.addEventListener('beforeunload', event => { if (tabs.some(tab => tab.dirt
 features = installFeatures({ editor, exitSource, isSource: () => sourceMode, sourceField: () => $('#source-editor'), fileName: () => fileName, showError, toast });
 installWindowFiles({ loadDocument, showError, toast, windowAction });
 documentScroll = installDocumentScroll();
+installReadOnlyGuard(editor, $('#source-editor'));
 resetImageCache(filePath); updateState();
 installExternalFiles({ loadDocument, showError, isBusy: () => closingTabs });
 if (!window.desktop?.nextOpenFile && window.desktop?.initialFile) {

@@ -25,7 +25,7 @@ export function installContextMenu({editor,isSource,sourceField,showError,toast,
   function position(popup,x,y){popup.hidden=false;const rect=popup.getBoundingClientRect();popup.style.left=`${Math.max(8,Math.min(x,innerWidth-rect.width-8))}px`;popup.style.top=`${Math.max(8,Math.min(y,innerHeight-rect.height-8))}px`;}
   function closeSub(){for(const parent of parents){document.getElementById(parent.getAttribute('aria-controls')).hidden=true;parent.setAttribute('aria-expanded','false');}}
   function close(focus=false){closeSub();menu.hidden=true;if(focus){if(sourceAtOpen){sourceField().focus();if(currentRange)sourceField().setSelectionRange(currentRange.from,currentRange.to);}else editor.view.focus();}}
-  function submenu(parent,focus=false){closeSub();const popup=document.getElementById(parent.getAttribute('aria-controls'));popup.hidden=false;const anchor=parent.getBoundingClientRect(),width=popup.getBoundingClientRect().width;position(popup,anchor.right+width+8<innerWidth?anchor.right+4:anchor.left-width-4,anchor.top-5);parent.setAttribute('aria-expanded','true');if(focus)elements(popup)[0]?.focus();}
+  function submenu(parent,focus=false){if(parent.disabled)return;closeSub();const popup=document.getElementById(parent.getAttribute('aria-controls'));popup.hidden=false;const anchor=parent.getBoundingClientRect(),width=popup.getBoundingClientRect().width;position(popup,anchor.right+width+8<innerWidth?anchor.right+4:anchor.left-width-4,anchor.top-5);parent.setAttribute('aria-expanded','true');if(focus)elements(popup)[0]?.focus();}
   function open(x,y,keyboard=false){
     sourceAtOpen=isSource();
     if(sourceAtOpen)currentRange={from:sourceField().selectionStart,to:sourceField().selectionEnd};
@@ -42,6 +42,8 @@ export function installContextMenu({editor,isSource,sourceField,showError,toast,
     menu.querySelector('#context-copy').disabled=!selected;menu.querySelector('#context-cut').disabled=!selected;
     menu.querySelector('#context-undo').disabled=!sourceAtOpen&&!editor.can().undo();menu.querySelector('#context-redo').disabled=!sourceAtOpen&&!editor.can().redo();
     document.querySelector('#context-image-actions').hidden=sourceAtOpen||!editor.isActive('image');
+    if(!editor.isEditable)for(const button of menu.querySelectorAll('button:not(#context-copy)'))button.disabled=true;
+    else {menu.querySelector('#context-paste').disabled=false;for(const button of parents)button.disabled=false;}
     closeSub();position(menu,x,y);elements(menu)[0]?.focus();
   }
   document.addEventListener('contextmenu',event=>{if(!event.target.closest('#editor, #source-editor'))return;event.preventDefault();open(event.clientX,event.clientY);});
@@ -64,15 +66,17 @@ export function installContextMenu({editor,isSource,sourceField,showError,toast,
   document.querySelector('#context-undo').onclick=()=>{if(sourceAtOpen){sourceField().focus();document.execCommand('undo');}else editor.chain().focus().undo().run();};
   document.querySelector('#context-redo').onclick=()=>{if(sourceAtOpen){sourceField().focus();document.execCommand('redo');}else editor.chain().focus().redo().run();};
   async function clipboard(action){
+    if(action!=='copy'&&!editor.isEditable)return;
     const source=sourceAtOpen,field=sourceField(),range=currentRange,doc=editor.state.doc,selection=editor.state.selection,value=field.value;
     try{
       const text=source?value.slice(range.from,range.to):doc.textBetween(selection.from,selection.to,'\n');
       if(action==='copy'||action==='cut')await writeClipboard(text);
       if(action==='paste'){
-        const pasted=await readClipboard();if(!pasted){toast('剪贴板没有文本');return;}
+        const pasted=await readClipboard();if(!editor.isEditable)return;if(!pasted){toast('剪贴板没有文本');return;}
         if(source!==isSource()||(source?field.value!==value:editor.state.doc!==doc)){toast('文档已变化，请重新粘贴');return;}
         if(source)replaceSource(field,pasted,range);else {editor.commands.setTextSelection({from:selection.from,to:selection.to});editor.view.focus();editor.view.pasteText(pasted);}
       }else if(action==='cut'){
+        if(!editor.isEditable)return;
         if(source!==isSource()||(source?field.value!==value:editor.state.doc!==doc)){toast('已复制；文档变化后未删除原文');return;}
         if(source)replaceSource(field,'',range);else editor.chain().focus().deleteRange({from:selection.from,to:selection.to}).run();
       }else if(source){field.focus();field.setSelectionRange(range.from,range.to);}else editor.view.focus();

@@ -1,3 +1,4 @@
+import {edit} from './editing-helper.js';
 import { test, expect } from '@playwright/test';
 async function drop(page,files){await page.evaluate(files=>{const data=new DataTransfer();for(const file of files)data.items.add(new File([Uint8Array.from(file.bytes)],file.name,{type:file.type||'text/markdown'}));document.querySelector('#app').dispatchEvent(new DragEvent('drop',{bubbles:true,cancelable:true,dataTransfer:data}));},files.map(file=>({...file,bytes:[...Buffer.from(file.content)]})));}
 test('all window borders start native resize and fullscreen hides the handles',async({page})=>{
@@ -11,7 +12,7 @@ test('all window borders start native resize and fullscreen hides the handles',a
 });
 test('dropping Markdown adds a tab and preserves dirty edits and the previous native save path',async({page})=>{
  await page.addInitScript(()=>{window.imported=[];window.states={};window.desktop={readState:async()=>({}),writeState:async(k,v)=>{window.states[k]=v;},dirty:async()=>{},initialFile:async()=>({name:'old.md',path:'C:\\old.md',content:'# Old'}),importFile:async data=>{window.imported.push(data);return {...data,path:''};}};});
- await page.goto('/');await expect(page.locator('.tiptap h1')).toHaveText('Old');await page.locator('.tiptap h1').click();await page.keyboard.type(' changed');
+ await page.goto('/');await expect(page.locator('.tiptap h1')).toHaveText('Old');await edit(page);await page.locator('.tiptap h1').click();await page.keyboard.type(' changed');
  await drop(page,[{name:'新文件.MD',content:'# 新文件\n\n```js\nconst x = 1;\n```'}]);
  await expect(page.locator('#filename')).toHaveText('新文件.MD');await expect(page.locator('.tiptap pre code')).toHaveText('const x = 1;');
  await expect(page.locator('#confirm-dialog')).toBeHidden();await expect(page.locator('.tab-select')).toHaveCount(2);

@@ -1,3 +1,4 @@
+import {edit} from './editing-helper.js';
 import { test, expect } from '@playwright/test';
 
 async function openMenu(page, group) {
@@ -8,6 +9,7 @@ async function openMenu(page, group) {
 async function load(page, content) {
   await page.goto('/');
   await page.locator('#file-input').setInputFiles({ name: 'guide.md', mimeType: 'text/markdown', buffer: Buffer.from(content) });
+  await edit(page);
 }
 async function clipboardMock(page) {
   await page.addInitScript(() => {

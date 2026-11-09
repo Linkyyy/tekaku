@@ -23,6 +23,7 @@ export function installFeatures({ editor, exitSource, isSource, sourceField, fil
  document.querySelectorAll('[data-close]').forEach(button => button.onclick = () => document.getElementById(button.dataset.close).close());
  let editImage = false, imageRange=null, linkRange=null;
  function imageDialog(edit = false) {
+  if (!editor.isEditable) return;
   imageRange=isSource()?{from:sourceField().selectionStart,to:sourceField().selectionEnd}:null;editImage=edit;
   const attrs = edit ? editor.getAttributes('image') : {};
   $('#image-url').value = attrs.src || ''; $('#image-alt').value = attrs.alt || '';
@@ -41,20 +42,25 @@ export function installFeatures({ editor, exitSource, isSource, sourceField, fil
   $('#image-dialog').close();
  };
  async function insertFiles(files) {
+  if (!editor.isEditable) return;
   for (const file of Array.from(files).slice(0, 20)) {
    if (file.size > 5*1024*1024) { showError('图片太大', '单张图片不能超过 5 MB'); continue; }
    const types = { png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',gif:'image/gif',webp:'image/webp',bmp:'image/bmp',avif:'image/avif',svg:'image/svg+xml' };
    const mime = types[file.name.split('.').pop().toLowerCase()] || file.type;
    if (!mime?.startsWith('image/')) continue;
    const src = await new Promise((resolve,reject) => { const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(new Blob([file],{type:mime})); });
+   if(!editor.isEditable)return;
    if(isSource())replaceSource(sourceField(),`\n![${file.name.replace(/[\\\[\]]/g,'\\$&')}](${src})\n`);else editor.chain().focus().setImage({src,alt:file.name.replace(/\.[^.]+$/,'')}).createParagraphNear().run();
   }
  }
  $('#image-input').onchange = async event => { try { await insertFiles(event.target.files); } catch(error) {showError('图片插入失败', error.message || error);} event.target.value=''; };
+ const editingTargets = '[data-action], [data-heading-level], [data-table-action], #code-insert, #inline-code, #table-insert, #image-insert, #link-edit, #bullet-insert, #ordered-insert, #task-insert, #quote-insert, #rule-insert, #highlight-text, #image-edit, #image-delete, #code-language, #context-cut, #context-paste, #context-undo, #context-redo, #context-style, #context-insert, #context-image-edit, #context-image-delete, #replace-one, #replace-all';
+ for (const type of ['click','mousedown','change']) document.addEventListener(type,event=>{if(!editor.isEditable&&event.target.closest(editingTargets)){event.preventDefault();event.stopImmediatePropagation();}},true);
  const editorElement = $('#editor');
  editorElement.addEventListener('drop', event => { if (event.dataTransfer?.files.length) {event.preventDefault();event.stopPropagation();const pos=editor.view.posAtCoords({left:event.clientX,top:event.clientY});if(pos)editor.commands.setTextSelection(pos.pos);insertFiles(event.dataTransfer.files).catch(error=>showError('图片插入失败',error.message));} }, true);
  editorElement.addEventListener('paste', event => { const files=Array.from(event.clipboardData?.files||[]).filter(file=>file.type.startsWith('image/'));if(files.length){event.preventDefault();event.stopPropagation();insertFiles(files).catch(error=>showError('图片插入失败',error.message));} }, true);
  function linkDialog() {
+  if (!editor.isEditable) return;
   linkRange=isSource()?{from:sourceField().selectionStart,to:sourceField().selectionEnd}:null;if(!linkRange&&editor.isActive('link'))editor.commands.extendMarkRange('link'); const selection=editor.state.selection;
   const attrs=linkRange?{}:editor.getAttributes('link');
   $('#link-text').value=(linkRange?sourceField().value.slice(linkRange.from,linkRange.to):editor.state.doc.textBetween(selection.from,selection.to,' ')) || '';
@@ -73,8 +79,8 @@ export function installFeatures({ editor, exitSource, isSource, sourceField, fil
  };
  $('#link-remove').onclick=()=>{editor.chain().focus().extendMarkRange('link').unsetLink().run();$('#link-dialog').close();};
  $('#link-open').onclick=async()=>{const url=$('#link-url').value.trim();if(!validLink(url))return;try{if(window.desktop?.openURL)await window.desktop.openURL(url);else window.open(url,'_blank','noopener,noreferrer');}catch(error){showError('无法打开链接',error.message||error);}};
- editorElement.addEventListener('click',event=>{if(event.target.closest('a')){event.preventDefault();linkDialog();}});
- function insertTable() { if(isSource()){insertSource(sourceField(),'table');return;}editor.chain().focus().insertTable({rows:3,cols:3,withHeaderRow:true}).run(); }
+ editorElement.addEventListener('click',event=>{const link=event.target.closest('a');if(link){event.preventDefault();if(editor.isEditable)linkDialog();else if(window.desktop?.openURL)window.desktop.openURL(link.href).catch(error=>showError('打开失败',error.message||error));else window.open(link.href,'_blank','noopener,noreferrer');}});
+ function insertTable() { if (!editor.isEditable) return; if(isSource()){insertSource(sourceField(),'table');return;}editor.chain().focus().insertTable({rows:3,cols:3,withHeaderRow:true}).run(); }
  $('#table-insert').onclick=insertTable;
  $('#highlight-text').onclick=()=>{if(isSource())insertSource(sourceField(),'highlight');else editor.chain().focus().toggleHighlight().run();};
  const tableActions={'add-row':'addRowAfter','add-column':'addColumnAfter','delete-row':'deleteRow','delete-column':'deleteColumn','toggle-header':'toggleHeaderRow','delete-table':'deleteTable'};
@@ -93,10 +99,10 @@ export function installFeatures({ editor, exitSource, isSource, sourceField, fil
    toast('代码已复制');
   }catch(error){showError('复制失败',error.message||error);}
  };
- sourceField().addEventListener('keydown',event=>{if(event.key==='Tab'&&!event.ctrlKey&&!event.metaKey&&!event.altKey&&!event.isComposing){event.preventDefault();indentSource(sourceField(),event.shiftKey);}});
+ sourceField().addEventListener('keydown',event=>{if(editor.isEditable&&event.key==='Tab'&&!event.ctrlKey&&!event.metaKey&&!event.altKey&&!event.isComposing){event.preventDefault();indentSource(sourceField(),event.shiftKey);}});
  function context() {
   const table=editor.isActive('table'),image=editor.isActive('image'),code=editor.isActive('codeBlock');
-  $('#context-tools').hidden=isSource()||!(table||image||code);$('#table-tools').hidden=!table;$('#image-tools').hidden=!image;$('#code-tools').hidden=!code;
+  $('#context-tools').hidden=!editor.isEditable||isSource()||!(table||image||code);$('#table-tools').hidden=!table;$('#image-tools').hidden=!image;$('#code-tools').hidden=!code;
   if(code){
     const language=editor.getAttributes('codeBlock').language || 'plaintext';
     const selected=languageName(language);
@@ -129,7 +135,7 @@ export function installFeatures({ editor, exitSource, isSource, sourceField, fil
  $('#find-prev').onclick=()=>goMatch(-1);$('#find-next').onclick=()=>goMatch(1);
  $('#find-input').onkeydown=event=>{if(event.key==='Enter'){event.preventDefault();goMatch(event.shiftKey?-1:1);}if(event.key==='Escape'){event.preventDefault();$('#find-close').click();}};
  $('#find-close').onclick=()=>{$('#search-bar').hidden=true;search.query='';editor.view.dispatch(editor.state.tr.setMeta('documentSearch',true));};
- function replace(all){refreshSearch();const list=matches();if(!list.length)return;if(all&&list.length===10000)return showError('匹配过多','请缩小查找范围后再替换。');const chosen=all?list:[list[search.active]];const value=$('#replace-input').value;
+ function replace(all){if(!editor.isEditable)return;refreshSearch();const list=matches();if(!list.length)return;if(all&&list.length===10000)return showError('匹配过多','请缩小查找范围后再替换。');const chosen=all?list:[list[search.active]];const value=$('#replace-input').value;
   if(isSource()){let text=sourceField().value;for(const m of [...chosen].reverse())text=text.slice(0,m.from)+value+text.slice(m.to);sourceField().value=text;sourceField().dispatchEvent(new Event('input',{bubbles:true}));}
   else {let tr=editor.state.tr;for(const m of [...chosen].reverse())tr=tr.insertText(value,m.from,m.to);editor.view.dispatch(tr);}refreshSearch();}
  $('#replace-one').onclick=()=>replace(false);$('#replace-all').onclick=()=>replace(true);

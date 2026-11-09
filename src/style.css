@@ -432,3 +432,13 @@ body[data-theme="slate"] { --paper:#f3f6fa; --bg:#f3f6fa; --side:#e7edf4; --bord
 .corner-tools { right:max(14px,env(safe-area-inset-right)); bottom:max(14px,env(safe-area-inset-bottom)); }
 @media(max-width:800px) { #save-state { display:none; } #document-tabs { max-width:calc(100% - 185px); } }
 @media print { #app { position:static; } #document-tabs,#new-tab { display:none!important; } }
+
+/* Reading and editing share one viewport; reading never exposes input hints. */
+.mode-toggle { width:auto!important; display:flex!important; align-items:center; gap:6px; padding:0 9px!important; font-size:11px; line-height:1!important; }
+.mode-toggle svg { width:16px!important; height:16px!important; }
+.is-reading .toolbar,.is-reading #context-tools,.is-reading #search-bar .search-row:nth-child(2) { display:none!important; }
+.is-reading .tiptap { caret-color:transparent; }
+.is-reading .tiptap .is-empty::before { content:none; }
+.is-reading .column-resize-handle { display:none; }
+.is-reading .tiptap input[type=checkbox] { cursor:default; }
+@media print { .mode-toggle {display:none!important;} }

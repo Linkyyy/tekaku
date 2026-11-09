@@ -1,0 +1,37 @@
+{
+  "date": "2026-11-09T15:02:59.178Z",
+  "source": "local static site; live Vercel deployment not verified",
+  "views": [
+    {
+      "width": 1440,
+      "downloads": 2,
+      "androidDownloads": 2,
+      "fiveDesktopSkins": true,
+      "androidReadingAndDrawer": true,
+      "inner": 1440,
+      "scroll": 1440,
+      "failedImages": []
+    },
+    {
+      "width": 768,
+      "downloads": 2,
+      "androidDownloads": 2,
+      "fiveDesktopSkins": true,
+      "androidReadingAndDrawer": true,
+      "inner": 768,
+      "scroll": 768,
+      "failedImages": []
+    },
+    {
+      "width": 390,
+      "downloads": 2,
+      "androidDownloads": 2,
+      "fiveDesktopSkins": true,
+      "androidReadingAndDrawer": true,
+      "inner": 390,
+      "scroll": 390,
+      "failedImages": []
+    }
+  ],
+  "errors": []
+}

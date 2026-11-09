@@ -2,11 +2,24 @@
 
 一个简洁、离线优先的 Markdown 编辑器，提供 Windows 桌面版和 Android 手机版。Typora 风格的安静界面，Notion 风格的内容块输入，在同一区域编辑与呈现。
 
-[下载 Windows 0.11.1](https://github.com/Linkyyy/tekaku/raw/refs/heads/downloads/windows-v0.11.1/Tekaku-0.11.1-windows-x64.zip) · [下载 Android 0.1.0 APK](https://github.com/Linkyyy/tekaku/raw/refs/heads/downloads/android-v0.1.0/Tekaku-0.1.0-android.apk) · [官网源码](https://github.com/Linkyyy/tekaku/tree/gh-pages)
+[下载 Windows 0.12.0](https://github.com/Linkyyy/tekaku/raw/refs/heads/downloads/windows-v0.12.0/Tekaku-0.12.0-windows-x64.zip) · [下载 Android 0.2.0 APK](https://github.com/Linkyyy/tekaku/raw/refs/heads/downloads/android-v0.2.0/Tekaku-0.2.0-android.apk) · [官网源码](https://github.com/Linkyyy/tekaku/tree/gh-pages)
 
-> **安全核查未结束：** 下载入口已恢复，但此前“检测到病毒”的报告仍缺少威胁名称及涉事版本。0.11.1 是功能修复，不能据此认定安全拦截已解决；EXE 仍未签名。若被拦截，请保留防护，不要加白名单。[核查记录](docs/SECURITY-ALERT-0.10.md)。
+> **安全核查未结束：** 下载入口已恢复，但此前“检测到病毒”的报告仍缺少威胁名称及涉事版本。0.12.0 是功能更新，不能据此认定安全拦截已解决；EXE 仍未签名。若被拦截，请保留防护，不要加白名单。[核查记录](docs/SECURITY-ALERT-0.10.md)。
 
 ![编辑器](docs/editor.png)
+
+## Windows 0.12 / Android 0.2：先读，再编辑
+
+- 两端打开、拖入、接收分享或恢复已有文档时，默认进入阅读模式。PC 点击右下角“编辑”，手机点击顶部“编辑”开始修改；再点“阅读”收起编辑工具。新建空白文档直接进入编辑模式。
+- 阅读时可选中文字、复制和查看源码，PC 仍可查找，不能直接输入、修改待办或使用格式/插入操作；源码同样只读。未修改的已打开文件在阅读模式下点击保存不会重写原文件。
+- “开始写点什么…”仅在编辑时当前空段落出现一次，不在每个空行重复；阅读时不显示占位提示，提示文字不写入 Markdown。
+- 手机左上角打开文档抽屉：新建、打开多个文件、切换或关闭标签。各文档保留自己的内容、修改状态、阅读/编辑模式、源码视图、撤销和滚动位置；关闭未保存标签会询问保存。
+- Android 每份文档使用独立的原生文件标识，保存/另存为绑定对应文件。退出时检查全部未保存标签，本机草稿恢复全部标签并默认阅读；兼容 0.1 单文档草稿迁移。
+- 仍共用一个编辑器视图，不为每个标签创建新的 WebView。Android APK 约 240 KB，沿用原签名，可覆盖升级；下载大小不代表运行内存。
+
+![Android 文档抽屉](docs/mobile-drawer.png)
+
+[更新说明](docs/RELEASE-NOTES-0.12.md) · [检查记录与验证边界](docs/RELEASE-CHECK-0.12.md) · [Android 使用说明](docs/ANDROID.md)
 
 ## 0.11.1：外部文件复用同一窗口
 
@@ -124,7 +137,8 @@ Android 仍为 0.1.0，本次不修改 APK。
 下载便携 ZIP 并完整解压，保留 `Tekaku.exe` 和 `WebView2Loader.dll` 在同一目录，双击 EXE 运行。无需安装 Go、Node.js 或 .NET。支持 **Windows 10/11 x64**，依赖系统的 [Microsoft Edge WebView2 Evergreen Runtime](https://developer.microsoft.com/microsoft-edge/webview2/)（Windows 11 通常已自带）。应用不打包 Chromium，也不启动 Node.js 或本地 HTTP 服务。
 
 - `Ctrl+O` 打开本地文件；`Ctrl+S` 保存；`Ctrl+Shift+S` 另存为。
-- `Ctrl+N` 新建；关闭窗口、打开其他文件或新建前会提示保存、不保存或取消。
+- `Ctrl+N` 新建标签；打开其他文件或新建时保留当前标签，关闭标签或退出程序时检查未保存修改。
+- 打开已有文档默认阅读；点击右下角“编辑”开始修改，再点“阅读”切回。源码视图遵循同一模式；新建标签直接编辑。
 - 可把 `.md` 文件拖到 **Tekaku.exe 图标**，或在 Windows“打开方式”中选择它。
 - `# `、`## `、`- `、`1. `、`> `、`[] `、三个反引号加空格自动转换对应内容块。
 - 空段落输入 `/`，用方向键和回车选择内容块。
@@ -187,7 +201,7 @@ npm test
 npm run test:native
 ```
 
-已有 Chromium 可用 `TEKAKU_CHROMIUM=/usr/bin/chromium npm test`。55 项桌面界面测试覆盖极简首页、标题占位符、实时编辑、Markdown 转换、导入导出、草稿、源码查看、皮肤和设置持久化、嵌入页面、无 localStorage 桥接、窗口控制协议、自定义保存/关闭弹窗、侧栏文件菜单、右侧大纲、右下角源码、右键编辑/插入、纯文本剪贴板、文件关联协议、分组快捷键、Markdown 示例对照、固定标题与独立滚动、源码视口尺寸与图标对齐、面板切换、动画开关和多 DPI 页面边界、图文表格、搜索替换、HTML/打印输出和写入错误，以及完整标题层级、代码围栏、语言别名、缩进撤销、代码复制换行和列表层级。12 项 Go 测试覆盖 UTF-8/BOM、大文件保护、临时文件清理、覆盖保存和草稿设置读写、图片提取去重、相对图解析、另存为复制、代码示例保留、路径边界与文件关联注册计划。Windows GUI、任务栏/资源管理器图标、真实注册表关联、多显示器全屏/DPI、常规 DLL 加载和 Win32 对话框需在实机复核；浏览器桥接测试使用模拟原生接口，不代替实机测试。当前还验证了滚动条位于大纲右侧并控制两种视图、隐藏滚动条后仍可滚动、全屏悬浮按钮命中、面板动画的中间宽度，以及真实鼠标操作触发八向缩放协议。Go 测试增加了系统缩放方向、负屏幕坐标与 DPI / 全屏最小尺寸约束。
+已有 Chromium 可用 `TEKAKU_CHROMIUM=/usr/bin/chromium npm test`。75 项桌面界面测试覆盖极简首页、标题占位符、实时编辑、Markdown 转换、导入导出、草稿、源码查看、皮肤和设置持久化、嵌入页面、无 localStorage 桥接、窗口控制协议、自定义保存/关闭弹窗、侧栏文件菜单、右侧大纲、右下角源码、右键编辑/插入、纯文本剪贴板、文件关联协议、分组快捷键、Markdown 示例对照、固定标题与独立滚动、源码视口尺寸与图标对齐、面板切换、动画开关和多 DPI 页面边界、图文表格、搜索替换、HTML/打印输出和写入错误，以及完整标题层级、代码围栏、语言别名、缩进撤销、代码复制换行和列表层级。18 项 Go 测试覆盖 UTF-8/BOM、大文件保护、临时文件清理、覆盖保存和草稿设置读写、图片提取去重、相对图解析、另存为复制、代码示例保留、路径边界与文件关联注册计划。Windows GUI、任务栏/资源管理器图标、真实注册表关联、多显示器全屏/DPI、常规 DLL 加载和 Win32 对话框需在实机复核；浏览器桥接测试使用模拟原生接口，不代替实机测试。当前还验证了滚动条位于大纲右侧并控制两种视图、隐藏滚动条后仍可滚动、全屏悬浮按钮命中、面板动画的中间宽度，以及真实鼠标操作触发八向缩放协议。Go 测试增加了系统缩放方向、负屏幕坐标与 DPI / 全屏最小尺寸约束。
 
 ## 支持范围
 

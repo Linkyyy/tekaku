@@ -1,3 +1,4 @@
+import {edit} from './editing-helper.js';
 import { test, expect } from '@playwright/test';
 const source = page => page.keyboard.press('Control+Shift+M');
 async function newDoc(page) { await page.keyboard.press('Control+n'); }
@@ -44,7 +45,7 @@ test('opens Markdown, updates checkboxes and exports the edited document', async
   await page.locator('#file-input').setInputFiles({ name: 'sample.md', mimeType: 'text/markdown', buffer: Buffer.from('# Imported\n\nSome **bold** text.\n\n- [ ] Task\n\n```js\nconsole.log(1)\n```') });
   await expect(page.locator('#filename')).toHaveText('sample.md');
   await expect(page.locator('.tiptap pre code')).toContainText('console.log(1)');
-  await page.locator('.tiptap input[type=checkbox]').check();
+  await edit(page); await page.locator('.tiptap input[type=checkbox]').check();
   const downloadPromise = page.waitForEvent('download'); await page.keyboard.press('Control+s');
   const download = await downloadPromise; expect(download.suggestedFilename()).toBe('sample.md');
   const stream = await download.createReadStream(); const chunks = []; for await (const chunk of stream) chunks.push(chunk);

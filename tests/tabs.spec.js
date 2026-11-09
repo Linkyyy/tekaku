@@ -1,12 +1,13 @@
+import {edit} from './editing-helper.js';
 import {test,expect} from '@playwright/test';
 async function files(page,docs){await page.locator('#file-input').setInputFiles(docs.map(([name,content])=>({name,mimeType:'text/markdown',buffer:Buffer.from(content)})));}
-async function source(page){if(await page.locator('#source').getAttribute('aria-pressed')!=='true')await page.locator('#source').click();}
+async function source(page){await edit(page);if(await page.locator('#source').getAttribute('aria-pressed')!=='true')await page.locator('#source').click();}
 const long = title => `# ${title}\n\n`+Array.from({length:70},(_,n)=>`## Section ${n}\n\nLong paragraph ${n}`).join('\n\n');
 
 test('tabs preserve rich undo, selection and independent scroll without prompting on new/open',async({page})=>{
  await page.goto('/');await files(page,[['first.md',long('First')],['second.md',long('Second')]]);
  await expect(page.locator('.tab-select')).toHaveCount(2);
- await page.locator('.tab-select').first().click();await page.locator('.tiptap h1').click();await page.keyboard.press('End');await page.keyboard.type(' edited');
+ await page.locator('.tab-select').first().click();await edit(page);await page.locator('.tiptap h1').click();await page.keyboard.press('End');await page.keyboard.type(' edited');
  await page.locator('.page-scroll').evaluate(el=>{el.scrollTop=850;});
  await page.locator('.tab-select').last().click();await expect(page.locator('.tiptap h1')).toHaveText('Second');
  await page.locator('.tab-select').first().click();await expect(page.locator('.tiptap h1')).toHaveText('First edited');

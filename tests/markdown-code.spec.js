@@ -1,9 +1,11 @@
+import {edit} from './editing-helper.js';
 import { test, expect } from '@playwright/test';
 
 const source = page => page.keyboard.press('Control+Shift+M');
 async function open(page, content) {
   await page.goto('/');
   await page.locator('#file-input').setInputFiles({ name:'code.md', mimeType:'text/markdown', buffer:Buffer.from(content) });
+  await edit(page);
 }
 
 test('mainstream Markdown structures retain their meaning after rich editing and export', async ({page}) => {
