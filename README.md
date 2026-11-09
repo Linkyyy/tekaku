@@ -16,3 +16,5 @@ ZIP SHA-256：`1e5e7b9392a2e5476ca63580e261598be7dc81d2b88587966ea2eddf1e6bbdf4`
 [本版检查](RELEASE-CHECK.md) · [更新说明](RELEASE-NOTES-0.12.md) · [安全状态](SECURITY-CHECK.md) · [最终扫描原始日志](checks/clamav-release.txt)
 
 [对应源码快照](https://github.com/Linkyyy/tekaku/tree/1a0fb1bf0203cce77f0795848a7cb7b69d20d026)
+
+[公开下载复核](PUBLIC-DOWNLOAD-VERIFICATION.json)（文件哈希、ZIP 完整性、APK 签名与官网发布源码；Vercel 线上状态未确认）。
