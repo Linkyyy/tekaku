@@ -1,0 +1,10 @@
+{
+  "applicationId": "com.tekaku.mobile",
+  "previousVersion": "0.1.0",
+  "newVersion": "0.2.0",
+  "previousVersionCode": 1,
+  "newVersionCode": 2,
+  "sameSigner": true,
+  "certificateSha256": "6515f68158791ac3ff8bbe181174e817facf4eb41a22d96b8832fc8985489ba3",
+  "verification": "apksigner v2/v3, aapt2 package manifest; no device installation test"
+}

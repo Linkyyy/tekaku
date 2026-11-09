@@ -1,0 +1,5 @@
+{
+  "desktop": "1280x840 browser frontend with simulated native bridge",
+  "mobile": "393x851 browser frontend with simulated Android bridge",
+  "errors": []
+}
