@@ -1,0 +1,9 @@
+File: /var/lib/clamav/daily.cvd
+Build time: 25 Oct 2026 06:24 +0000
+Version: 28164
+Signatures: 355788
+Functionality level: 90
+Builder: svc.clamav-publisher
+MD5: c80bc7dd272862181af0181b0f0f4423
+Digital signature: AvT9Ii8ZHAeWXyfQKxr01AB567vsNRkjdOCMOox9e2NAj79xv5R+LgIiZSznm7yDUJtbOf7cr0dQTSCpDkH22Xko7Y4tF4yCL9vWEjXW+V1a2A7YCfsCsx3WzXspV7WXCKEry2dwHI7L/PImovHAsM3QGwxxsdZz+zVGhiAEpoc
+Verification OK.
