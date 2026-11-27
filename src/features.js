@@ -112,13 +112,65 @@ export function installFeatures({ editor, exitSource, isSource, sourceField, fil
   }
  }
  editor.on('selectionUpdate',context); editor.on('transaction',context);
+ const outlineList = $('#outline');
+ const documentView = $('#document-view');
  let outlineTimer;
+
+ function outlineHeadings(doc) {
+  const headings = [];
+  doc.descendants((node, pos) => {
+   if (node.type.name !== 'heading') return;
+   const text = node.textContent;
+   if (text.trim()) headings.push({ node, pos, text });
+  });
+  return headings;
+ }
+
+ function jumpToHeading(heading, headings, fromSource) {
+  const matchParsedHeading = fromSource || isSource();
+  exitSource();
+  const doc = editor.state.doc;
+  let target = heading;
+  if (heading.pos >= doc.content.size || doc.nodeAt(heading.pos) !== heading.node) {
+   const currentHeadings = outlineHeadings(doc);
+   target = currentHeadings.find(entry => entry.node === heading.node);
+   if (!target && matchParsedHeading) {
+    // Parsing source recreates the nodes. Keep the occurrence of a repeated title.
+    const sameHeading = entry => entry.node.attrs.level === heading.node.attrs.level && entry.text === heading.text;
+    const occurrence = headings.filter(sameHeading).indexOf(heading);
+    target = currentHeadings.filter(sameHeading)[occurrence];
+   }
+  }
+  if (!target) return;
+
+  const element = editor.view.nodeDOM(target.pos);
+  if (!(element instanceof HTMLElement)) return;
+  if (editor.isEditable) {
+   editor.commands.setTextSelection(target.pos + 1);
+   editor.view.focus();
+  }
+  // Reading mode has no editable caret for ProseMirror to scroll into view.
+  documentView.scrollTop += element.getBoundingClientRect().top - documentView.getBoundingClientRect().top - 24;
+ }
+
  function outline() {
-  const headings=[];let outlineDoc=editor.state.doc;
-  if(isSource()){try{outlineDoc=editor.schema.nodeFromJSON(editor.markdown.parse(sourceField().value));}catch{}}
-  outlineDoc.descendants((node,pos)=>{if(node.type.name==='heading'&&node.textContent.trim())headings.push({text:node.textContent,level:node.attrs.level,pos});});
-  $('#outline').replaceChildren();
-  for(const heading of headings){const button=document.createElement('button');button.textContent=heading.text;button.style.paddingLeft=`${12+(heading.level-1)*10}px`;button.dataset.pos=heading.pos;button.title=heading.text;button.onclick=()=>{exitSource();editor.chain().focus().setTextSelection(heading.pos+1).scrollIntoView().run();};$('#outline').append(button);}
+  const fromSource = isSource();
+  let doc = editor.state.doc;
+  if (fromSource) {
+   try { doc = editor.schema.nodeFromJSON(editor.markdown.parse(sourceField().value)); } catch {}
+  }
+  const headings = outlineHeadings(doc);
+  const buttons = document.createDocumentFragment();
+  for (const heading of headings) {
+   const button = document.createElement('button');
+   button.type = 'button';
+   button.textContent = heading.text;
+   button.title = heading.text;
+   button.style.paddingLeft = `${12 + (heading.node.attrs.level - 1) * 10}px`;
+   button.onclick = () => jumpToHeading(heading, headings, fromSource);
+   buttons.append(button);
+  }
+  outlineList.replaceChildren(buttons);
  }
  const search=editor.storage.documentSearch;
  function matches() {return isSource()?literalMatches(sourceField().value,search.query,search.sensitive):search.matches;}

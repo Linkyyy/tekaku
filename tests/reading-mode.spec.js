@@ -10,6 +10,55 @@ test('opened documents are read-only including task checkboxes, keymaps, undo an
  await page.locator('#source').click();await expect(page.locator('#source-editor')).toHaveJSProperty('readOnly',true);
  const raw=await page.locator('#source-editor').inputValue();await page.locator('#source-editor').focus();await page.keyboard.press('Tab');await page.keyboard.type('blocked');expect(await page.locator('#source-editor').inputValue()).toBe(raw);
 });
+
+test('the outline jumps to each repeated heading in reading mode without editing the document', async ({ page }) => {
+  const paragraphs = '正文段落。\n\n'.repeat(28);
+  await open(page, `# 大纲测试\n\n${paragraphs}## 同名章节\n\n${paragraphs}## 同名章节\n\n${paragraphs}`);
+  const entries = page.locator('#outline').getByRole('button', { name: '同名章节', exact: true });
+  const headings = page.locator('.tiptap').getByRole('heading', { name: '同名章节', exact: true });
+  await expect(entries).toHaveCount(2);
+
+  await entries.nth(1).click();
+  await expect.poll(() => headings.nth(1).evaluate(el =>
+    el.getBoundingClientRect().top - el.closest('.page-scroll').getBoundingClientRect().top
+  )).toBeCloseTo(24, 0);
+  await expect.poll(() => page.evaluate(() =>
+    Math.abs(document.querySelector('.page-scroll').scrollTop - document.querySelector('#document-scrollbar').scrollTop)
+  )).toBeLessThanOrEqual(1);
+
+  await entries.nth(0).press('Enter');
+  await expect.poll(() => headings.nth(0).evaluate(el =>
+    el.getBoundingClientRect().top - el.closest('.page-scroll').getBoundingClientRect().top
+  )).toBeCloseTo(24, 0);
+  await expect(page.locator('.tiptap')).toHaveAttribute('contenteditable', 'false');
+  await expect(page.locator('#save-state')).toHaveText('已保存');
+});
+
+test('an outline jump immediately after a source edit resolves the updated heading position', async ({ page }) => {
+  const paragraphs = 'Some paragraph text.\n\n'.repeat(28);
+  const extra = paragraphs.repeat(2);
+  await open(page, `# Guide\n\n${extra}${paragraphs}## Jump here\n\n${paragraphs}`);
+  await page.locator('#toggle-editing').click();
+  await page.locator('#source').click();
+  await expect(page.locator('#source-editor')).toBeVisible();
+  const entry = page.locator('#outline').getByRole('button', { name: 'Jump here', exact: true });
+  await entry.evaluate((button, removed) => {
+    const field = document.querySelector('#source-editor');
+    field.value = field.value.replace(removed, '');
+    field.dispatchEvent(new Event('input', { bubbles: true }));
+    button.click();
+  }, extra);
+
+  await expect(page.locator('#source-editor')).toBeHidden();
+  await expect(page.locator('.tiptap > p').filter({ hasText: 'Some paragraph text.' })).toHaveCount(56);
+  const target = page.getByRole('heading', { name: 'Jump here', exact: true });
+  await expect.poll(() => target.evaluate(el =>
+    el.getBoundingClientRect().top - el.closest('.page-scroll').getBoundingClientRect().top
+  )).toBeCloseTo(24, 0);
+  expect(await page.locator('.tiptap').evaluate(el => el.editor.state.selection.$from.parent.textContent)).toBe('Jump here');
+  await expect(page.locator('#save-state')).toHaveText('未保存');
+});
+
 test('editing is explicit, reading preserves unsaved changes and toggling does not change the viewport',async({page})=>{
  await open(page);const box=await page.locator('.editor-surface').boundingBox();await page.locator('#toggle-editing').click();await expect(page.locator('.tiptap')).toHaveAttribute('contenteditable','true');await page.locator('.tiptap input[type=checkbox]').check();
  await expect(page.locator('#save-state')).toHaveText('未保存');await page.locator('#toggle-editing').click();await expect(page.locator('.tiptap')).toHaveAttribute('contenteditable','false');await expect(page.locator('.tiptap input[type=checkbox]')).toBeChecked();await expect(page.locator('#save-state')).toHaveText('未保存');expect(await page.locator('.editor-surface').boundingBox()).toEqual(box);

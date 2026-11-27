@@ -106,7 +106,7 @@
         <article><svg aria-hidden="true" class="icon"><use href="#i-image"/></svg><h3>图片，轻松放进来</h3><p>选择、拖入或粘贴。保存时自动整理本地附件，另存为也能带走图片。</p></article>
         <article><svg aria-hidden="true" class="icon"><use href="#i-table"/></svg><h3>表格，让信息有序</h3><p>增删行列、切换表头，用清楚的结构整理计划与项目进度。</p></article>
         <article><svg aria-hidden="true" class="icon"><use href="#i-code"/></svg><h3>代码，也清晰好读</h3><p>26 项代码语言选项，支持整行缩进、复制、自动换行与源码编辑。</p></article>
-        <article><svg aria-hidden="true" class="icon"><use href="#i-search"/></svg><h3>找到，再改好</h3><p>全文查找替换与右侧独立大纲，长文档也能快速定位。</p></article>
+        <article><svg aria-hidden="true" class="icon"><use href="#i-search"/></svg><h3>点击大纲，跳到对应章节</h3><p>Windows 版在右侧列出文档标题。点击标题可定位到正文，也可以用全文查找替换。</p></article>
         <article><svg aria-hidden="true" class="icon"><use href="#i-export"/></svg><h3>换一种方式分享</h3><p>保存 Markdown，导出 HTML，或通过系统打印窗口保存为 PDF。</p></article>
         <article><svg aria-hidden="true" class="icon"><use href="#i-lock"/></svg><h3>离线，也安心</h3><p>无需登录即可编辑，草稿在本机恢复。手书不会上传你的文档。</p></article>
       </div>
@@ -150,6 +150,7 @@
       <div class="faq-heading"><p class="eyebrow"><span></span> GOOD TO KNOW</p><h2 id="faq-title">还有一些，<br>你可能想知道。</h2><a class="text-link" href="https://github.com/Linkyyy/tekaku/issues" target="_blank" rel="noopener noreferrer">反馈问题 <span aria-hidden="true">↗</span></a></div>
       <div class="faq-list">
         <details><summary>支持哪些系统？需要安装吗？<svg aria-hidden="true" class="icon"><use href="#i-plus"/></svg></summary><div class="faq-answer"><p>目前提供 Windows 10 / 11 x64 便携版和 Android 8.0+ APK。Windows 版完整解压后运行 Tekaku.exe，保留同目录的 WebView2Loader.dll。需要系统的 <a href="https://developer.microsoft.com/microsoft-edge/webview2/" target="_blank" rel="noopener noreferrer">Microsoft Edge WebView2 Runtime</a>，Windows 11 通常已自带。无需安装 Go、Node.js 或 .NET。Android 版需要较新的系统 WebView；暂不提供 iPhone、macOS 和 Linux 版本。</p></div></details>
+        <details><summary>怎样用大纲跳到对应章节？<svg aria-hidden="true" class="icon"><use href="#i-plus"/></svg></summary><div class="faq-answer"><p>点击 Windows 编辑器右下角的大纲按钮，再点击右侧列表中的标题。阅读模式的跳转已在开发版修复，当前提供下载的是 Windows v0.12.0。</p></div></details>
         <details><summary>1.9 MB 是运行内存吗？<svg aria-hidden="true" class="icon"><use href="#i-plus"/></svg></summary><div class="faq-answer"><p>1.9 MB 是便携 ZIP 下载包的大小，程序本体约 4.5 MB，另附约 135 KB 的 SDK 加载器 DLL。手书使用系统 WebView2，不随包附带完整浏览器。运行内存会随文档大小和 WebView2 版本变化，需要合计程序及 WebView2 子进程；目前没有提供 Windows 实机内存测量值。</p></div></details>
         <details><summary>文件和图片保存在哪里？<svg aria-hidden="true" class="icon"><use href="#i-plus"/></svg></summary><div class="faq-answer"><p>Windows 的 Markdown 文件保存在你选择的位置，新插入图片在保存时写入同目录的「文档名.assets」文件夹。移动或分享文档时，请一起带上这个文件夹。Windows 草稿和设置保存在 %APPDATA%\Tekaku。Android 图片内嵌于 Markdown，草稿位于应用私有目录。草稿不能代替保存原文件。</p></div></details>
         <details><summary>可以完全离线使用吗？<svg aria-hidden="true" class="icon"><use href="#i-plus"/></svg></summary><div class="faq-answer"><p>安装好系统 WebView2 后，编辑、保存、本地图片和 HTML 导出均可离线使用，无需登录。手书不会上传文档。插入网络图片或主动打开网页链接时，会访问对应的网络地址。</p></div></details>
