@@ -5,6 +5,7 @@ import {documentPlaceholder, installReadOnlyGuard} from './reading-mode';
 import TaskList from '@tiptap/extension-task-list';
 import TaskItem from '@tiptap/extension-task-item';
 import { Markdown } from '@tiptap/markdown';
+import { version } from '../package.json';
 import './style.css';
 import { extraExtensions, resetImageCache } from './editor-extensions';
 import { installFeatures } from './features';
@@ -112,7 +113,7 @@ ${shortcutGuide()}
     <label class="setting-row"><span>启动时收起侧栏</span><span class="switch"><input id="startup-sidebar" type="checkbox"><span></span></span></label>
   </section>
   <section class="settings-section"><h3>文件关联</h3><p id="association-status">Windows 桌面版可加入 Markdown 的打开方式。</p><div class="association-actions"><button id="register-association" class="primary-button">添加到打开方式</button><button id="remove-association">移除关联</button></div><p>仅设置当前用户的 .md / .markdown 打开方式；默认程序由你在 Windows 中选择。</p></section>
-  </div><div class="settings-footer"><button id="reset-settings">恢复默认设置</button><span>手书 0.12.0 · 自动保存</span></div>
+  </div><div class="settings-footer"><button id="reset-settings">恢复默认设置</button><span>手书 ${version} · 自动保存</span></div>
 </dialog>
 <dialog id="confirm-dialog" class="message-dialog" aria-labelledby="confirm-title"><h2 id="confirm-title">保存修改？</h2><p id="confirm-message"></p><div class="dialog-actions"><button id="confirm-cancel">取消</button><button id="confirm-discard">不保存</button><button id="confirm-save" class="primary-button">保存</button></div></dialog>
 <dialog id="error-dialog" class="message-dialog" aria-labelledby="error-title"><h2 id="error-title">操作失败</h2><p id="error-message"></p><div class="dialog-actions"><button id="error-close" class="primary-button">知道了</button></div></dialog>

@@ -2,11 +2,17 @@
 
 一个简洁、离线优先的 Markdown 编辑器，提供 Windows 桌面版和 Android 手机版。Typora 风格的安静界面，Notion 风格的内容块输入，在同一区域编辑与呈现。
 
-[下载 Windows 0.12.0](https://github.com/Linkyyy/tekaku/raw/refs/heads/downloads/windows-v0.12.0/Tekaku-0.12.0-windows-x64.zip) · [下载 Android 0.2.0 APK](https://github.com/Linkyyy/tekaku/raw/refs/heads/downloads/android-v0.2.0/Tekaku-0.2.0-android.apk) · [官网源码](https://github.com/Linkyyy/tekaku/tree/gh-pages)
+[下载 Windows 0.12.1](https://github.com/Linkyyy/tekaku/raw/refs/heads/downloads/windows-v0.12.1/Tekaku-0.12.1-windows-x64.zip) · [下载 Android 0.2.0 APK](https://github.com/Linkyyy/tekaku/raw/refs/heads/downloads/android-v0.2.0/Tekaku-0.2.0-android.apk) · [官网源码](https://github.com/Linkyyy/tekaku/tree/gh-pages)
 
-> **安全核查未结束：** 下载入口已恢复，但此前“检测到病毒”的报告仍缺少威胁名称及涉事版本。0.12.0 是功能更新，不能据此认定安全拦截已解决；EXE 仍未签名。若被拦截，请保留防护，不要加白名单。[核查记录](docs/SECURITY-ALERT-0.10.md)。
+> **安全核查未结束。** 此前“检测到病毒”的报告仍缺少威胁名称及涉事版本。0.12.1 修复大纲跳转，EXE 仍未签名。若被拦截，请保留防护，不要加白名单。[核查记录](docs/SECURITY-ALERT-0.10.md)。
 
 ![编辑器](docs/editor.png)
+
+## Windows 0.12.1 大纲跳转
+
+阅读或编辑时点击右侧大纲标题，即可跳到正文对应章节。同名标题可分别定位。从源码视图点击标题会返回正文并定位。
+
+[更新说明](docs/RELEASE-NOTES-0.12.1.md) · [便携包与校验值](https://github.com/Linkyyy/tekaku/tree/downloads/windows-v0.12.1)
 
 ## Windows 0.12 / Android 0.2：先读，再编辑
 
